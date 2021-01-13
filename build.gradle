@@ -1,0 +1,146 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'net.minecrell.licenser' version '0.4'
+    id "net.covers1624.signing" version '1.0.0.2'
+}
+
+group 'net.covers1624'
+archivesBaseName = "Quack"
+version '0.1.0'
+
+targetCompatibility = "1.8"
+sourceCompatibility = "1.8"
+
+def signProps = [:]
+if (System.getenv("KEY_STORE")) {
+    println "Using Env variables for jar signing."
+    signProps['keyStore'] = System.getenv("KEY_STORE")
+    file(System.getenv("KEY_STORE_PROPS")).withReader {
+        def props = new Properties()
+        props.load(it)
+        signProps.putAll(props)
+    }
+} else if (project.hasProperty('keyStore')) {
+    println "Using Project properties for jar signing."
+    signProps['keyStore'] = project.getProperty('keyStore')
+    signProps['storePass'] = project.getProperty('keyStorePass')
+    signProps['alias'] = project.getProperty('keyStoreAlias')
+    signProps['keyPass'] = project.getProperty('keyStoreKeyPass')
+} else {
+    println 'No signing secrets found, build will not be signed.'
+}
+
+version = "$version." + (System.getenv("BUILD_NUMBER") ?: "1")
+println "Starting build of ${archivesBaseName}, Version: ${version}"
+
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+    maven { url 'https://maven.covers1624.net/' }
+}
+
+dependencies {
+
+    implementation 'org.apache.logging.log4j:log4j-api:2.11.1'
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.7'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.guava:guava:26.0-jre'
+    implementation 'net.covers1624:TailConsole:1.0.0.1'
+
+    compileOnly 'org.jetbrains:annotations:16.0.2'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+test {
+    useJUnitPlatform()
+}
+
+//signing {
+//    if (!signProps.isEmpty()) {
+//        jars {
+//            sign jar
+//
+//            keyStore = signProps.keyStore
+//            alias = signProps.alias
+//            storePass = signProps.storePass
+//            keyPass = signProps.keyPass
+//        }
+//    }
+//}
+
+jar {
+    from file("LICENSE.txt")
+}
+
+task srcJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+    from file("LICENSE.txt")
+}
+
+license {
+    header = file("LICENSE.txt")
+
+    include 'net/covers1624/quack/**'
+    exclude 'net/covers1624/quack/sort/CyclePresentException.java'
+    exclude 'net/covers1624/quack/sort/StronglyConnectedComponentDetector.java'
+    exclude 'net/covers1624/quack/sort/TopologicalSort.java'
+}
+
+publishing {
+    repositories {
+        if (System.getenv('MAVEN_PASS')) {
+            maven {
+                url "https://maven-upload.covers1624.net/"
+                credentials {
+                    username 'covers1624'
+                    password System.getenv('MAVEN_PASS')
+                }
+            }
+        }
+    }
+    publications {
+        DiffPatch(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            //Don't publish a Component, as we don't want to export our dependencies.
+            artifact srcJar
+            artifact jar
+
+            pom {
+                name = archivesBaseName
+                description = archivesBaseName
+                //The publish plugin doesnt like GString's here apparently..
+                url = "https://github.com/covers1624/${archivesBaseName}".toString()
+                scm {
+                    url = "https://github.com/covers1624/${archivesBaseName}".toString()
+                    connection = "scm:git:git://github.com/covers1624/${archivesBaseName}.git".toString()
+                    connection = "scm:git:git@github.com:covers1624/${archivesBaseName}.git".toString()
+                }
+
+                issueManagement {
+                    system = 'github'
+                    url = "https://github.com/covers1624/${archivesBaseName}/issues".toString()
+                }
+                licenses {
+                    license {
+                        name = "MIT"
+                        url = "https://raw.githubusercontent.com/covers1624/${archivesBaseName}/master/LICENSE.txt".toString()
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'covers1624'
+                        name = 'covers1624'
+                    }
+                }
+            }
+        }
+    }
+}
