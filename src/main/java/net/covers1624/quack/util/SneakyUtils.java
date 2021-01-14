@@ -24,17 +24,73 @@
 
 package net.covers1624.quack.util;
 
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * Contains some utilities for ignoring compiler warnings in specific cases, or
- * completely ignoring exceptions.
+ * completely ignoring exceptions, Plus other random lambda based utilities.
  * <p>
  * Created by covers1624 on 13/1/21.
  */
 public class SneakyUtils {
+
+    private static final Runnable NULL_RUNNABLE = () -> {};
+    private static final Callable<Object> NULL_CALLABLE = () -> null;
+    private static final Supplier<Object> NULL_SUPPLIER = () -> null;
+    private static final Consumer<Object> NULL_CONSUMER = e -> {};
+
+    /**
+     * Returns a Runnable that does nothing.
+     *
+     * @return The runnable.
+     */
+    public static Runnable none() {
+        return NULL_RUNNABLE;
+    }
+
+    /**
+     * Returns a Callable that always returns null when executed.
+     *
+     * @return The callable.
+     */
+    public static <T> Callable<T> nullC() {
+        return unsafeCast(NULL_CALLABLE);
+    }
+
+    /**
+     * Returns a Supplier that always returns null when executed.
+     *
+     * @return The callable.
+     */
+    public static <T> Supplier<T> nullS() {
+        return unsafeCast(NULL_SUPPLIER);
+    }
+
+    /**
+     * Returns a Consumer that does nothing when executed.
+     *
+     * @return The consumer.
+     */
+    public static <T> Consumer<T> nullCons() {
+        return unsafeCast(NULL_CONSUMER);
+    }
+
+    /**
+     * Concatenates two {@link Runnable}s.
+     *
+     * @param a The First {@link Runnable} to execute.
+     * @param b The Second {@link Runnable} to execute.
+     * @return The Concatenated {@link Runnable}.
+     */
+    public static Runnable concat(Runnable a, Runnable b) {
+        return () -> {
+            a.run();
+            b.run();
+        };
+    }
 
     /**
      * Executes the given ThrowingRunnable, rethrowing any exceptions
