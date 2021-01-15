@@ -32,7 +32,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static net.covers1624.quack.util.IOUtils.copy;
+import static net.covers1624.quack.io.IOUtils.copy;
 
 /**
  * A simple wrapper around Java's ProcessBuilder / Process system,

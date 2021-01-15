@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.covers1624.quack.util;
+package net.covers1624.quack.io;
 
 import net.covers1624.quack.io.DelegateFileSystem;
 

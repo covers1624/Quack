@@ -539,4 +539,20 @@ public class ColUtils {
         }
         return list;
     }
+
+    /**
+     * Represents this Enumeration as an Iterable.
+     *
+     * @param enumeration The Enumeration.
+     * @param <E>         The Type.
+     * @return The Iterable.
+     */
+    public static <E> Iterable<E> toIterable(Enumeration<E> enumeration) {
+        return () -> new Iterator<E>() {
+            //@formatter:off
+            @Override public boolean hasNext() { return enumeration.hasMoreElements(); }
+            @Override public E next() { return enumeration.nextElement(); }
+            //@formatter:on
+        };
+    }
 }
