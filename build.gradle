@@ -7,7 +7,7 @@ plugins {
 
 group 'net.covers1624'
 archivesBaseName = "Quack"
-version '0.1.1'
+version '0.1.2'
 
 targetCompatibility = "1.8"
 sourceCompatibility = "1.8"
@@ -51,6 +51,8 @@ dependencies {
     implementation 'net.covers1624:TailConsole:1.0.0.1'
 
     compileOnly 'org.jetbrains:annotations:16.0.2'
+    compileOnly 'org.apache.logging.log4j:log4j-core:2.11.1'
+    annotationProcessor 'org.apache.logging.log4j:log4j-core:2.11.1'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
