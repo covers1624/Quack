@@ -24,8 +24,6 @@
 
 package net.covers1624.quack.io;
 
-import net.covers1624.quack.io.DelegateFileSystem;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -48,6 +46,15 @@ public class IOUtils {
     //32k buffer.
     private static final ThreadLocal<byte[]> bufferCache = ThreadLocal.withInitial(() -> new byte[32 * 1024]);
     private static final Map<String, String> jfsArgsCreate = Collections.singletonMap("create", "true");
+
+    /**
+     * Returns a static per-thread cached 32k buffer for IO operations.
+     *
+     * @return The buffer.
+     */
+    public static byte[] getCachedBuffer() {
+        return bufferCache.get();
+    }
 
     /**
      * Copies the content of an {@link InputStream} to an {@link OutputStream}.
