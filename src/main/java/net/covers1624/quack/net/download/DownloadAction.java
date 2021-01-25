@@ -26,7 +26,6 @@ package net.covers1624.quack.net.download;
 
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.collection.ColUtils;
-import net.covers1624.quack.util.ReflectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -35,7 +34,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.DateUtils;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -49,14 +47,12 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.Date;
 import java.util.function.Predicate;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.StandardOpenOption.CREATE;
-import static net.covers1624.quack.util.ReflectUtils.*;
 
 /**
  * Inspired and vaguely based off https://github.com/michel-kraemer/gradle-download-task
@@ -69,22 +65,23 @@ import static net.covers1624.quack.util.ReflectUtils.*;
  *  UserAgent spoofing. (Thanks mojang!)
  *  Ability to set the ProgressLogger to use.
  * </pre>
- *
+ * <p>
  * This is split into an Action, Spec and Task.
- *
+ * <p>
  * The Spec {@link DownloadSpec}, Provides the specification for how things work.
- *
+ * <p>
  * The Action {@link DownloadAction}, What actually handles downloading
  * implements {@link DownloadSpec}, Useful for other tasks that need to download
  * something but not necessarily create an entire task to do said download.
- *
+ * <p>
+ * The Task {@link DownloadTask} for gradle, Task wrapper for {@link DownloadAction},
  * implements {@link DownloadSpec} and hosts the Action as a task.
- *
+ * <p>
  * Created by covers1624 on 8/02/19.
  */
-@Requires("org.apache.commons:commons-lang3")
-@Requires("org.apache.logging.log4j:log4j-api")
-@Requires("org.apache.httpcomponents:httpclient")
+@Requires ("org.apache.commons:commons-lang3")
+@Requires ("org.apache.logging.log4j:log4j-api")
+@Requires ("org.apache.httpcomponents:httpclient")
 public class DownloadAction implements DownloadSpec {
 
     private static final Logger logger = LogManager.getLogger("DownloadAction");
@@ -103,16 +100,6 @@ public class DownloadAction implements DownloadSpec {
     private boolean upToDate;
 
     public DownloadAction() {
-    }
-
-    static {
-        //+'s break some amazon services for _some_reason.
-        try {
-            BitSet PATHSAFE = getField(URLEncodedUtils.class.getDeclaredField("PATHSAFE"), null);
-            PATHSAFE.clear('+');
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException("Unable to reflect URLEncodedUtils.", e);
-        }
     }
 
     public void execute() throws IOException {
@@ -177,11 +164,7 @@ public class DownloadAction implements DownloadSpec {
                     return;//kden..
                 }
 
-                String humanSize = "";
                 long contentLen = entity.getContentLength();
-                if (contentLen >= 0) {
-                    humanSize = toLengthText(contentLen);
-                }
                 long processed = 0;
                 if (listener != null) {
                     listener.start(contentLen);
@@ -262,7 +245,7 @@ public class DownloadAction implements DownloadSpec {
         }
     }
 
-    private String toLengthText(long bytes) {
+    public static String toLengthText(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";
         } else if (bytes < 1024 * 1024) {
@@ -286,6 +269,7 @@ public class DownloadAction implements DownloadSpec {
     @Override public UseETag getUseETag() { return useETag; }
     @Override public Path getETagFile() { return getETagFile_(); }
     @Override public String getUserAgent() { return userAgent; }
+    @Override public DownloadListener getListener() { return listener; }
     @Override public boolean isQuiet() { return quiet; }
     @Override public boolean isUpToDate() { return upToDate; }
     @Override public void setSrc(Object src) { this.src = src; }
@@ -307,16 +291,16 @@ public class DownloadAction implements DownloadSpec {
     }
 
     private URL makeURL(Object object) {
-        if (object instanceof String) {
+        if (object instanceof CharSequence) {
             try {
-                return new URL((String) object);
+                return new URL(((CharSequence) object).toString());
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException("Invalid URL " + object, e);
             }
         } else if (object instanceof URL) {
             return (URL) object;
         } else {
-            throw new IllegalArgumentException("Expected String or URL. Got: " + object.getClass());
+            throw new IllegalArgumentException("Expected CharSequence or URL. Got: " + object.getClass());
         }
     }
 

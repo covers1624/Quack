@@ -34,7 +34,7 @@ import java.lang.annotation.*;
  * Created by covers1624 on 13/1/21.
  */
 @Target (ElementType.TYPE)
-@Retention (RetentionPolicy.SOURCE)
+@Retention (RetentionPolicy.CLASS)
 @Repeatable (Requires.RequiresList.class)
 public @interface Requires {
 
@@ -60,8 +60,8 @@ public @interface Requires {
     String maxVersion() default "";
 
     @Target (ElementType.TYPE)
-    @Retention (RetentionPolicy.SOURCE)
-    public @interface RequiresList {
+    @Retention (RetentionPolicy.CLASS)
+    @interface RequiresList {
 
         Requires[] value();
     }

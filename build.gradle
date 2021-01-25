@@ -1,13 +1,12 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'net.minecrell.licenser' version '0.4'
-    id "net.covers1624.signing" version '1.0.0.2'
+    id 'org.cadixdev.licenser' version '0.5.0'
 }
 
 group 'net.covers1624'
 archivesBaseName = "Quack"
-version '0.1.2'
+version '0.1.3'
 
 targetCompatibility = "1.8"
 sourceCompatibility = "1.8"
@@ -34,6 +33,10 @@ if (System.getenv("KEY_STORE")) {
 version = "$version." + (System.getenv("BUILD_NUMBER") ?: "1")
 println "Starting build of ${archivesBaseName}, Version: ${version}"
 
+sourceSets {
+    create('gradle')
+}
+
 repositories {
     mavenLocal()
     jcenter()
@@ -42,7 +45,6 @@ repositories {
 }
 
 dependencies {
-
     implementation 'org.apache.logging.log4j:log4j-api:2.11.1'
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.apache.httpcomponents:httpclient:4.5.7'
@@ -56,31 +58,24 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    gradleCompileOnly gradleApi()
+    gradleImplementation sourceSets.main.output
 }
+
 test {
     useJUnitPlatform()
 }
 
-//signing {
-//    if (!signProps.isEmpty()) {
-//        jars {
-//            sign jar
-//
-//            keyStore = signProps.keyStore
-//            alias = signProps.alias
-//            storePass = signProps.storePass
-//            keyPass = signProps.keyPass
-//        }
-//    }
-//}
-
 jar {
+    from sourceSets.gradle.output
     from file("LICENSE.txt")
 }
 
 task srcJar(type: Jar) {
     classifier 'sources'
     from sourceSets.main.allSource
+    from sourceSets.gradle.allSource
     from file("LICENSE.txt")
 }
 

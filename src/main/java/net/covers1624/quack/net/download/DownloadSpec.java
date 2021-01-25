@@ -24,6 +24,7 @@
 
 package net.covers1624.quack.net.download;
 
+import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.function.Predicate;
@@ -39,17 +40,18 @@ import java.util.function.Predicate;
  *  UserAgent spoofing. (Thanks mojang!)
  *  Ability to set the ProgressLogger to use.
  * </pre>
- *
+ * <p>
  * This is split into an Action, Spec and Task.
- *
+ * <p>
  * The Spec {@link DownloadSpec}, Provides the specification for how things work.
- *
+ * <p>
  * The Action {@link DownloadAction}, What actually handles downloading
  * implements {@link DownloadSpec}, Useful for other tasks that need to download
  * something but not necessarily create an entire task to do said download.
- *
+ * <p>
+ * The Task {@link DownloadTask} for gradle, Task wrapper for {@link DownloadAction},
  * implements {@link DownloadSpec} and hosts the Action as a task.
- *
+ * <p>
  * Created by covers1624 on 8/02/19.
  */
 public interface DownloadSpec {
@@ -58,7 +60,7 @@ public interface DownloadSpec {
      * Spec to validate the already existing file this DownloadSpec will download.
      * If this spec returns true, its considered up-to-date, as long as eTag and onlyIfModified
      * checks pass, the file will not be re-downloaded.
-     *
+     * <p>
      * Basically, using this allows you to determine externally if the file is corrupt
      * and force a re-download at execution time instead of pre maturely.
      *
@@ -123,6 +125,13 @@ public interface DownloadSpec {
     boolean isUpToDate();
 
     /**
+     * Gets the currently attached {@link DownloadListener}.
+     *
+     * @return The Listener.
+     */
+    DownloadListener getListener();
+
+    /**
      * Sets the source URL to download.
      *
      * @param src The source.
@@ -135,6 +144,15 @@ public interface DownloadSpec {
      * @param dest The destination.
      */
     void setDest(Path dest);
+
+    /**
+     * Sets the destination to store the downloaded file.
+     *
+     * @param dest The destination.
+     */
+    default void setDest(File dest) {
+        setDest(dest.toPath());
+    }
 
     /**
      * Sets weather this DownloadSpec should obey onlyIfModified HTTP headers.
@@ -157,6 +175,16 @@ public interface DownloadSpec {
      * @param eTagFile The file to store the ETag in.
      */
     void setETagFile(Path eTagFile);
+
+    /**
+     * Sets the file to store the ETag in.
+     * This defaults to getDest + .etag
+     *
+     * @param eTagFile The file to store the ETag in.
+     */
+    default void setETagFile(File eTagFile) {
+        setETagFile(eTagFile.toPath());
+    }
 
     /**
      * Sets the User-Agent HTTP header string to use for HTTP requests.
