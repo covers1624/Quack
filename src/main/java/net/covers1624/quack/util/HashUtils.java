@@ -86,4 +86,21 @@ public class HashUtils {
         }
     }
 
+    /**
+     * Checks if the provided {@link HashCode} equals the provided hash String.
+     *
+     * @param a The first hash.
+     * @param b The second hash.
+     */
+    public static boolean equals(HashCode a, String b) {
+        if (a == null || b == null) {
+            return false;
+        }
+        try {
+            return a.equals(HashCode.fromString(b));
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
 }
