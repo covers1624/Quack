@@ -59,6 +59,12 @@ public class HashCodeAdapter extends TypeAdapter<HashCode> {
             in.nextNull();
             return null;
         }
-        return HashCode.fromString(in.nextString());
+
+        //Empty HashCode strings are invalid, there is no other way to represent this data, null it is!
+        String s = in.nextString();
+        if (s.isEmpty()) {
+            return null;
+        }
+        return HashCode.fromString(s);
     }
 }

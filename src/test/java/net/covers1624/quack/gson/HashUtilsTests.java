@@ -22,12 +22,10 @@
  * SOFTWARE.
  */
 
-package net.covers1624.quack.test;
+package net.covers1624.quack.gson;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
-import net.covers1624.quack.util.HashUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -47,6 +45,7 @@ public class HashUtilsTests {
     @Test
     public void testHashing() throws Throwable {
         Path temp = Files.createTempDirectory("hashing");
+        temp.toFile().deleteOnExit();
         Path testFile = temp.resolve("hash.txt");
         copyTestFile(testFile);
         HashCode hash = HashUtils.hash(Hashing.sha256(), testFile);

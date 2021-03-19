@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.covers1624.quack.util;
+package net.covers1624.quack.gson;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
