@@ -4,12 +4,11 @@ plugins {
     id 'org.cadixdev.licenser' version '0.5.0'
 }
 
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+
 group 'net.covers1624'
 archivesBaseName = "Quack"
 version '0.2.0'
-
-targetCompatibility = "1.8"
-sourceCompatibility = "1.8"
 
 def signProps = [:]
 if (System.getenv("KEY_STORE")) {
