@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.covers1624.quack.test;
+package net.covers1624.quack.util;
 
 import net.covers1624.quack.util.CrashLock;
 import org.junit.jupiter.api.Assertions;
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Created by covers1624 on 22/1/21.
  */
-public class CrashLockTest {
+public class CrashLockTests {
 
     @Test
     public void testLock() {
@@ -52,6 +52,16 @@ public class CrashLockTest {
         crashLock.lock();
         RuntimeException e = Assertions.assertThrows(RuntimeException.class, crashLock::lock);
         Assertions.assertEquals("Locked.", e.getMessage());
+    }
+
+    @Test
+    public void testLockLockUnlockLock() {
+        CrashLock crashLock = new CrashLock("Locked.");
+        crashLock.lock();
+        RuntimeException e = Assertions.assertThrows(RuntimeException.class, crashLock::lock);
+        Assertions.assertEquals("Locked.", e.getMessage());
+        crashLock.unlock();
+        crashLock.lock();
     }
 
 }
