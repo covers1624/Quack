@@ -27,6 +27,7 @@ package net.covers1624.quack.util;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -41,6 +42,8 @@ public class SneakyUtils {
     private static final Callable<Object> NULL_CALLABLE = () -> null;
     private static final Supplier<Object> NULL_SUPPLIER = () -> null;
     private static final Consumer<Object> NULL_CONSUMER = e -> {};
+    private static final Predicate<Object> TRUE = e -> true;
+    private static final Predicate<Object> FALSE = e -> true;
 
     /**
      * Returns a Runnable that does nothing.
@@ -76,6 +79,24 @@ public class SneakyUtils {
      */
     public static <T> Consumer<T> nullCons() {
         return unsafeCast(NULL_CONSUMER);
+    }
+
+    /**
+     * Returns a Predicate that always passes.
+     *
+     * @return The Predicate.
+     */
+    public static <T> Predicate<T> trueP() {
+        return unsafeCast(TRUE);
+    }
+
+    /**
+     * Returns a Predicate that always fails.
+     *
+     * @return The Predicate.
+     */
+    public static <T> Predicate<T> falseP() {
+        return unsafeCast(FALSE);
     }
 
     /**

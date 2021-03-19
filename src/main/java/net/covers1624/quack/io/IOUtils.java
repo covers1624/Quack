@@ -30,12 +30,11 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemAlreadyExistsException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -179,5 +178,30 @@ public class IOUtils {
             public void close() {
             }
         };
+    }
+
+    /**
+     * Copes every element in a Jar file from the input to the Jar file output, where every
+     * element must match the provided {@link Predicate}.
+     *
+     * @param input     The Input Path. This should exist.
+     * @param output    The Output Path. This should not exists.
+     * @param predicate The {@link Predicate} that each Entry must match.
+     * @throws IOException If something went wrong during execution.
+     */
+    public static void stripJar(Path input, Path output, Predicate<Path> predicate) throws IOException {
+        if (!Files.exists(input)) {
+            throw new FileNotFoundException("Input not found. " + input);
+        }
+        if (Files.exists(output)) {
+            throw new IOException("Output already exists. " + output);
+        }
+        try (FileSystem inFs = getJarFileSystem(input, true);
+             FileSystem outFs = getJarFileSystem(output, true)
+        ) {
+            Path inRoot = inFs.getPath("/");
+            Path outRoot = outFs.getPath("/");
+            Files.walkFileTree(inRoot, new CopyingFileVisitor(inRoot, outRoot, predicate));
+        }
     }
 }
