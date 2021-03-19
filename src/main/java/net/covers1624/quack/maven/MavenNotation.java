@@ -45,7 +45,7 @@ public class MavenNotation implements Serializable {
     public final String group;
     @Nonnull
     public final String module;
-    @Nonnull
+    @Nullable
     public final String version;
     @Nullable
     public final String classifier;
@@ -53,11 +53,11 @@ public class MavenNotation implements Serializable {
     public final String extension;
 
     public MavenNotation(String group, String module, String version, String classifier, String extension) {
-        this.group = group;
-        this.module = module;
+        this.group = Objects.requireNonNull(group, "group");
+        this.module = Objects.requireNonNull(module, "module");
         this.version = version;
         this.classifier = classifier;
-        this.extension = extension;
+        this.extension = Objects.requireNonNull(extension, "extension");
     }
 
     public MavenNotation(MavenNotation other) {
@@ -177,8 +177,10 @@ public class MavenNotation implements Serializable {
         builder.append(group);
         builder.append(":");
         builder.append(module);
-        builder.append(":");
-        builder.append(version);
+        if (!isEmpty(version)) {
+            builder.append(":");
+            builder.append(version);
+        }
         if (!isEmpty(classifier)) {
             builder.append(":");
             builder.append(classifier);
