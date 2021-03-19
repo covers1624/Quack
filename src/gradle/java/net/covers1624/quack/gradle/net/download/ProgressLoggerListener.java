@@ -54,6 +54,9 @@ public class ProgressLoggerListener implements DownloadListener {
     }
 
     @Override
+    public void connecting() { }
+
+    @Override
     public void start(long expectedLen) {
         if (expectedLen >= 0) {
             humanSize = DownloadAction.toLengthText(expectedLen);

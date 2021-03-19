@@ -30,6 +30,11 @@ package net.covers1624.quack.net.download;
 public interface DownloadListener {
 
     /**
+     * Indicates that the download is attempting to connect.
+     */
+    void connecting();
+
+    /**
      * The expected length for the download.
      * -1 to indicate that there is no expected length.
      *

@@ -37,7 +37,7 @@ import static java.text.MessageFormat.format;
 /**
  * Created by covers1624 on 10/8/19.
  */
-@Requires("net.covers1624:TailConsole")
+@Requires ("net.covers1624:TailConsole")
 public class DownloadProgressTail extends AbstractTail implements DownloadListener {
 
     private Status status = Status.IDLE;
@@ -56,47 +56,59 @@ public class DownloadProgressTail extends AbstractTail implements DownloadListen
     public void tick() {
         if (newData) {
             Ansi a = Ansi.ansi();
-            if (status == Status.DOWNLOADING) {
+            switch (status) {
+                case IDLE:
+                    a.a("Idle..");
+                    break;
+                case CONNECTING:
+                    a.a("Connecting: " + fileName + "..");
+                    break;
+                case DOWNLOADING: {
+                    int termWidth = getTerminalWidth();
+                    double done = (double) progress / (double) totalLen;
+                    long elapsed = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime);
 
-                int termWidth = getTerminalWidth();
-                double done = (double) progress / (double) totalLen;
-                long elapsed = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime);
-
-                double speedBps = ((double) progress / elapsed);
-                if (Double.isInfinite(speedBps)) {
-                    speedBps = 0;
-                }
-
-                String prefix = "Downloading: " + fileName + " ";
-                String progressString = format(" {0}/{1}({2}%) {3}", humanSize(progress), humanSize(totalLen), (int) (done * 100), humanSpeed(speedBps));
-                int remaining = termWidth - (progressString.length() + prefix.length());
-                remaining -= 2;//Square brackets.
-
-                a.a(prefix);
-
-                Ansi.Color color = done > 0.75D ? Ansi.Color.GREEN : (done > 0.50D ? Ansi.Color.YELLOW : Ansi.Color.RED);
-
-                int width = (int) Math.floor(done * remaining);
-                a.fg(color).a("[").bold();
-                for (int i = 1; i <= remaining; i++) {
-                    if (i <= width) {
-                        if (i == width) {
-                            a.a(">");
-                        } else {
-                            a.a("=");
-                        }
-                    } else {
-                        a.a("-");
+                    double speedBps = ((double) progress / elapsed);
+                    if (Double.isInfinite(speedBps)) {
+                        speedBps = 0;
                     }
-                }
-                a.boldOff();
 
-                a.a("]").fgDefault().a(progressString);
-            } else {
-                a.a("Idle..");
+                    String prefix = "Downloading: " + fileName + " ";
+                    String progressString = format(" {0}/{1}({2}%) {3}", humanSize(progress), humanSize(totalLen), (int) (done * 100), humanSpeed(speedBps));
+                    int remaining = termWidth - (progressString.length() + prefix.length());
+                    remaining -= 2;//Square brackets.
+
+                    a.a(prefix);
+
+                    Ansi.Color color = done > 0.75D ? Ansi.Color.GREEN : (done > 0.50D ? Ansi.Color.YELLOW : Ansi.Color.RED);
+
+                    int width = (int) Math.floor(done * remaining);
+                    a.fg(color).a("[").bold();
+                    for (int i = 1; i <= remaining; i++) {
+                        if (i <= width) {
+                            if (i == width) {
+                                a.a(">");
+                            } else {
+                                a.a("=");
+                            }
+                        } else {
+                            a.a("-");
+                        }
+                    }
+                    a.boldOff();
+
+                    a.a("]").fgDefault().a(progressString);
+                    break;
+                }
             }
             setLine(0, a);
         }
+    }
+
+    @Override
+    public boolean setLine(int line, String text) {
+        newData = false;
+        return super.setLine(line, text);
     }
 
     //@formatter:off
@@ -110,7 +122,7 @@ public class DownloadProgressTail extends AbstractTail implements DownloadListen
     public void setTotalLen(long totalLen) { this.totalLen = totalLen; onNewData(); }
     public void setProgress(long progress) { this.progress = progress; onNewData(); }
     public void setStartTime(long startTime) { this.startTime = startTime; onNewData(); }
-    private void onNewData() { newData = true; }
+    private void onNewData() { newData = true; tick(); }
     //@formatter:on
 
     private static String humanSize(long bytes) {
@@ -138,6 +150,11 @@ public class DownloadProgressTail extends AbstractTail implements DownloadListen
     }
 
     @Override
+    public void connecting() {
+        setStatus(Status.CONNECTING);
+    }
+
+    @Override
     public void start(long expectedLen) {
         setTotalLen(expectedLen);
         setStatus(Status.DOWNLOADING);
@@ -156,6 +173,7 @@ public class DownloadProgressTail extends AbstractTail implements DownloadListen
 
     public enum Status {
         IDLE,
+        CONNECTING,
         DOWNLOADING
     }
 
