@@ -50,6 +50,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.google.guava:guava:26.0-jre'
     implementation 'net.covers1624:TailConsole:1.0.0.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 
     compileOnly 'org.jetbrains:annotations:16.0.2'
     compileOnly 'org.apache.logging.log4j:log4j-core:2.11.1'
