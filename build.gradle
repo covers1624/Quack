@@ -8,7 +8,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 group 'net.covers1624'
 archivesBaseName = "Quack"
-version '0.2.1'
+version '0.3.0'
 
 def signProps = [:]
 if (System.getenv("KEY_STORE")) {

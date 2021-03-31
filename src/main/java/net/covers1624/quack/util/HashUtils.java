@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.covers1624.quack.gson;
+package net.covers1624.quack.util;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
@@ -93,7 +93,7 @@ public class HashUtils {
      * @param b The second hash.
      */
     public static boolean equals(HashCode a, String b) {
-        if (a == null || b == null) {
+        if (a == null || b == null || b.isEmpty()) {
             return false;
         }
         try {

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.covers1624.quack.gson;
+package net.covers1624.quack.util;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -57,6 +57,7 @@ public class HashUtilsTests {
     public void testHashEquals() throws Throwable {
         HashCode hash = HashCode.fromString("883d139af5d6bf5b4f940d1611198c096654b45b0c1097a36d256ce209d11dfd");
         assertTrue(HashUtils.equals(hash, "883d139af5d6bf5b4f940d1611198c096654b45b0c1097a36d256ce209d11dfd"));
+        assertFalse(HashUtils.equals(hash, ""));
         assertFalse(HashUtils.equals(null, "883d139af5d6bf5b4f940d1611198c096654b45b0c1097a36d256ce209d11dfd"));
         assertFalse(HashUtils.equals(hash, null));
         assertFalse(HashUtils.equals(null, null));
