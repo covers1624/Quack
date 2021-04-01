@@ -25,7 +25,7 @@
 package net.covers1624.quack.logging.log4j2;
 
 import net.covers1624.quack.annotation.Requires;
-import net.covers1624.quack.io.NullOutputStream;
+import net.covers1624.quack.io.ConsumingOutputStream;
 import org.apache.logging.log4j.Logger;
 
 import java.io.PrintStream;
@@ -41,7 +41,7 @@ public class TracingPrintStream extends PrintStream {
     private final Logger logger;
 
     public TracingPrintStream(Logger logger) {
-        super(NullOutputStream.INSTANCE);
+        super(new ConsumingOutputStream(line -> logger.info("{}{}", getPrefix(), line)), true);
         this.logger = logger;
     }
 
