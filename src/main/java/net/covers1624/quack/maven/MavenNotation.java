@@ -24,8 +24,8 @@
 
 package net.covers1624.quack.maven;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.Serializable;
 import java.net.MalformedURLException;
@@ -41,18 +41,15 @@ import java.util.Objects;
 //TODO Snapshots
 public class MavenNotation implements Serializable {
 
-    @Nonnull
     public final String group;
-    @Nonnull
     public final String module;
     @Nullable
     public final String version;
     @Nullable
     public final String classifier;
-    @Nonnull
     public final String extension;
 
-    public MavenNotation(String group, String module, String version, String classifier, String extension) {
+    public MavenNotation(String group, String module, @Nullable String version, @Nullable String classifier, String extension) {
         this.group = Objects.requireNonNull(group, "group");
         this.module = Objects.requireNonNull(module, "module");
         this.version = version;
@@ -149,7 +146,7 @@ public class MavenNotation implements Serializable {
         int result = 1;
         result = 31 * result + group.hashCode();
         result = 31 * result + module.hashCode();
-        result = 31 * result + version.hashCode();
+        result = 31 * result + (!isEmpty(version) ? version : "").hashCode();
         result = 31 * result + (!isEmpty(classifier) ? classifier : "").hashCode();
         result = 31 * result + extension.hashCode();
         return result;
@@ -192,7 +189,7 @@ public class MavenNotation implements Serializable {
         return builder.toString();
     }
 
-    private static boolean isEmpty(CharSequence cs) {
+    private static boolean isEmpty(@Nullable CharSequence cs) {
         return cs == null || cs.length() == 0;
     }
 

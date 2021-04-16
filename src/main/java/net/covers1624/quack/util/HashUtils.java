@@ -30,6 +30,7 @@ import com.google.common.hash.Hasher;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.io.IOUtils;
 
+import javax.annotation.Nullable;
 import javax.annotation.WillNotClose;
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,7 +93,7 @@ public class HashUtils {
      * @param a The first hash.
      * @param b The second hash.
      */
-    public static boolean equals(HashCode a, String b) {
+    public static boolean equals(@Nullable HashCode a, @Nullable String b) {
         if (a == null || b == null || b.isEmpty()) {
             return false;
         }

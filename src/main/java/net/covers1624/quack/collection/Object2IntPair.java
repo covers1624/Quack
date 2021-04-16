@@ -24,6 +24,8 @@
 
 package net.covers1624.quack.collection;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -31,6 +33,7 @@ import java.util.Objects;
  */
 public class Object2IntPair<T> {
 
+    @Nullable
     private T key;
     private int value;
 
@@ -43,11 +46,12 @@ public class Object2IntPair<T> {
         this.value = value;
     }
 
+    @Nullable
     public T getKey() {
         return key;
     }
 
-    public void setKey(T key) {
+    public void setKey(@Nullable T key) {
         this.key = key;
     }
 

@@ -24,6 +24,7 @@
 
 package net.covers1624.quack.io;
 
+import javax.annotation.WillNotClose;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,6 +39,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
+ * Various utilities for IO interaction with bytes, streams, files, etc.
+ * <p>
  * Created by covers1624 on 14/1/21.
  */
 public class IOUtils {
@@ -62,7 +65,7 @@ public class IOUtils {
      * @param os The {@link OutputStream}.
      * @throws IOException If something is bork.
      */
-    public static void copy(InputStream is, OutputStream os) throws IOException {
+    public static void copy(@WillNotClose InputStream is, @WillNotClose OutputStream os) throws IOException {
         byte[] buffer = bufferCache.get();
         int len;
         while ((len = is.read(buffer)) != -1) {
@@ -77,7 +80,7 @@ public class IOUtils {
      * @return The bytes.
      * @throws IOException If something is bork.
      */
-    public static byte[] toBytes(InputStream is) throws IOException {
+    public static byte[] toBytes(@WillNotClose InputStream is) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         copy(is, os);
         return os.toByteArray();
@@ -108,10 +111,34 @@ public class IOUtils {
         }
     }
 
+    /**
+     * Creates a new {@link FileSystem} for the given jar path.
+     * <p>
+     * If a FS was not created by this method due to it already existing, this method
+     * will guard the returned {@link FileSystem} from being closed via {@link FileSystem#close()}.
+     * This means it's safe to use try-with-resources when you don't explicitly own the {@link FileSystem}.
+     *
+     * @param path   The file to open the jar for.
+     * @param create If the file system should attempt to be created if it does not exist.
+     * @return The {@link FileSystem}.
+     * @throws IOException If the {@link FileSystem} could not be created.
+     */
     public static FileSystem getJarFileSystem(Path path, boolean create) throws IOException {
         return getJarFileSystem(path.toUri(), create);
     }
 
+    /**
+     * Creates a new {@link FileSystem} for the given uri path.
+     * <p>
+     * If a FS was not created by this method due to it already existing, this method
+     * will guard the returned {@link FileSystem} from being closed via {@link FileSystem#close()}.
+     * This means it's safe to use try-with-resources when you don't explicitly own the {@link FileSystem}.
+     *
+     * @param path   The uri to open the jar for.
+     * @param create If the file system should attempt to be created if it does not exist.
+     * @return The {@link FileSystem}.
+     * @throws IOException If the {@link FileSystem} could not be created.
+     */
     public static FileSystem getJarFileSystem(URI path, boolean create) throws IOException {
         URI jarURI;
         try {
@@ -122,10 +149,32 @@ public class IOUtils {
         return getFileSystem(jarURI, create ? jfsArgsCreate : Collections.emptyMap());
     }
 
+    /**
+     * Attempts to get an already existing {@link FileSystem}.
+     * <p>
+     * This method will guard the returned {@link FileSystem} from being closed via {@link FileSystem#close()}.
+     * This means it's safe to use try-with-resources when you don't explicitly own the {@link FileSystem}.
+     *
+     * @param uri The uri to open the jar for.
+     * @return The {@link FileSystem}.
+     * @throws IOException If the {@link FileSystem} could not be created.
+     */
     public static FileSystem getFileSystem(URI uri) throws IOException {
         return getFileSystem(uri, Collections.emptyMap());
     }
 
+    /**
+     * Attempts to get or create a {@link FileSystem} for the given uri, with additional arguments for FS creation.
+     * <p>
+     * If a FS was not created by this method due to it already existing, this method
+     * will guard the returned {@link FileSystem} from being closed via {@link FileSystem#close()}.
+     * This means it's safe to use try-with-resources when you don't explicitly own the {@link FileSystem}.
+     *
+     * @param uri The uri to open the jar for.
+     * @param env Any additional arguments to provide when creating the {@link FileSystem}.
+     * @return The {@link FileSystem}.
+     * @throws IOException If the {@link FileSystem} could not be created.
+     */
     public static FileSystem getFileSystem(URI uri, Map<String, ?> env) throws IOException {
         FileSystem fs;
         boolean owner = true;
@@ -190,12 +239,9 @@ public class IOUtils {
      * @throws IOException If something went wrong during execution.
      */
     public static void stripJar(Path input, Path output, Predicate<Path> predicate) throws IOException {
-        if (!Files.exists(input)) {
-            throw new FileNotFoundException("Input not found. " + input);
-        }
-        if (Files.exists(output)) {
-            throw new IOException("Output already exists. " + output);
-        }
+        if (Files.notExists(input)) throw new FileNotFoundException("Input not found. " + input);
+        if (Files.exists(output)) throw new IOException("Output already exists. " + output);
+
         try (FileSystem inFs = getJarFileSystem(input, true);
              FileSystem outFs = getJarFileSystem(output, true)
         ) {

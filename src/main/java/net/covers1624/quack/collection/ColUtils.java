@@ -25,6 +25,7 @@
 package net.covers1624.quack.collection;
 
 import net.covers1624.quack.util.Copyable;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -514,7 +515,7 @@ public class ColUtils {
      * @param <T>   The thing.
      * @return If the array is null or contains null.
      */
-    public static <T> boolean isNullOrContainsNull(T[] input) {
+    public static <T> boolean isNullOrContainsNull(@Nullable T[] input) {
         if (input != null) {
             for (T t : input) {
                 if (t == null) {

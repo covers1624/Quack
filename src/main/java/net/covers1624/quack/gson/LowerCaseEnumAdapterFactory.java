@@ -32,6 +32,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import net.covers1624.quack.annotation.Requires;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ import java.util.Map;
 @Requires ("com.google.code.gson:gson")
 public class LowerCaseEnumAdapterFactory implements TypeAdapterFactory {
 
+    @Nullable
     @Override
     @SuppressWarnings ("unchecked")
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -58,7 +60,7 @@ public class LowerCaseEnumAdapterFactory implements TypeAdapterFactory {
         }
         return new TypeAdapter<T>() {
             @Override
-            public void write(JsonWriter out, T value) throws IOException {
+            public void write(JsonWriter out, @Nullable T value) throws IOException {
                 if (value == null) {
                     out.nullValue();
                 } else {
@@ -66,6 +68,7 @@ public class LowerCaseEnumAdapterFactory implements TypeAdapterFactory {
                 }
             }
 
+            @Nullable
             @Override
             public T read(JsonReader in) throws IOException {
                 if (in.peek() == JsonToken.NULL) {

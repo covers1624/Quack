@@ -26,6 +26,7 @@ package net.covers1624.quack.io;
 
 import net.covers1624.quack.util.SneakyUtils.ThrowingConsumer;
 import net.covers1624.quack.util.SneakyUtils.ThrowingRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
@@ -42,12 +43,13 @@ import static net.covers1624.quack.io.IOUtils.copy;
  */
 public class ProcessExecutor {
 
-    private List<String> command = new ArrayList<>();
+    private final List<String> command = new ArrayList<>();
+    @Nullable
     private File directory;
-    private Map<String, String> envVars = new HashMap<>();
-    private IO io = new IO();
+    private final Map<String, String> envVars = new HashMap<>();
+    private final IO io = new IO();
 
-    private List<Consumer<ProcessExecutor>> preStartCallbacks = new ArrayList<>();
+    private final List<Consumer<ProcessExecutor>> preStartCallbacks = new ArrayList<>();
 
     /**
      * Construct a blank one.
@@ -136,7 +138,7 @@ public class ProcessExecutor {
      * @param dir The dir.
      * @return The same ProcessExecutor.
      */
-    public ProcessExecutor setWorkingDir(File dir) {
+    public ProcessExecutor setWorkingDir(@Nullable File dir) {
         directory = dir;
         return this;
     }
@@ -146,6 +148,7 @@ public class ProcessExecutor {
      *
      * @return The working directory.
      */
+    @Nullable
     public File getWorkingDir() {
         return directory;
     }
@@ -269,9 +272,13 @@ public class ProcessExecutor {
         private final ProcessExecutor executor;
         private final ProcessBuilder builder;
         private final IO io;
+        @Nullable
         private Process process;
+        @Nullable
         private IOThread stdOutThread;
+        @Nullable
         private IOThread stdErrThread;
+        @Nullable
         private IOThread stdInThread;
 
         private RunningProcess(ProcessExecutor executor) {
@@ -303,6 +310,7 @@ public class ProcessExecutor {
         }
 
         private void spawnIOThread(ThrowingRunnable<IOException> action) {
+            assert process != null;
             IOThread ioThread = new IOThread(process, action);
             ioThread.setDaemon(true);
             ioThread.setName("ProcessExecutor-IOThread");
@@ -313,6 +321,7 @@ public class ProcessExecutor {
          * @return If this Process is currently running.
          */
         public boolean isAlive() {
+            assert process != null;
             return process.isAlive();
         }
 
@@ -342,6 +351,7 @@ public class ProcessExecutor {
          */
         public void waitFor(boolean assertZeroExit) {
             try {
+                assert process != null;
                 process.waitFor();
             } catch (InterruptedException ignored) {
             }
@@ -361,6 +371,7 @@ public class ProcessExecutor {
          */
         public void waitFor(boolean assertZeroExit, long timeout, TimeUnit unit) {
             try {
+                assert process != null;
                 process.waitFor(timeout, unit);
             } catch (InterruptedException ignored) {
             }
@@ -378,6 +389,7 @@ public class ProcessExecutor {
          * @return The exit code for the process.
          */
         public int getExitCode() {
+            assert process != null;
             return process.exitValue();
         }
 
@@ -410,8 +422,11 @@ public class ProcessExecutor {
 
         private final String newLine = System.getProperty("line.separator");
 
+        @Nullable
         private ThrowingConsumer<InputStream, IOException> stdOutConsumer;
+        @Nullable
         private ThrowingConsumer<InputStream, IOException> stdErrConsumer;
+        @Nullable
         private ThrowingConsumer<OutputStream, IOException> stdInConsumer;
 
         private IO() {

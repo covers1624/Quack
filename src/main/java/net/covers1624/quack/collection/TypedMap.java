@@ -49,10 +49,12 @@ public class TypedMap implements Map<Object, Object> {
         this.delegate = delegate;
     }
 
+    @Nullable
     public <T> T put(Key<T> key, T value) {
         return unsafeCast(delegate.put(key, value));
     }
 
+    @Nullable
     public <T> T get(Key<T> key) {
         return unsafeCast(delegate.get(key));
     }

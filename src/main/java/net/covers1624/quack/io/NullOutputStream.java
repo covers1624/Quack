@@ -24,19 +24,28 @@
 
 package net.covers1624.quack.io;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ * An {@link OutputStream} implementation, that does literally nothing
+ * with any data piped in. This class is a singleton, {@link #INSTANCE}.
+ * <p>
  * Created by covers1624 on 19/11/20.
  */
 public class NullOutputStream extends OutputStream {
 
     public static final NullOutputStream INSTANCE = new NullOutputStream();
 
+    //Singleton.
+    @Deprecated//TODO switch this to private.
+    public NullOutputStream() { }
+
     //@formatter:off
-    @Override public void write(int b) throws IOException { }
-    @Override public void write(byte[] b) throws IOException { }
-    @Override public void write(byte[] b, int off, int len) throws IOException { }
+    @Override public void write(int b) { }
+    @Override public void write(byte[] b) { }
+    @Override public void write(byte[] b, int off, int len) { }
+    @Override public void close() { }
+    @Override public void flush() { }
     //@formatter:on
+
 }

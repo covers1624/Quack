@@ -30,6 +30,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import net.covers1624.quack.annotation.Requires;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ import java.io.IOException;
 public class FileAdapter extends TypeAdapter<File> {
 
     @Override
-    public void write(JsonWriter out, File value) throws IOException {
+    public void write(JsonWriter out, @Nullable File value) throws IOException {
         if (value == null) {
             out.nullValue();
             return;
@@ -51,6 +52,7 @@ public class FileAdapter extends TypeAdapter<File> {
         out.value(value.getAbsolutePath());
     }
 
+    @Nullable
     @Override
     public File read(JsonReader in) throws IOException {
         if (in.peek() == JsonToken.NULL) {

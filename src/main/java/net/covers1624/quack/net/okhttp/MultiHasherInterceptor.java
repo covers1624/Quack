@@ -35,6 +35,7 @@ import okio.Source;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * An {@link Interceptor} capable of handling a {@link MultiHasher} {@link Request} tag.
@@ -57,7 +58,7 @@ public class MultiHasherInterceptor implements Interceptor {
         }
 
         return response.newBuilder()
-                .body(SniffingResponseBody.ofFunction(response.body(), source -> new HasherWrappedSource(source, hasher)))
+                .body(SniffingResponseBody.ofFunction(Objects.requireNonNull(response.body()), source -> new HasherWrappedSource(source, hasher)))
                 .build();
     }
 

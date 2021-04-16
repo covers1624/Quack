@@ -24,6 +24,9 @@
 
 package net.covers1624.quack.util;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -203,8 +206,10 @@ public class SneakyUtils {
         };
     }
 
+    @Nullable
+    @Contract ("null->null;!null->!null")
     @SuppressWarnings ("unchecked")
-    public static <T> T unsafeCast(Object object) {
+    public static <T> T unsafeCast(@Nullable Object object) {
         return (T) object;
     }
 

@@ -32,8 +32,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.function.Predicate;
 
 /**
- * A FileVisitor for Path's that copies from a to b.
- * <code>Files.walkFileTree(src, new CopyingFileVisitor(src, dest));</code>
+ * A {@link FileVisitor} for Path's that copies from a to b.
+ * Example: <code>Files.walkFileTree(src, new CopyingFileVisitor(src, dest));</code>
  * <p>
  * Created by covers1624 on 14/6/19.
  */

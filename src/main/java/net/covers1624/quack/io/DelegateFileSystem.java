@@ -31,7 +31,7 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
 
 /**
- * A FileSystem that delegates to the provided FileSystem.
+ * A {@link FileSystem} that delegates to the provided {@link FileSystem}.
  *
  * Created by covers1624 on 19/05/19.
  */

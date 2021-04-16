@@ -31,6 +31,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import net.covers1624.quack.annotation.Requires;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -45,7 +46,7 @@ import java.io.IOException;
 public class HashCodeAdapter extends TypeAdapter<HashCode> {
 
     @Override
-    public void write(JsonWriter out, HashCode value) throws IOException {
+    public void write(JsonWriter out, @Nullable HashCode value) throws IOException {
         if (value == null) {
             out.nullValue();
             return;
@@ -53,6 +54,7 @@ public class HashCodeAdapter extends TypeAdapter<HashCode> {
         out.value(value.toString());
     }
 
+    @Nullable
     @Override
     public HashCode read(JsonReader in) throws IOException {
         if (in.peek() == JsonToken.NULL) {

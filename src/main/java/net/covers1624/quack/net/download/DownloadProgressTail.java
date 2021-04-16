@@ -41,7 +41,7 @@ import static java.text.MessageFormat.format;
 public class DownloadProgressTail extends AbstractTail implements DownloadListener {
 
     private Status status = Status.IDLE;
-    private String fileName;
+    private String fileName = "";
     private long totalLen;
     private long progress;
     private long startTime;

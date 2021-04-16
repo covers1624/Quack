@@ -29,6 +29,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -44,7 +45,7 @@ import java.nio.file.Paths;
 public final class PathTypeAdapter extends TypeAdapter<Path> {
 
     @Override
-    public void write(JsonWriter out, Path value) throws IOException {
+    public void write(JsonWriter out, @Nullable Path value) throws IOException {
         if (value == null) {
             out.nullValue();
             return;
@@ -55,6 +56,7 @@ public final class PathTypeAdapter extends TypeAdapter<Path> {
         out.value(value.toAbsolutePath().toString());
     }
 
+    @Nullable
     @Override
     public Path read(JsonReader in) throws IOException {
         if (in.peek() == JsonToken.NULL) {

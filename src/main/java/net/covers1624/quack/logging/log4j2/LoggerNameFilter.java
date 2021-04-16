@@ -36,7 +36,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.filter.AbstractFilter;
 import org.apache.logging.log4j.message.Message;
-import org.apache.logging.log4j.util.PerformanceSensitive;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This filter returns the onMatch result if the logger name in the LogEvent is the same.
@@ -62,7 +62,7 @@ public final class LoggerNameFilter extends AbstractFilter {
         return filter(logger.getName());
     }
 
-    private Result filter(String logger) {
+    private Result filter(@Nullable String logger) {
         boolean match = logger != null && (contains ? logger.contains(name) : logger.equals(name));
         return match ? onMatch : onMismatch;
     }
@@ -80,9 +80,10 @@ public final class LoggerNameFilter extends AbstractFilter {
      * @param mismatch The action to take if no match occurs.
      * @return A LoggerNameFilter.
      */
+    @Nullable
     @PluginFactory
     public static LoggerNameFilter createFilter(
-            @PluginAttribute (ATTR_LOGGER) String logger,
+            @Nullable @PluginAttribute (ATTR_LOGGER) String logger,
             @PluginAttribute (ATTR_CONTAINS) boolean contains,
             @PluginAttribute (AbstractFilterBuilder.ATTR_ON_MATCH) Result match,
             @PluginAttribute (AbstractFilterBuilder.ATTR_ON_MISMATCH) Result mismatch) {

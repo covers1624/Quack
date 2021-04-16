@@ -35,6 +35,7 @@ import okio.Source;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * An interceptor capable of handling a {@link ProgressTag} {@link Request} tag.
@@ -56,7 +57,7 @@ public class ProgressInterceptor implements Interceptor {
         tag.listener.connecting();
         Response response = chain.proceed(request);
         return response.newBuilder()
-                .body(SniffingResponseBody.ofFunction(response.body(), e -> new ProgressForwardingSource(e, tag)))
+                .body(SniffingResponseBody.ofFunction(Objects.requireNonNull(response.body()), e -> new ProgressForwardingSource(e, tag)))
                 .build();
     }
 
