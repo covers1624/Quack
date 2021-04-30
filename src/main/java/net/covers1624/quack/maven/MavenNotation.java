@@ -118,6 +118,15 @@ public class MavenNotation implements Serializable {
     }
 
     /**
+     * Converts this MavenNotation to the module folder path.
+     *
+     * @return The path.
+     */
+    public String toModulePath() {
+        return MessageFormat.format("{0}/{1}/", group.replace(".", "/"), module);
+    }
+
+    /**
      * Converts this MavenNotation to a file from the given base directory.
      *
      * @param dir The base directory.
