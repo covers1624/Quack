@@ -1,3 +1,9 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url 'https://proxy-maven.covers1624.net/' }
+    }
+}
 plugins {
     id 'java'
     id 'maven-publish'
@@ -8,7 +14,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 group 'net.covers1624'
 archivesBaseName = "Quack"
-version '0.3.2'
+version '0.3.3'
 
 def signProps = [:]
 if (System.getenv("KEY_STORE")) {
@@ -38,9 +44,7 @@ sourceSets {
 
 repositories {
     mavenLocal()
-    jcenter()
-    mavenCentral()
-    maven { url 'https://maven.covers1624.net/' }
+    maven { url 'https://proxy-maven.covers1624.net/' }
 }
 
 dependencies {
@@ -92,7 +96,7 @@ publishing {
     repositories {
         if (System.getenv('MAVEN_PASS')) {
             maven {
-                url "https://maven-upload.covers1624.net/"
+                url "https://nexus.covers1624.net/repository/maven-releases/"
                 credentials {
                     username 'covers1624'
                     password System.getenv('MAVEN_PASS')
