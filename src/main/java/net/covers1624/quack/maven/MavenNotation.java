@@ -112,7 +112,8 @@ public class MavenNotation implements Serializable {
      * @return The path segment.
      */
     public String toPath() {
-        return toModulePath() + toFileName();
+        Objects.requireNonNull(version, "Version missing");
+        return toModulePath() + version + "/" + toFileName();
     }
 
     /**
