@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.MessageFormat;
+import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -92,11 +92,11 @@ public class MavenNotation implements Serializable {
         return new MavenNotation(group, module, version, classifier, extension);
     }
 
-    public MavenNotation withVersion(String version) {
+    public MavenNotation withVersion(@Nullable String version) {
         return new MavenNotation(group, module, version, classifier, extension);
     }
 
-    public MavenNotation withClassifier(String classifier) {
+    public MavenNotation withClassifier(@Nullable String classifier) {
         return new MavenNotation(group, module, version, classifier, extension);
     }
 
@@ -112,9 +112,20 @@ public class MavenNotation implements Serializable {
      * @return The path segment.
      */
     public String toPath() {
+        return toModulePath() + toFileName();
+    }
+
+    /**
+     * Converts this MavenNotation to a file name.
+     * <p>
+     * Format: module-version[-classifier].extension
+     *
+     * @return The file name.
+     */
+    public String toFileName() {
         Objects.requireNonNull(version, "Version missing");
-        String clss = !isEmpty(classifier) ? "-" + classifier : "";
-        return MessageFormat.format("{0}/{1}/{2}/{1}-{2}{3}.{4}", group.replace(".", "/"), module, version, clss, extension);
+        String classifier = !isEmpty(this.classifier) ? "-" + this.classifier : "";
+        return module + "-" + version + classifier + "." + extension;
     }
 
     /**
@@ -123,17 +134,27 @@ public class MavenNotation implements Serializable {
      * @return The path.
      */
     public String toModulePath() {
-        return MessageFormat.format("{0}/{1}/", group.replace(".", "/"), module);
+        return group.replace(".", "/") + "/" + module + "/";
     }
 
     /**
-     * Converts this MavenNotation to a file from the given base directory.
+     * Converts this MavenNotation to a file relative to the given base directory.
      *
      * @param dir The base directory.
      * @return The new File.
      */
     public File toFile(File dir) {
         return new File(dir, toPath());
+    }
+
+    /**
+     * Converts this MavenNotation to a Path relative to the given base directory.
+     *
+     * @param dir The base directory.
+     * @return The Path.
+     */
+    public Path toPath(Path dir) {
+        return dir.resolve(toPath());
     }
 
     /**
