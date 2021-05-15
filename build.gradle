@@ -7,7 +7,7 @@ buildscript {
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'org.cadixdev.licenser' version '0.5.0'
+    id 'org.cadixdev.licenser' version '0.6.0'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
@@ -84,7 +84,11 @@ task srcJar(type: Jar) {
 }
 
 license {
-    header = file("LICENSE.txt")
+    header = file("LICENSE-header.txt")
+    properties {
+        year = new Date().format("yyyy")
+    }
+    newLine false
 
     include 'net/covers1624/quack/**'
     exclude 'net/covers1624/quack/sort/CyclePresentException.java'
