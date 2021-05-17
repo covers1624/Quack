@@ -21,7 +21,7 @@ public class Object2IntPair<T> {
     public Object2IntPair() {
     }
 
-    public Object2IntPair(T key, int value) {
+    public Object2IntPair(@Nullable T key, int value) {
         this();
         this.key = key;
         this.value = value;
