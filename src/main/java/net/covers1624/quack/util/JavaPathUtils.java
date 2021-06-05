@@ -14,8 +14,9 @@ import java.nio.file.Paths;
  */
 public class JavaPathUtils {
 
-    private static final Path JAVA_HOME = calcJavaHome();
+    // Only windows has a different suffix for this use case, Mac, Linux, and FreeBSD don't.
     private static final String EXE_SUFFIX = System.getProperty("os.name").contains("windows") ? ".exe" : "";
+    private static final Path JAVA_HOME = calcJavaHome();
 
     /**
      * Gets the home directory for the currently running Java installation.
@@ -56,6 +57,7 @@ public class JavaPathUtils {
 
     private static Path calcJavaHome() {
         Path home = Paths.get(System.getProperty("java.home")).toAbsolutePath().normalize();
+        // If our jre is the embedded jre for a jdk, use the jdk path as our home, means javac and other dev tools exist.
         if (home.getFileName().toString().equalsIgnoreCase("jre") && Files.exists(home.getParent().resolve("bin/java" + EXE_SUFFIX))) {
             return home.getParent();
         }
