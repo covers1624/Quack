@@ -33,8 +33,8 @@ public class MavenNotation implements Serializable {
     public MavenNotation(String group, String module, @Nullable String version, @Nullable String classifier, String extension) {
         this.group = Objects.requireNonNull(group, "group");
         this.module = Objects.requireNonNull(module, "module");
-        this.version = version;
-        this.classifier = classifier;
+        this.version = isEmpty(version) ? null : version;
+        this.classifier = isEmpty(classifier) ? null : classifier;
         this.extension = Objects.requireNonNull(extension, "extension");
     }
 
