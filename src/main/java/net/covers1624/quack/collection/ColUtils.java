@@ -16,6 +16,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 import static org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -671,5 +673,86 @@ public class ColUtils {
             @Override public E next() { return enumeration.nextElement(); }
             //@formatter:on
         };
+    }
+
+    /**
+     * Shorthand for converting a stream to an Iterable.
+     * <p>
+     * It is important to note, that a Stream can only be consumed once,
+     * and thus, the returned Iterable can only be consumed once.
+     *
+     * @param stream The Stream.
+     * @return The Iterable.
+     */
+    public static <E> Iterable<E> iterable(Stream<E> stream) {
+        return stream::iterator;
+    }
+
+    /**
+     * Shorthand util for streaming an Iterable.
+     *
+     * @param iter The iterable.
+     * @return The Stream.
+     */
+    public static <E> Stream<E> stream(Iterable<E> iter) {
+        return StreamSupport.stream(iter.spliterator(), false);
+    }
+
+    /**
+     * Shorthand util for streaming an Iterable in parallel.
+     *
+     * @param iter The iterable.
+     * @return The Parallel Stream.
+     */
+    public static <E> Stream<E> parallelStream(Iterable<E> iter) {
+        return StreamSupport.stream(iter.spliterator(), true);
+    }
+
+    @Nullable
+    public static <T> T onlyOrDefault(Stream<T> stream) {
+        return onlyOrDefault(stream, null);
+    }
+
+    /**
+     * Returns the first element found in the Stream if it is the only element in the stream,
+     * otherwise the default value is returned.
+     *
+     * @param stream   The stream.
+     * @param _default The default value, in the event the stream is empty, or has more than one element.
+     * @return The first element or the default.
+     */
+    @Nullable
+    @Contract ("_,!null -> !null")
+    public static <T> T onlyOrDefault(Stream<T> stream, @Nullable T _default) {
+        T thing = _default;
+        boolean found = false;
+        for (T t : iterable(stream)) {
+            if (found) return _default;
+            found = true;
+            thing = t;
+        }
+        return thing;
+    }
+
+    /**
+     * Assert the stream contains a single element, and return it.
+     *
+     * @param stream The stream.
+     * @return The element.
+     */
+    public static <T> T only(Stream<T> stream) {
+        T thing = null;
+        boolean found = false;
+        for (T t : iterable(stream)) {
+            if (found) {
+                throw new IllegalArgumentException("More than one element.");
+            }
+            found = true;
+            thing = t;
+        }
+        if (!found) {
+            throw new IllegalArgumentException("Not found.");
+        }
+        return thing;
     }
 }
