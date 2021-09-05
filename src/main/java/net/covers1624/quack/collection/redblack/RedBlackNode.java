@@ -121,7 +121,7 @@ public abstract class RedBlackNode<T extends RedBlackNode<T>> {
         };
     }
 
-    public void onChildrenChanged() {}
+    public void onChildrenChanged() { }
 
     @Nullable
     public T getLeft() {

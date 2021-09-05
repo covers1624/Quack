@@ -173,10 +173,10 @@ public class MavenNotation implements Serializable {
             return false;
         }
         MavenNotation other = (MavenNotation) obj;
-        return Objects.equals(group, other.group)//
-                && Objects.equals(module, other.module)//
-                && Objects.equals(version, other.version)//
-                && Objects.equals(classifier, other.classifier)//
+        return Objects.equals(group, other.group)
+                && Objects.equals(module, other.module)
+                && Objects.equals(version, other.version)
+                && Objects.equals(classifier, other.classifier)
                 && Objects.equals(extension, other.extension);
     }
 

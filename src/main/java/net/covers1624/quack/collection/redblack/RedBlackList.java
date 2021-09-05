@@ -7,7 +7,6 @@ package net.covers1624.quack.collection.redblack;
 
 import net.covers1624.quack.util.Object2IntFunction;
 import net.covers1624.quack.util.SneakyUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;

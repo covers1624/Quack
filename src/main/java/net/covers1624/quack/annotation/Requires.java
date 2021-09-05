@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  * Specifies what Maven Dependencies something requires,
  * Used as Human readable markers for denoting what Things
  * in Quack require what maven dependencies.
- *
+ * <p>
  * Created by covers1624 on 13/1/21.
  */
 @Target (ElementType.TYPE)

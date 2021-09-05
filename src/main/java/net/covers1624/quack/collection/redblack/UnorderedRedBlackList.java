@@ -5,13 +5,9 @@
  */
 package net.covers1624.quack.collection.redblack;
 
-import com.google.common.collect.Iterators;
-import net.covers1624.quack.collection.ColUtils;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
-
-import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
+import java.util.Collection;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Based off Chicken-Bones C# RedBlack Tree library: https://github.com/Chicken-Bones/RedBlack

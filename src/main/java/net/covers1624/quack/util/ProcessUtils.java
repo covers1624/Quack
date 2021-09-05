@@ -15,9 +15,9 @@ public class ProcessUtils {
 
     /**
      * This method is backported from Java 9 for use with Java 8 based tools.
-     *
+     * <p>
      * The following documentation is copied from the Java 9 implementation.
-     *
+     * <p>
      * Returns a {@code CompletableFuture<Process>} for the termination of the Process.
      * The {@link java.util.concurrent.CompletableFuture} provides the ability
      * to trigger dependent functions or actions that may be run synchronously
@@ -37,8 +37,8 @@ public class ProcessUtils {
      * default implementation to provide an efficient mechanism to wait
      * for process exit.
      *
-     * @apiNote
-     * Using {@link #onExit onExit} is an alternative to
+     * @return a new {@code CompletableFuture<Process>} for the Process
+     * @apiNote Using {@link #onExit onExit} is an alternative to
      * {@link Process#waitFor() waitFor} that enables both additional concurrency
      * and convenient access to the result of the Process.
      * Lambda expressions can be used to evaluate the result of the Process
@@ -53,16 +53,14 @@ public class ProcessUtils {
      *    ...
      *    if (identical.get()) { ... }
      * }</pre>
-     *
-     * @implSpec
-     * This implementation executes {@link Process#waitFor()} in a separate thread
+     * @implSpec This implementation executes {@link Process#waitFor()} in a separate thread
      * repeatedly until it returns successfully. If the execution of
      * {@code waitFor} is interrupted, the thread's interrupt status is preserved.
      * <p>
      * When {@link Process#waitFor()} returns successfully the CompletableFuture is
      * {@linkplain java.util.concurrent.CompletableFuture#complete completed} regardless
      * of the exit status of the process.
-     *
+     * <p>
      * This implementation may consume a lot of memory for thread stacks if a
      * large number of processes are waited for concurrently.
      * <p>
@@ -74,12 +72,8 @@ public class ProcessUtils {
      *       return delegate.onExit().thenApply(p -> this);
      *    }
      * }</pre>
-     * @apiNote
-     * The process may be observed to have terminated with {@link Process#isAlive}
+     * @apiNote The process may be observed to have terminated with {@link Process#isAlive}
      * before the ComputableFuture is completed and dependent actions are invoked.
-     *
-     * @return a new {@code CompletableFuture<Process>} for the Process
-     *
      * @since 9
      */
     public static CompletableFuture<Process> onExit(Process process) {

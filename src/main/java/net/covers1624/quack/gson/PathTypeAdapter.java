@@ -10,6 +10,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import net.covers1624.quack.annotation.Requires;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.nio.file.Paths;
  * <p>
  * Created by covers1624 on 14/1/21.
  */
+@Requires ("com.google.code.gson:gson")
 public final class PathTypeAdapter extends TypeAdapter<Path> {
 
     @Override

@@ -258,7 +258,7 @@ public class DownloadAction implements DownloadSpec {
     @Override public void setSrc(Object src) { this.src = src; }
     @Override public void setDest(Path dest) { this.dest = dest; }
     @Override public void setOnlyIfModified(boolean onlyIfModified) { this.onlyIfModified = onlyIfModified; }
-    @Override public void setUseETag(Object eTag) { this.useETag = UseETag.parse(eTag); }
+    @Override public void setUseETag(Object eTag) { useETag = UseETag.parse(eTag); }
     @Override public void setETagFile(Path eTagFile) { this.eTagFile = eTagFile; }
     @Override public void setUserAgent(String userAgent) { this.userAgent = userAgent; }
     @Override public void setQuiet(boolean quiet) { this.quiet = quiet; }
@@ -326,7 +326,7 @@ public class DownloadAction implements DownloadSpec {
                         return STRONG;
                 }
             }
-            throw new IllegalArgumentException("Unable to parse ETag, Unknown value: " + value.toString());
+            throw new IllegalArgumentException("Unable to parse ETag, Unknown value: " + value);
         }
     }
 

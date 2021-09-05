@@ -12,6 +12,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Nonnull
-@Retention(RetentionPolicy.RUNTIME)
-@TypeQualifierDefault(ElementType.FIELD)
-public @interface FieldsAreNonnullByDefault {}
+@Retention (RetentionPolicy.RUNTIME)
+@TypeQualifierDefault (ElementType.FIELD)
+public @interface FieldsAreNonnullByDefault { }

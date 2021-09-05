@@ -19,7 +19,7 @@ import static net.covers1624.quack.io.IOUtils.copy;
 /**
  * A simple wrapper around Java's ProcessBuilder / Process system,
  * with a better interface for IO.
- *
+ * <p>
  * Created by covers1624 on 12/01/19.
  */
 public class ProcessExecutor {
@@ -474,7 +474,7 @@ public class ProcessExecutor {
          * Returns a StringBuilder that is automatically updated from the Processes stdOut during
          * the runtime of the process, This should be called before executing the Process then checked
          * once execution has finished.
-         *
+         * <p>
          * ALL Process IO is performed off the 'Main' thread, just be smart.
          *
          * @return The StringBuilder.
@@ -492,7 +492,7 @@ public class ProcessExecutor {
          * Returns a StringBuilder that is automatically updated from the Processes stdErr during
          * the runtime of the process, This should be called before executing the Process then checked
          * once execution has finished.
-         *
+         * <p>
          * ALL Process IO is performed off the 'Main' thread, just be smart.
          *
          * @return The StringBuilder.
