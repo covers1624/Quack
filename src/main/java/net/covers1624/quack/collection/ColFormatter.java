@@ -64,7 +64,7 @@ public class ColFormatter {
 
     public static List<List<String>> toSquare(List<List<String>> input) {
         int len = ColUtils.maxBy(input, List::size).size();
-        if (ColUtils.forAll(input, e -> e.size() == len)) {
+        if (ColUtils.allMatch(input, e -> e.size() == len)) {
             return input;
         }
         List<List<String>> out = new ArrayList<>();

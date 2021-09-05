@@ -5,7 +5,10 @@
  */
 package net.covers1624.quack.collection;
 
+import net.covers1624.quack.annotation.ReplaceWith;
+import net.covers1624.quack.annotation.ReplaceWithExpr;
 import net.covers1624.quack.util.Copyable;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -15,6 +18,7 @@ import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
+import static org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * Various Collection Utilities for Iterables and Arrays.
@@ -23,14 +27,23 @@ import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
  */
 public class ColUtils {
 
+    //region Deprecated
+    @Deprecated
+    @ReplaceWith ("String#join()")
+    @ScheduledForRemoval (inVersion = "0.4.0")
     public static String toString(Iterable<?> col) {
         return mkString(col, "[ ", ", ", " ]", ColUtils::toString_);
     }
 
+    @Deprecated
+    @ReplaceWith ("String#join()")
+    @ScheduledForRemoval (inVersion = "0.4.0")
     public static String toString(Object[] col) {
         return mkString(col, "[ ", ", ", " ]", ColUtils::toString_);
     }
 
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.4.0")
     private static String toString_(Object obj) {
         if (obj instanceof Iterable) {
             return toString((Iterable<?>) obj);
@@ -41,26 +54,46 @@ public class ColUtils {
         }
     }
 
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWithExpr ("java.util.Arrays.stream(col).collect(Collectors.joining())")
     public static String mkString(String[] array) {
         return mkString(array, "");
     }
 
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWithExpr ("java.util.Arrays.stream(col).collect(Collectors.joining(sep))")
     public static String mkString(String[] array, String sep) {
         return mkString(array, "", sep, "");
     }
 
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWithExpr ("java.util.Arrays.stream(col).collect(Collectors.joining(sep, start, end))")
     public static String mkString(String[] array, String start, String sep, String end) {
         return mkString(Arrays.asList(array), start, sep, end);
     }
 
+    @Deprecated
+    @ReplaceWith ("String#join()")
+    @ScheduledForRemoval (inVersion = "0.4.0")
     public static String mkString(Iterable<String> col) {
         return mkString(col, "");
     }
 
+    @Deprecated
+    @ReplaceWith ("String#join()")
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWithExpr ("java.util.Arrays.stream(col).collect(Collectors.joining(sep, start, end))")
     public static String mkString(Iterable<String> col, String sep) {
         return mkString(col, "", sep, "");
     }
 
+    @Deprecated
+    @ReplaceWith ("String#join()")
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWithExpr ("ColUtils.stream(col).collect(Collectors.joining(sep, start, end))")
     public static String mkString(Iterable<String> col, String start, String sep, String end) {
         StringBuilder builder = new StringBuilder(start);
         boolean isFirst = true;
@@ -75,10 +108,17 @@ public class ColUtils {
         return builder.toString();
     }
 
+    @Deprecated
+    @ReplaceWith ("String#join()")
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWithExpr ("java.util.Arrays.stream(col).map(func).collect(Collectors.joining(sep, start, end))")
     public static String mkString(Object[] col, String start, String sep, String end, Function<Object, String> func) {
         return mkString(Arrays.asList(col), start, sep, end, func);
     }
 
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWithExpr ("ColUtils.stream(col).map(func).collect(Collectors.joining(sep, start, end))")
     public static String mkString(Iterable<?> col, String start, String sep, String end, Function<Object, String> func) {
         StringBuilder builder = new StringBuilder(start);
         boolean isFirst = true;
@@ -93,6 +133,60 @@ public class ColUtils {
         return builder.toString();
     }
 
+    @Deprecated
+    @ReplaceWith ("#iterable(Enumeration)")
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    public static <E> Iterable<E> toIterable(Enumeration<E> enumeration) {
+        return iterable(enumeration);
+    }
+
+    @Deprecated
+    @ReplaceWith ("#allMatch(T[], Predicate)")
+    public static <T> boolean forAll(T[] col, Predicate<T> func) {
+        return allMatch(col, func);
+    }
+
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWith ("#allMatch(Iterable, Predicate)")
+    public static <T> boolean forAll(Iterable<T> col, Predicate<T> func) {
+        return allMatch(col, func);
+    }
+
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWith ("#anyMatch(Iterable, Predicate)")
+    public static <T> boolean exists(Iterable<T> col, Predicate<T> func) {
+        return anyMatch(col, func);
+    }
+
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWith ("#findFirst(Iterable, Predicate)")
+    public static <T> Optional<T> find(Iterable<T> col, Predicate<T> func) {
+        return findFirst(col, func);
+    }
+
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.4.0")
+    @ReplaceWith ("#headOption(Iterable, Predicate)")
+    public static <T> T head(Iterable<T> col) {
+        Iterator<T> itr = col.iterator();
+        if (itr.hasNext()) {
+            return itr.next();
+        }
+        throw new RuntimeException("Empty Iterable.");
+    }
+    //endregion
+
+    /**
+     * Slices the given array.
+     *
+     * @param arr   The Array to slice.
+     * @param from  The from index.
+     * @param until The until index.
+     * @return The sliced array.
+     */
     @SuppressWarnings ("unchecked")
     public static <T> T[] slice(T[] arr, int from, int until) {
         int low = Math.max(from, 0);
@@ -105,10 +199,26 @@ public class ColUtils {
         return result;
     }
 
+    /**
+     * Returns the element in the array with the highest value returned by the supplied function.
+     *
+     * @param col  The array.
+     * @param func The function.
+     * @return The max element or null.
+     */
+    @Nullable
     public static <T> T maxBy(T[] col, ToIntFunction<T> func) {
         return maxBy(Arrays.asList(col), func);
     }
 
+    /**
+     * Returns the element in the Iterable with the highest value returned by the supplied function.
+     *
+     * @param col  The array.
+     * @param func The function.
+     * @return The max element or null.
+     */
+    @Nullable
     public static <T> T maxBy(Iterable<T> col, ToIntFunction<T> func) {
         int max = Integer.MIN_VALUE;
         T maxT = null;
@@ -122,11 +232,27 @@ public class ColUtils {
         return maxT;
     }
 
-    public static <T> boolean forAll(T[] col, Predicate<T> func) {
-        return forAll(Arrays.asList(col), func);
+    /**
+     * Returns true if all elements in the provided array match the
+     * given predicate.
+     *
+     * @param col  The collection to match.
+     * @param func The function to apply.
+     * @return If all elements match.
+     */
+    public static <T> boolean allMatch(T[] col, Predicate<T> func) {
+        return allMatch(Arrays.asList(col), func);
     }
 
-    public static <T> boolean forAll(Iterable<T> col, Predicate<T> func) {
+    /**
+     * Returns true if all elements in the provided Iterable match the
+     * given predicate.
+     *
+     * @param col  The collection to match.
+     * @param func The function to apply.
+     * @return If all elements match.
+     */
+    public static <T> boolean allMatch(Iterable<T> col, Predicate<T> func) {
         for (T t : col) {
             if (!func.test(t)) {
                 return false;
@@ -135,7 +261,15 @@ public class ColUtils {
         return true;
     }
 
-    public static <T> boolean exists(Iterable<T> col, Predicate<T> func) {
+    /**
+     * Returns true if any element in the provided Iterable matches the
+     * given predicate.
+     *
+     * @param col  The collection to match.
+     * @param func The function to apply.
+     * @return If any elements match.
+     */
+    public static <T> boolean anyMatch(Iterable<T> col, Predicate<T> func) {
         for (T t : col) {
             if (func.test(t)) {
                 return true;
@@ -144,7 +278,14 @@ public class ColUtils {
         return false;
     }
 
-    public static <T> Optional<T> find(Iterable<T> col, Predicate<T> func) {
+    /**
+     * Finds the first element in the Iterable that matches the given predicate.
+     *
+     * @param col  The collection.
+     * @param func The predicate.
+     * @return The Optional result.
+     */
+    public static <T> Optional<T> findFirst(Iterable<T> col, Predicate<T> func) {
         for (T t : col) {
             if (func.test(t)) {
                 return Optional.of(t);
@@ -153,20 +294,18 @@ public class ColUtils {
         return Optional.empty();
     }
 
+    /**
+     * Attempts to get the first element of the Iterable.
+     *
+     * @param col The collection.
+     * @return The optional result.
+     */
     public static <T> Optional<T> headOption(Iterable<T> col) {
         Iterator<T> itr = col.iterator();
         if (itr.hasNext()) {
             return Optional.of(itr.next());
         }
         return Optional.empty();
-    }
-
-    public static <T> T head(Iterable<T> col) {
-        Iterator<T> itr = col.iterator();
-        if (itr.hasNext()) {
-            return itr.next();
-        }
-        throw new RuntimeException("Empty Iterable.");
     }
 
     /**
@@ -496,16 +635,13 @@ public class ColUtils {
      * @param <T>   The thing.
      * @return If the array is null or contains null.
      */
-    public static <T> boolean isNullOrContainsNull(@Nullable T[] input) {
-        if (input != null) {
-            for (T t : input) {
-                if (t == null) {
-                    return true;
-                }
-            }
-            return false;
+    public static <T> boolean isNullOrContainsNull(T @Nullable [] input) {
+        if (input == null) return true;
+        for (T t : input) {
+            if (t != null) continue;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -526,10 +662,9 @@ public class ColUtils {
      * Represents this Enumeration as an Iterable.
      *
      * @param enumeration The Enumeration.
-     * @param <E>         The Type.
      * @return The Iterable.
      */
-    public static <E> Iterable<E> toIterable(Enumeration<E> enumeration) {
+    public static <E> Iterable<E> iterable(Enumeration<E> enumeration) {
         return () -> new Iterator<E>() {
             //@formatter:off
             @Override public boolean hasNext() { return enumeration.hasMoreElements(); }
