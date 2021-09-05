@@ -12,6 +12,8 @@ import java.util.function.Consumer;
  * A simple OutputStream treating all input as Text,
  * delegating each line of text to the provided consumer.
  * <p>
+ * This consumer does not support Mac OS classic CR line endings.
+ * <p>
  * Created by covers1624 on 1/4/21.
  */
 public class ConsumingOutputStream extends OutputStream {
@@ -27,7 +29,7 @@ public class ConsumingOutputStream extends OutputStream {
     public void write(int b) {
         char ch = (char) (b & 0xFF);
         buffer.append(ch);
-        if (ch == '\n' || ch == '\r') {
+        if (ch == '\n') {
             flush();
         }
     }
@@ -38,7 +40,7 @@ public class ConsumingOutputStream extends OutputStream {
             return;
         }
         char end = buffer.charAt(buffer.length() - 1);
-        if (end == '\n' || end == '\r') {
+        if (end == '\n') {
             consumer.accept(buffer.toString().trim());
             buffer.setLength(0);
         }
