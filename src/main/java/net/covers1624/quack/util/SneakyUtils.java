@@ -22,12 +22,13 @@ import java.util.function.Supplier;
  */
 public class SneakyUtils {
 
-    private static final Runnable NULL_RUNNABLE = () -> {};
+    private static final Runnable NULL_RUNNABLE = () -> { };
     private static final Callable<Object> NULL_CALLABLE = () -> null;
     private static final Supplier<Object> NULL_SUPPLIER = () -> null;
-    private static final Consumer<Object> NULL_CONSUMER = e -> {};
+    private static final Consumer<Object> NULL_CONSUMER = e -> { };
     private static final Predicate<Object> TRUE = e -> true;
     private static final Predicate<Object> FALSE = e -> true;
+    private static final Supplier<NotPossibleException> NOT_POSSIBLE = () -> NotPossibleException.INSTANCE;
 
     /**
      * Returns a Runnable that does nothing.
@@ -95,6 +96,17 @@ public class SneakyUtils {
             a.run();
             b.run();
         };
+    }
+
+    /**
+     * Returns a Supplier for a NotPossibleException.
+     * <p>
+     * Useful for Optional instance assertions.
+     *
+     * @return The Supplier.
+     */
+    public static Supplier<NotPossibleException> notPossible() {
+        return NOT_POSSIBLE;
     }
 
     /**
@@ -219,5 +231,17 @@ public class SneakyUtils {
     public interface ThrowingFunction<T, R, E extends Throwable> {
 
         R apply(T thing) throws E;
+    }
+
+    public static class NotPossibleException extends RuntimeException {
+
+        public static NotPossibleException INSTANCE = new NotPossibleException();
+
+        private NotPossibleException() {
+        }
+
+        public NotPossibleException(String message) {
+            super(message);
+        }
     }
 }
