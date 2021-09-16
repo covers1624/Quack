@@ -724,9 +724,23 @@ public class ColUtils {
     @Nullable
     @Contract ("_,!null -> !null")
     public static <T> T onlyOrDefault(Stream<T> stream, @Nullable T _default) {
+        return onlyOrDefault(iterable(stream), _default);
+    }
+
+    /**
+     * Returns the first element found in the Stream if it is the only element in the iterable,
+     * otherwise the default value is returned.
+     *
+     * @param iterable The iterable.
+     * @param _default The default value, in the event the iterable is empty, or has more than one element.
+     * @return The first element or the default.
+     */
+    @Nullable
+    @Contract ("_,!null -> !null")
+    public static <T> T onlyOrDefault(Iterable<T> iterable, @Nullable T _default) {
         T thing = _default;
         boolean found = false;
-        for (T t : iterable(stream)) {
+        for (T t : iterable) {
             if (found) return _default;
             found = true;
             thing = t;
@@ -741,9 +755,19 @@ public class ColUtils {
      * @return The element.
      */
     public static <T> T only(Stream<T> stream) {
+        return only(iterable(stream));
+    }
+
+    /**
+     * Assert the iterable contains a single element, and return it.
+     *
+     * @param iterable The iterable.
+     * @return The element.
+     */
+    public static <T> T only(Iterable<T> iterable) {
         T thing = null;
         boolean found = false;
-        for (T t : iterable(stream)) {
+        for (T t : iterable) {
             if (found) {
                 throw new IllegalArgumentException("More than one element.");
             }
