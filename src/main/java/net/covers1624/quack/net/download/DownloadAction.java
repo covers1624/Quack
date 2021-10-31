@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.DateUtils;
@@ -121,7 +121,7 @@ public class DownloadAction implements DownloadSpec {
             try (CloseableHttpResponse response = client.execute(request)) {
                 int code = response.getStatusLine().getStatusCode();
                 if ((code < 200 || code > 299) && code != HttpStatus.SC_NOT_MODIFIED) {
-                    throw new ClientProtocolException(response.getStatusLine().getReasonPhrase());
+                    throw new HttpResponseException(code, response.getStatusLine().getReasonPhrase());
                 }
                 long lastModified = 0;
                 Header lastModifiedHeader = response.getLastHeader("Last-Modified");
