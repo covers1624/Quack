@@ -5,9 +5,6 @@
  */
 package net.covers1624.quack.io;
 
-import net.covers1624.quack.annotation.ReplaceWith;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-
 import java.io.OutputStream;
 
 /**
@@ -19,12 +16,6 @@ import java.io.OutputStream;
 public class NullOutputStream extends OutputStream {
 
     public static final NullOutputStream INSTANCE = new NullOutputStream();
-
-    //Singleton.
-    @Deprecated
-    @ReplaceWith ("#INSTANCE")
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    public NullOutputStream() { }
 
     //@formatter:off
     @Override public void write(int b) { }

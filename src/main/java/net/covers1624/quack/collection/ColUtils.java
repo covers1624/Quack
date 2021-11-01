@@ -5,8 +5,6 @@
  */
 package net.covers1624.quack.collection;
 
-import net.covers1624.quack.annotation.ReplaceWith;
-import net.covers1624.quack.annotation.ReplaceWithExpr;
 import net.covers1624.quack.util.Copyable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +18,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
-import static org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * Various Collection Utilities for Iterables and Arrays.
@@ -28,158 +25,6 @@ import static org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
  * Created by covers1624 on 5/08/18.
  */
 public class ColUtils {
-
-    //region Deprecated
-    @Deprecated
-    @ReplaceWith ("String#join()")
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    public static String toString(Iterable<?> col) {
-        return mkString(col, "[ ", ", ", " ]", ColUtils::toString_);
-    }
-
-    @Deprecated
-    @ReplaceWith ("String#join()")
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    public static String toString(Object[] col) {
-        return mkString(col, "[ ", ", ", " ]", ColUtils::toString_);
-    }
-
-    @Deprecated
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    private static String toString_(Object obj) {
-        if (obj instanceof Iterable) {
-            return toString((Iterable<?>) obj);
-        } else if (obj instanceof Object[]) {
-            return toString((Object[]) obj);
-        } else {
-            return String.valueOf(obj);
-        }
-    }
-
-    @Deprecated
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWithExpr ("java.util.Arrays.stream(col).collect(Collectors.joining())")
-    public static String mkString(String[] array) {
-        return mkString(array, "");
-    }
-
-    @Deprecated
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWithExpr ("java.util.Arrays.stream(col).collect(Collectors.joining(sep))")
-    public static String mkString(String[] array, String sep) {
-        return mkString(array, "", sep, "");
-    }
-
-    @Deprecated
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWithExpr ("java.util.Arrays.stream(col).collect(Collectors.joining(sep, start, end))")
-    public static String mkString(String[] array, String start, String sep, String end) {
-        return mkString(Arrays.asList(array), start, sep, end);
-    }
-
-    @Deprecated
-    @ReplaceWith ("String#join()")
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    public static String mkString(Iterable<String> col) {
-        return mkString(col, "");
-    }
-
-    @Deprecated
-    @ReplaceWith ("String#join()")
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWithExpr ("java.util.Arrays.stream(col).collect(Collectors.joining(sep, start, end))")
-    public static String mkString(Iterable<String> col, String sep) {
-        return mkString(col, "", sep, "");
-    }
-
-    @Deprecated
-    @ReplaceWith ("String#join()")
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWithExpr ("ColUtils.stream(col).collect(Collectors.joining(sep, start, end))")
-    public static String mkString(Iterable<String> col, String start, String sep, String end) {
-        StringBuilder builder = new StringBuilder(start);
-        boolean isFirst = true;
-        for (String s : col) {
-            if (!isFirst) {
-                builder.append(sep);
-            }
-            isFirst = false;
-            builder.append(s);
-        }
-        builder.append(end);
-        return builder.toString();
-    }
-
-    @Deprecated
-    @ReplaceWith ("String#join()")
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWithExpr ("java.util.Arrays.stream(col).map(func).collect(Collectors.joining(sep, start, end))")
-    public static String mkString(Object[] col, String start, String sep, String end, Function<Object, String> func) {
-        return mkString(Arrays.asList(col), start, sep, end, func);
-    }
-
-    @Deprecated
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWithExpr ("ColUtils.stream(col).map(func).collect(Collectors.joining(sep, start, end))")
-    public static String mkString(Iterable<?> col, String start, String sep, String end, Function<Object, String> func) {
-        StringBuilder builder = new StringBuilder(start);
-        boolean isFirst = true;
-        for (Object s : col) {
-            if (!isFirst) {
-                builder.append(sep);
-            }
-            isFirst = false;
-            builder.append(func.apply(s));
-        }
-        builder.append(end);
-        return builder.toString();
-    }
-
-    @Deprecated
-    @ReplaceWith ("#iterable(Enumeration)")
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    public static <E> Iterable<E> toIterable(Enumeration<E> enumeration) {
-        return iterable(enumeration);
-    }
-
-    @Deprecated
-    @ReplaceWith ("#allMatch(T[], Predicate)")
-    public static <T> boolean forAll(T[] col, Predicate<T> func) {
-        return allMatch(col, func);
-    }
-
-    @Deprecated
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWith ("#allMatch(Iterable, Predicate)")
-    public static <T> boolean forAll(Iterable<T> col, Predicate<T> func) {
-        return allMatch(col, func);
-    }
-
-    @Deprecated
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWith ("#anyMatch(Iterable, Predicate)")
-    public static <T> boolean exists(Iterable<T> col, Predicate<T> func) {
-        return anyMatch(col, func);
-    }
-
-    @Deprecated
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWith ("#findFirst(Iterable, Predicate)")
-    public static <T> Optional<T> find(Iterable<T> col, Predicate<T> func) {
-        return findFirst(col, func);
-    }
-
-    @Deprecated
-    @ScheduledForRemoval (inVersion = "0.4.0")
-    @ReplaceWith ("#headOption(Iterable, Predicate)")
-    public static <T> T head(Iterable<T> col) {
-        Iterator<T> itr = col.iterator();
-        if (itr.hasNext()) {
-            return itr.next();
-        }
-        throw new RuntimeException("Empty Iterable.");
-    }
-    //endregion
 
     /**
      * Slices the given array.
@@ -308,6 +153,21 @@ public class ColUtils {
             return Optional.of(itr.next());
         }
         return Optional.empty();
+    }
+
+    /**
+     * Attempts to get the last element of the Iterable.
+     *
+     * @param col The collection.
+     * @return The optional result.
+     */
+    public static <T> Optional<T> tailOption(Iterable<T> col) {
+        Iterator<T> itr = col.iterator();
+        T last = null;
+        while (itr.hasNext()) {
+            last = itr.next();
+        }
+        return Optional.ofNullable(last);
     }
 
     /**

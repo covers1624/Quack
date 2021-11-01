@@ -17,9 +17,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,12 +61,12 @@ import static java.nio.file.StandardOpenOption.CREATE;
  * <p>
  * Created by covers1624 on 8/02/19.
  */
+@Requires ("org.slf4j:slf4j-api")
 @Requires ("org.apache.commons:commons-lang3")
-@Requires ("org.apache.logging.log4j:log4j-api")
 @Requires ("org.apache.httpcomponents:httpclient")
 public class DownloadAction implements DownloadSpec {
 
-    private static final Logger logger = LogManager.getLogger("DownloadAction");
+    private static final Logger LOGGER = LoggerFactory.getLogger("DownloadAction");
 
     private Object src;
     private Path dest;
@@ -136,7 +136,7 @@ public class DownloadAction implements DownloadSpec {
                 }
                 if ((code == HttpStatus.SC_NOT_MODIFIED || (lastModified != 0 && timestamp >= lastModified)) && fileUpToDate.test(dest)) {
                     if (!isQuiet()) {
-                        logger.info("Not Modified. Skipping '{}'.", src);
+                        LOGGER.info("Not Modified. Skipping '{}'.", src);
                     }
                     upToDate = true;
                     return;
@@ -192,7 +192,7 @@ public class DownloadAction implements DownloadSpec {
                         String etag = eTagHeader.getValue();
                         boolean isWeak = StringUtils.startsWith(etag, "W/");
                         if (isWeak && getUseETag().warnOnWeak && !quiet) {
-                            logger.warn("Weak ETag found.");
+                            LOGGER.warn("Weak ETag found.");
                         }
                         if (!isWeak || getUseETag().weak) {
                             saveETag(src, etag);
@@ -212,7 +212,7 @@ public class DownloadAction implements DownloadSpec {
         try {
             return ColUtils.headOption(Files.readAllLines(eTagFile)).orElse(null);
         } catch (IOException e) {
-            logger.warn("Error reading ETag file '{}'.", eTagFile);
+            LOGGER.warn("Error reading ETag file '{}'.", eTagFile);
             return null;
         }
     }
@@ -224,7 +224,7 @@ public class DownloadAction implements DownloadSpec {
             Files.write(tmp, Collections.singleton(eTag), CREATE);
             Files.move(tmp, eTagFile, REPLACE_EXISTING);
         } catch (IOException e) {
-            logger.warn("Error saving ETag file '{}'.", eTagFile, e);
+            LOGGER.warn("Error saving ETag file '{}'.", eTagFile, e);
         }
     }
 
