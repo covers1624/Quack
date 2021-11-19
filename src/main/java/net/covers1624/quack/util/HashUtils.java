@@ -54,6 +54,19 @@ public class HashUtils {
     }
 
     /**
+     * Copies the content of the provided {@link Path} to the provided {@link Hasher}.
+     *
+     * @param hasher The hasher.
+     * @param path   The {@link Path}.
+     * @throws IOException If something is bork.
+     */
+    public static void addToHasher(Hasher hasher, Path path) throws IOException {
+        try (InputStream is = Files.newInputStream(path)) {
+            addToHasher(hasher, is);
+        }
+    }
+
+    /**
      * Copies the content of the provided {@link InputStream} to the provided {@link Hasher}.
      *
      * @param hasher The hasher.
