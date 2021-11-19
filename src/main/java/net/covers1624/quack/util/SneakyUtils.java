@@ -9,10 +9,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /**
  * Contains some utilities for ignoring compiler warnings in specific cases, or
@@ -28,6 +25,8 @@ public class SneakyUtils {
     private static final Consumer<Object> NULL_CONSUMER = e -> { };
     private static final Predicate<Object> TRUE = e -> true;
     private static final Predicate<Object> FALSE = e -> true;
+    private static final BinaryOperator<Object> FIRST = (a, b) -> a;
+    private static final BinaryOperator<Object> LAST = (a, b) -> b;
     private static final Supplier<NotPossibleException> NOT_POSSIBLE = () -> NotPossibleException.INSTANCE;
 
     /**
@@ -82,6 +81,24 @@ public class SneakyUtils {
      */
     public static <T> Predicate<T> falseP() {
         return unsafeCast(FALSE);
+    }
+
+    /**
+     * A BinaryOperator which always resolves to the left-hand element.
+     *
+     * @return The BinaryOperator.
+     */
+    public static <T> BinaryOperator<T> first() {
+        return unsafeCast(FIRST);
+    }
+
+    /**
+     * A BinaryOperator which always resolves to the right-hand element.
+     *
+     * @return The BinaryOperator.
+     */
+    public static <T> BinaryOperator<T> last() {
+        return unsafeCast(LAST);
     }
 
     /**
