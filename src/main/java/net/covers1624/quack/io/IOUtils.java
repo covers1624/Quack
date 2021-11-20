@@ -93,6 +93,47 @@ public class IOUtils {
     }
 
     /**
+     * Read the entire content of the provided {@link Path} into a
+     * UTF-8 {@link String}.
+     *
+     * @param path The path to read.
+     * @return The {@link String}.
+     * @throws IOException If there was an error reading the file.
+     */
+    public static String readAll(Path path) throws IOException {
+        return readAll(path, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Read the entire content of the provided {@link Path} into a
+     * {@link String} with the given charset.
+     *
+     * @param path    The path to read.
+     * @param charset The {@link Charset}.
+     * @return The {@link String}.
+     * @throws IOException If there was an error reading the file.
+     */
+    public static String readAll(Path path, Charset charset) throws IOException {
+        return new String(Files.readAllBytes(path), charset);
+    }
+
+    /**
+     * Creates the parent directories of the given path if they don't exist.
+     *
+     * @param path The path.
+     * @return The same path.
+     * @throws IOException If an error occurs creating the directories.
+     */
+    public static Path makeParents(Path path) throws IOException {
+        path = path.toAbsolutePath();
+        Path parent = path.getParent();
+        if (Files.notExists(parent)) {
+            Files.createDirectories(parent);
+        }
+        return path;
+    }
+
+    /**
      * Creates a new {@link FileSystem} for the given jar path.
      * <p>
      * If a FS was not created by this method due to it already existing, this method

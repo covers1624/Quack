@@ -56,8 +56,12 @@ dependencies {
     compileOnly 'org.apache.logging.log4j:log4j-core:2.11.1'
     annotationProcessor 'org.apache.logging.log4j:log4j-core:2.11.1'
 
+    // Used for testing.
+    runtimeOnly 'org.slf4j:slf4j-simple:1.7.32'
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+    testRuntimeOnly 'org.slf4j:slf4j-simple:1.7.32'
 
     gradleCompileOnly gradleApi()
     gradleImplementation sourceSets.main.output

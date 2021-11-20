@@ -10,10 +10,6 @@ import net.covers1624.quack.net.download.DownloadListener;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import okio.Buffer;
-import okio.ForwardingSource;
-import okio.Source;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -38,7 +34,7 @@ public class ProgressInterceptor implements Interceptor {
         tag.listener.connecting();
         Response response = chain.proceed(request);
         return response.newBuilder()
-                .body(SniffingResponseBody.ofFunction(Objects.requireNonNull(response.body()), e -> new ProgressForwardingSource(e, tag)))
+                .body(SniffingResponseBody.ofFunction(Objects.requireNonNull(response.body()), e -> new ProgressForwardingSource(e, tag.listener, tag.existingLen)))
                 .build();
     }
 
@@ -58,30 +54,6 @@ public class ProgressInterceptor implements Interceptor {
         public ProgressTag(long existingLen, DownloadListener listener) {
             this.existingLen = existingLen;
             this.listener = listener;
-        }
-    }
-
-    private static class ProgressForwardingSource extends ForwardingSource {
-
-        private final ProgressTag tag;
-        private long totalLen;
-
-        public ProgressForwardingSource(Source delegate, ProgressTag tag) {
-            super(delegate);
-            this.tag = tag;
-            totalLen = tag.existingLen;
-        }
-
-        @Override
-        public long read(@NotNull Buffer sink, long byteCount) throws IOException {
-            long len = super.read(sink, byteCount);
-            if (len == -1) {
-                tag.listener.finish(totalLen);
-            } else {
-                totalLen += len;
-                tag.listener.update(totalLen);
-            }
-            return len;
         }
     }
 }
