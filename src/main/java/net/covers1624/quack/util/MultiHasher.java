@@ -12,6 +12,7 @@ import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.io.IOUtils;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.WillNotClose;
 import java.io.IOException;
@@ -159,6 +160,7 @@ public class MultiHasher {
     public static final class HashFunc {
 
         private static final Map<String, HashFunc> HASH_FUNCS = new HashMap<>();
+        private static final Map<HashFunction, HashFunc> FUNC_FUNCS = new HashMap<>();
 
         public static final HashFunc MD5 = create("MD5", Hashing.md5());
         public static final HashFunc SHA1 = create("SHA1", Hashing.sha1());
@@ -187,7 +189,30 @@ public class MultiHasher {
             }
             func = new HashFunc(name, hashFunction);
             HASH_FUNCS.put(name, func);
+            FUNC_FUNCS.put(hashFunction, func);
             return func;
+        }
+
+        /**
+         * Locate the {@link HashFunc} for a given name.
+         *
+         * @param name The name.
+         * @return The {@link HashFunc}. <code>null</code> if it does not exist.
+         */
+        @Nullable
+        public static HashFunc find(String name) {
+            return HASH_FUNCS.get(name);
+        }
+
+        /**
+         * Locate the {@link HashFunc} for a given {@link HashFunction}.
+         *
+         * @param func The {@link HashFunction}.
+         * @return The {@link HashFunc}. <code>null</code> if it does not exist.
+         */
+        @Nullable
+        public static HashFunc find(HashFunction func) {
+            return FUNC_FUNCS.get(func);
         }
 
         /**
