@@ -5,6 +5,9 @@
  */
 package net.covers1624.quack.net.download;
 
+import net.covers1624.quack.annotation.ReplaceWith;
+import org.jetbrains.annotations.ApiStatus;
+
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
@@ -35,6 +38,9 @@ import java.util.function.Predicate;
  * <p>
  * Created by covers1624 on 8/02/19.
  */
+@Deprecated
+@ReplaceWith ("net.covers1624.quack.net.DownloadAction")
+@ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
 public interface DownloadSpec {
 
     /**

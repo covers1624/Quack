@@ -14,6 +14,8 @@ import java.util.ArrayDeque;
 import java.util.concurrent.TimeUnit;
 
 import static java.text.MessageFormat.format;
+import static net.covers1624.quack.util.DataUtils.humanSize;
+import static net.covers1624.quack.util.DataUtils.humanSpeed;
 
 /**
  * Created by covers1624 on 10/8/19.
@@ -105,30 +107,6 @@ public class DownloadProgressTail extends AbstractTail implements DownloadListen
     public void setStartTime(long startTime) { this.startTime = startTime; onNewData(); }
     private void onNewData() { newData = true; tick(); }
     //@formatter:on
-
-    private static String humanSize(long bytes) {
-        if (bytes < 1024) {
-            return bytes + " B";
-        } else if (bytes < 1024 * 1024) {
-            return (bytes / 1024) + " KB";
-        } else if (bytes < 1024 * 1024 * 1024) {
-            return String.format("%.2f MB", bytes / (1024.0 * 1024.0));
-        } else {
-            return String.format("%.2f GB", bytes / (1024.0 * 1024.0 * 1024.0));
-        }
-    }
-
-    private static String humanSpeed(double bytes) {
-        if (bytes < 1024) {
-            return String.format("%.2f B/s", bytes);
-        } else if (bytes < 1024 * 1024) {
-            return String.format("%.2f KB/s", (bytes / 1024));
-        } else if (bytes < 1024 * 1024 * 1024) {
-            return String.format("%.2f MB/s", bytes / (1024.0 * 1024.0));
-        } else {
-            return String.format("%.2f GB/s", bytes / (1024.0 * 1024.0 * 1024.0));
-        }
-    }
 
     @Override
     public void connecting() {

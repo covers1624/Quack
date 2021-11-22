@@ -5,8 +5,10 @@
  */
 package net.covers1624.quack.net.download;
 
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.collection.ColUtils;
+import net.covers1624.quack.util.DataUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -17,6 +19,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +64,9 @@ import static java.nio.file.StandardOpenOption.CREATE;
  * <p>
  * Created by covers1624 on 8/02/19.
  */
+@Deprecated
+@ReplaceWith ("net.covers1624.quack.net.apache.ApacheHttpClientDownloadAction")
+@ScheduledForRemoval (inVersion = "0.5.0")
 @Requires ("org.slf4j:slf4j-api")
 @Requires ("org.apache.commons:commons-lang3")
 @Requires ("org.apache.httpcomponents:httpclient")
@@ -229,15 +235,7 @@ public class DownloadAction implements DownloadSpec {
     }
 
     public static String toLengthText(long bytes) {
-        if (bytes < 1024) {
-            return bytes + " B";
-        } else if (bytes < 1024 * 1024) {
-            return (bytes / 1024) + " KB";
-        } else if (bytes < 1024 * 1024 * 1024) {
-            return String.format("%.2f MB", bytes / (1024.0 * 1024.0));
-        } else {
-            return String.format("%.2f GB", bytes / (1024.0 * 1024.0 * 1024.0));
-        }
+        return DataUtils.humanSize(bytes);
     }
 
     @Override

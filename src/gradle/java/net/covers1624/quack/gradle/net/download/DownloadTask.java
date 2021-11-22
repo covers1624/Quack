@@ -5,6 +5,7 @@
  */
 package net.covers1624.quack.gradle.net.download;
 
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.net.download.DownloadAction;
 import net.covers1624.quack.net.download.DownloadListener;
@@ -13,6 +14,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.internal.tasks.TaskExecutionOutcome;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskAction;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +47,9 @@ import java.util.function.Predicate;
  * <p>
  * Created by covers1624 on 8/02/19.
  */
+@Deprecated
+@ReplaceWith ("net.covers1624.quack.gradle.net.download.ApacheHttpClientDownloadTask")
+@ScheduledForRemoval (inVersion = "0.5.0")
 @Requires ("org.gradle:gradle-api")
 @Requires ("org.apache.commons:commons-lang3")
 @Requires ("org.apache.logging.log4j:log4j-api")

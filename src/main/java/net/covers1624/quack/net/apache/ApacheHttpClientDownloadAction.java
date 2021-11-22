@@ -3,57 +3,47 @@
  *
  * Copyright (c) 2018-2021 covers1624 <https://github.com/covers1624>
  */
-package net.covers1624.quack.net.okhttp;
+package net.covers1624.quack.net.apache;
 
 import net.covers1624.quack.annotation.Requires;
+import net.covers1624.quack.io.IOUtils;
+import net.covers1624.quack.io.ProgressInputStream;
 import net.covers1624.quack.net.DownloadAction;
 import net.covers1624.quack.net.HttpResponseException;
 import net.covers1624.quack.net.download.DownloadListener;
-import net.covers1624.quack.util.SneakyUtils;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okio.BufferedSink;
-import okio.Okio;
-import okio.Source;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.DateUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
 
 import static java.net.HttpURLConnection.HTTP_NOT_MODIFIED;
 import static java.util.Objects.requireNonNull;
-import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
- * An OkHttp implementation of {@link DownloadAction}.
+ * An Apache HttpClient implementation of {@link DownloadAction}.
  * <p>
- * Created by covers1624 on 20/11/21.
+ * Created by covers1624 on 22/11/21.
  */
 @Requires ("org.slf4j:slf4j-api")
-@Requires ("com.squareup.okhttp3:okhttp")
-public class OkHttpDownloadAction implements DownloadAction {
+@Requires ("org.apache.httpcomponents:httpclient")
+public class ApacheHttpClientDownloadAction implements DownloadAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OkHttpDownloadAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApacheHttpClientDownloadAction.class);
 
-    private static final SimpleDateFormat FORMAT_RFC1123 = SneakyUtils.sneaky(() -> {
-        SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-        format.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return format;
-    });
+    private static final CloseableHttpClient CLIENT = HttpClientBuilder.create().build();
 
-    private static final OkHttpClient CLIENT = new OkHttpClient.Builder()
-            .build();
-
-    private OkHttpClient client = CLIENT;
+    private CloseableHttpClient client = CLIENT;
     @Nullable
     private String url;
     @Nullable
@@ -65,37 +55,26 @@ public class OkHttpDownloadAction implements DownloadAction {
     private String userAgent;
     @Nullable
     private DownloadListener downloadListener;
-    private final Map<Class<?>, Object> tags = new HashMap<>();
 
     private boolean upToDate;
 
-    /**
-     * Execute the download action.
-     *
-     * @throws IOException           If an IO error occurs whilst downloading.
-     * @throws HttpResponseException If the response code was not expected.
-     */
     @Override
     public void execute() throws IOException {
         String url = requireNonNull(this.url, "URL not set");
         Dest dest = requireNonNull(this.dest, "Dest not set");
 
-        Request.Builder builder = new Request.Builder()
-                .url(url);
+        HttpGet get = new HttpGet(url);
         if (userAgent != null) {
-            builder.addHeader("User-Agent", userAgent);
+            get.addHeader("User-Agent", userAgent);
         }
         String etag = dest.getEtag();
         if (useETag && etag != null) {
-            builder.addHeader("If-None-Match", etag.trim());
+            get.addHeader("If-None-Match", etag.trim());
         }
 
         long lastModified = dest.getLastModified();
         if (onlyIfModified && lastModified != -1) {
-            builder.addHeader("If-Modified-Since", FORMAT_RFC1123.format(new Date(lastModified)));
-        }
-        for (Map.Entry<Class<?>, Object> entry : tags.entrySet()) {
-            builder.tag(unsafeCast(entry.getKey()), entry.getValue());
+            get.addHeader("If-Modified-Since", DateUtils.formatDate(new Date(lastModified)));
         }
 
         if (downloadListener != null) {
@@ -104,16 +83,21 @@ public class OkHttpDownloadAction implements DownloadAction {
         if (!quiet) {
             LOGGER.info("Connecting to {}.", url);
         }
-        try (Response response = client.newCall(builder.build()).execute()) {
-            int code = response.code();
+        try (CloseableHttpResponse response = client.execute(get)) {
+            StatusLine line = response.getStatusLine();
+            int code = line.getStatusCode();
             boolean expectNotModified = useETag || onlyIfModified;
             if ((code < 200 || code > 299) && expectNotModified && code != HTTP_NOT_MODIFIED) {
-                throw new HttpResponseException(code, response.message());
+                throw new HttpResponseException(code, line.getReasonPhrase());
             }
-            Date lastModifiedHeader = response.headers().getDate("Last-Modified");
+            Header lastModifiedHeader = response.getLastHeader("Last-Modified");
+            Date lastModifiedHeaderDate = null;
+            if (lastModifiedHeader != null) {
+                lastModifiedHeaderDate = DateUtils.parseDate(lastModifiedHeader.getValue());
+            }
 
             boolean notModified = expectNotModified && code == HTTP_NOT_MODIFIED;
-            boolean timestampNotModified = onlyIfModified && lastModifiedHeader != null && lastModified >= lastModifiedHeader.getTime();
+            boolean timestampNotModified = onlyIfModified && lastModifiedHeader != null && lastModified >= lastModifiedHeaderDate.getTime();
             if (notModified || timestampNotModified) {
                 if (!quiet) {
                     String reason = "";
@@ -128,25 +112,25 @@ public class OkHttpDownloadAction implements DownloadAction {
                 upToDate = true;
                 return;
             }
-            ResponseBody body = response.body();
-            if (body == null) return; // Okay...
+            HttpEntity entity = response.getEntity();
+            if (entity == null) return; // Okay...
 
-            long contentLen = body.contentLength();
+            long contentLen = entity.getContentLength();
             if (downloadListener != null) {
                 downloadListener.start(contentLen);
             }
 
-            Source s = body.source();
+            InputStream content = entity.getContent();
             if (downloadListener != null) {
-                s = new ProgressForwardingSource(s, downloadListener);
+                content = new ProgressInputStream(content, downloadListener);
             }
             if (!quiet) {
                 LOGGER.info("Downloading '{}'.", url);
             }
             boolean success = false;
-            try (Source source = s) {
-                try (BufferedSink sink = Okio.buffer(Okio.sink(dest.getOutputStream()))) {
-                    sink.writeAll(source);
+            try (InputStream is = content) {
+                try (OutputStream os = dest.getOutputStream()) {
+                    IOUtils.copy(is, os);
                     success = true;
                 }
             } finally {
@@ -155,41 +139,41 @@ public class OkHttpDownloadAction implements DownloadAction {
                 }
                 dest.onFinished(success);
             }
-            if (onlyIfModified && lastModifiedHeader != null) {
-                dest.setLastModified(lastModifiedHeader.getTime());
+            if (onlyIfModified && lastModifiedHeaderDate != null) {
+                dest.setLastModified(lastModifiedHeaderDate.getTime());
             }
-            String eTagHeader = response.header("ETag");
+            Header eTagHeader = response.getFirstHeader("ETag");
             if (useETag && eTagHeader != null) {
-                dest.setEtag(eTagHeader);
+                dest.setEtag(eTagHeader.getValue());
             }
         }
     }
 
     /**
-     * Set the {@link OkHttpClient} client to use.
+     * Set the {@link CloseableHttpClient} client to use.
      *
-     * @param client The {@link OkHttpClient}.
+     * @param client The {@link CloseableHttpClient}.
      * @return The same download action.
      */
-    public OkHttpDownloadAction setClient(OkHttpClient client) {
+    public ApacheHttpClientDownloadAction setClient(CloseableHttpClient client) {
         this.client = client;
         return this;
     }
 
     @Override
-    public OkHttpDownloadAction setUrl(String url) {
+    public ApacheHttpClientDownloadAction setUrl(String url) {
         this.url = url;
         return this;
     }
 
     @Override
-    public OkHttpDownloadAction setDest(Dest dest) {
+    public ApacheHttpClientDownloadAction setDest(Dest dest) {
         this.dest = dest;
         return this;
     }
 
     @Override
-    public OkHttpDownloadAction setDest(StringWriter sw) {
+    public ApacheHttpClientDownloadAction setDest(StringWriter sw) {
         return setDest(Dest.string(sw));
     }
 
@@ -199,54 +183,42 @@ public class OkHttpDownloadAction implements DownloadAction {
     }
 
     @Override
-    public OkHttpDownloadAction setDest(File file) {
+    public ApacheHttpClientDownloadAction setDest(File file) {
         return setDest(Dest.file(file));
     }
 
     @Override
-    public OkHttpDownloadAction setDest(Path path) {
+    public ApacheHttpClientDownloadAction setDest(Path path) {
         return setDest(Dest.path(path));
     }
 
     @Override
-    public OkHttpDownloadAction setOnlyIfModified(boolean onlyIfModified) {
+    public ApacheHttpClientDownloadAction setOnlyIfModified(boolean onlyIfModified) {
         this.onlyIfModified = onlyIfModified;
         return this;
     }
 
     @Override
-    public OkHttpDownloadAction setUseETag(boolean useETag) {
+    public ApacheHttpClientDownloadAction setUseETag(boolean useETag) {
         this.useETag = useETag;
         return this;
     }
 
     @Override
-    public OkHttpDownloadAction setQuiet(boolean quiet) {
+    public ApacheHttpClientDownloadAction setQuiet(boolean quiet) {
         this.quiet = quiet;
         return this;
     }
 
     @Override
-    public OkHttpDownloadAction setUserAgent(String userAgent) {
+    public ApacheHttpClientDownloadAction setUserAgent(String userAgent) {
         this.userAgent = userAgent;
         return this;
     }
 
     @Override
-    public OkHttpDownloadAction setDownloadListener(DownloadListener downloadListener) {
+    public ApacheHttpClientDownloadAction setDownloadListener(DownloadListener downloadListener) {
         this.downloadListener = downloadListener;
-        return this;
-    }
-
-    /**
-     * Add a Tag to the OkHttp {@link Request}.
-     *
-     * @param clazz The Tag type.
-     * @param tag   The tag.
-     * @return The same download action.
-     */
-    public OkHttpDownloadAction addTag(Class<?> clazz, Object tag) {
-        tags.put(clazz, tag);
         return this;
     }
 
@@ -256,7 +228,7 @@ public class OkHttpDownloadAction implements DownloadAction {
     }
 
     //@formatter:off
-    public OkHttpClient getClient() { return client; }
+    public CloseableHttpClient getClient() { return client; }
     @Override @Nullable public String getUrl() { return url; }
     @Override @Nullable public Dest getDest() { return dest; }
     @Override public boolean getOnlyIfModified() { return onlyIfModified; }
@@ -264,6 +236,5 @@ public class OkHttpDownloadAction implements DownloadAction {
     @Override public boolean getQuiet() { return quiet; }
     @Override @Nullable public String getUserAgent() { return userAgent; }
     @Override @Nullable public DownloadListener getDownloadListener() { return downloadListener; }
-    public Map<Class<?>, Object> getTags() { return Collections.unmodifiableMap(tags); }
     //@formatter:on
 }
