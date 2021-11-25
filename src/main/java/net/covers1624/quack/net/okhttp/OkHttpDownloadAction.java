@@ -107,7 +107,7 @@ public class OkHttpDownloadAction implements DownloadAction {
         try (Response response = client.newCall(builder.build()).execute()) {
             int code = response.code();
             boolean expectNotModified = useETag || onlyIfModified;
-            if ((code < 200 || code > 299) && expectNotModified && code != HTTP_NOT_MODIFIED) {
+            if ((code < 200 || code > 299) && (!expectNotModified || code != HTTP_NOT_MODIFIED)) {
                 throw new HttpResponseException(code, response.message());
             }
             Date lastModifiedHeader = response.headers().getDate("Last-Modified");

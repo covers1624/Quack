@@ -52,6 +52,11 @@ public class TestDownloadAction {
     public void testETagAndOnlyIfModifiedOkHttp() throws Throwable {
         testNotModified(OkHttpDownloadAction::new, true, true);
     }
+
+    @Test
+    public void test404OkHttp() throws Throwable {
+        test404(OkHttpDownloadAction::new);
+    }
     //endregion
 
     //region Apache HttpClient
@@ -73,6 +78,11 @@ public class TestDownloadAction {
     @Test
     public void testETagAndOnlyIfModifiedApache() throws Throwable {
         testNotModified(ApacheHttpClientDownloadAction::new, true, true);
+    }
+
+    @Test
+    public void test404Apache() throws Throwable {
+        test404(ApacheHttpClientDownloadAction::new);
     }
     //endregion
 
@@ -112,6 +122,21 @@ public class TestDownloadAction {
         action2.execute();
         assertTrue(action2.isUpToDate());
         assertEquals(GROUP_ID, parseMeta(file).getGroupId());
+    }
+
+    public static void test404(Supplier<DownloadAction> actionFunc) throws Throwable {
+        Path tempDir = Files.createTempDirectory("download_action");
+        tempDir.toFile().deleteOnExit();
+
+        Path file = tempDir.resolve("maven-metadata.xml");
+
+        DownloadAction action = actionFunc.get()
+                .setUrl(WELL_KNOWN_XML + ".i_dont_exist_gib_404")
+                .setDest(file)
+                .setQuiet(false);
+
+        HttpResponseException ex = assertThrows(HttpResponseException.class, action::execute);
+        assertEquals(ex.code, 404);
     }
 
     private static Metadata parseMeta(Path file) throws Throwable {

@@ -87,7 +87,7 @@ public class ApacheHttpClientDownloadAction implements DownloadAction {
             StatusLine line = response.getStatusLine();
             int code = line.getStatusCode();
             boolean expectNotModified = useETag || onlyIfModified;
-            if ((code < 200 || code > 299) && expectNotModified && code != HTTP_NOT_MODIFIED) {
+            if ((code < 200 || code > 299) && (!expectNotModified || code != HTTP_NOT_MODIFIED)) {
                 throw new HttpResponseException(code, line.getReasonPhrase());
             }
             Header lastModifiedHeader = response.getLastHeader("Last-Modified");
