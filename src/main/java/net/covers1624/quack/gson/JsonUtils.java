@@ -58,8 +58,23 @@ public class JsonUtils {
      * @throws IOException        Thrown when an IO error occurs.
      */
     public static <T> T parse(Gson gson, InputStream is, Type t) throws IOException, JsonParseException {
-        try (Reader reader = new InputStreamReader(is)) {
-            return gson.fromJson(reader, t);
+        return parse(gson, new InputStreamReader(is), t);
+    }
+
+    /**
+     * Deserialize Json from the given {@link Reader} as the given {@link Type}.
+     *
+     * @param gson   The {@link Gson} instance to use.
+     * @param reader The {@link Reader} to read from.
+     * @param t      The {@link Type} to deserialize from.
+     * @return The Object deserialized from Json.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static <T> T parse(Gson gson, Reader reader, Type t) throws IOException, JsonParseException {
+        try (Reader r = reader) {
+            return gson.fromJson(r, t);
         }
     }
     //endregion
