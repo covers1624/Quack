@@ -18,6 +18,40 @@ import static org.junit.jupiter.api.Assertions.*;
 public class StreamableIteratorTests {
 
     @Test
+    public void testEmpty() {
+        assertFalse(StreamableIterable.empty().iterator().hasNext());
+        assertFalse(StreamableIterable.of().iterator().hasNext());
+    }
+
+    @Test
+    public void testOfSingle() {
+        List<String> entries = StreamableIterable.of("Single").toList();
+        assertEquals(1, entries.size());
+        assertEquals("Single", entries.get(0));
+    }
+
+    @Test
+    public void testOfVarargs() {
+        List<String> entries = StreamableIterable.of("A", "B", "C").toList();
+        assertEquals(3, entries.size());
+        assertEquals("A", entries.get(0));
+        assertEquals("B", entries.get(1));
+        assertEquals("C", entries.get(2));
+    }
+
+    @Test
+    public void testConcat() {
+        List<String> entries = StreamableIterable.of("A", "B", "C").concat(StreamableIterable.of("D", "E", "F")).toList();
+        assertEquals(6, entries.size());
+        assertEquals("A", entries.get(0));
+        assertEquals("B", entries.get(1));
+        assertEquals("C", entries.get(2));
+        assertEquals("D", entries.get(3));
+        assertEquals("E", entries.get(4));
+        assertEquals("F", entries.get(5));
+    }
+
+    @Test
     public void testToList() {
         List<String> entries = StreamableIterable.of(of("a", "b", "c", "d")).toList();
         assertEquals(4, entries.size());

@@ -6,6 +6,7 @@
 package net.covers1624.quack.collection;
 
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.covers1624.quack.annotation.Requires;
@@ -21,7 +22,10 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static net.covers1624.quack.util.SneakyUtils.first;
+import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
  * An iterable capable of stream-like operations.
@@ -35,12 +39,93 @@ import static net.covers1624.quack.util.SneakyUtils.first;
 @Requires ("com.google.guava:guava")
 public interface StreamableIterable<T> extends Iterable<T> {
 
+    /**
+     * Static empty instance.
+     * You want {@link #empty()}.
+     */
+    StreamableIterable<?> EMPTY = of(Collections.emptyList());
+
+    /**
+     * Returns an empty {@link StreamableIterable}.
+     *
+     * @return The empty {@link StreamableIterable}
+     */
     static <T> StreamableIterable<T> empty() {
-        return of(Collections.emptyList());
+        return unsafeCast(EMPTY);
     }
 
+    /**
+     * Constructs a {@link StreamableIterable} wrapper from the
+     * given {@link Iterable}.
+     *
+     * @param itr The {@link Iterable} to wrap.
+     * @return The {@link StreamableIterable}
+     */
     static <T> StreamableIterable<T> of(Iterable<T> itr) {
         return itr::iterator;
+    }
+
+    /**
+     * Returns an empty {@link StreamableIterable}.
+     *
+     * @return The empty {@link StreamableIterable}
+     */
+    static <T> StreamableIterable<T> of() {
+        return unsafeCast(EMPTY);
+    }
+
+    /**
+     * Creates an {@link StreamableIterable} a single input.
+     *
+     * @param thing The thing.
+     * @return the {@link StreamableIterable}.
+     */
+    static <T> StreamableIterable<T> of(T thing) {
+        return of(singletonList(thing));
+    }
+
+    /**
+     * Creates an {@link StreamableIterable} from a variable list of inputs.
+     *
+     * @param things The things.
+     * @return the {@link StreamableIterable}.
+     */
+    @SafeVarargs
+    static <T> StreamableIterable<T> of(T... things) {
+        return of(asList(things));
+    }
+
+    /**
+     * Returns an {@link StreamableIterable} containing the elements
+     * from all the provided iterables concatenated together.
+     *
+     * @param iterables The {@link StreamableIterable}s to concatenate.
+     * @return The concatenated {@link StreamableIterable}.
+     */
+    @SafeVarargs
+    static <T> StreamableIterable<T> concat(StreamableIterable<T>... iterables) {
+        return of(Iterables.concat(iterables));
+    }
+
+    /**
+     * Returns an {@link StreamableIterable} containing the elements
+     * from all the provided iterables concatenated together.
+     *
+     * @param iterables The {@link StreamableIterable}s to concatenate.
+     * @return The concatenated {@link StreamableIterable}.
+     */
+    static <T> StreamableIterable<T> concat(Iterable<StreamableIterable<T>> iterables) {
+        return of(Iterables.concat(iterables));
+    }
+
+    /**
+     * Concatenates another {@link StreamableIterable} onto this one.
+     *
+     * @param other The other {@link StreamableIterable} to append.
+     * @return The new concatenated {@link StreamableIterable}.
+     */
+    default StreamableIterable<T> concat(StreamableIterable<T> other) {
+        return concat(this, other);
     }
 
     /**
@@ -52,7 +137,6 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @return A wrapped {@link StreamableIterable} with the filter applied.
      */
     default StreamableIterable<T> filter(Predicate<? super T> pred) {
-
         return () -> new AbstractIterator<T>() {
             private final Iterator<T> itr = iterator();
 
@@ -88,7 +172,6 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @return A wrapped {@link StreamableIterable} with the mapped elements.
      */
     default <R> StreamableIterable<R> map(Function<? super T, ? extends R> func) {
-
         return () -> new Iterator<R>() {
             private final Iterator<T> itr = iterator();
 
@@ -116,7 +199,6 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @return A wrapped {@link StreamableIterable} with the flat mapped elements.
      */
     default <R> StreamableIterable<R> flatMap(Function<? super T, ? extends Iterable<? extends R>> func) {
-
         return () -> new AbstractIterator<R>() {
             private final Iterator<T> itr = iterator();
             @Nullable
@@ -159,7 +241,6 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @return A wrapped {@link StreamableIterable} with the peek function applied.
      */
     default StreamableIterable<T> peek(Consumer<T> action) {
-
         return () -> new Iterator<T>() {
             private final Iterator<T> itr = iterator();
 
@@ -212,7 +293,6 @@ public interface StreamableIterable<T> extends Iterable<T> {
      */
     default StreamableIterable<T> skip(@Range (from = 0, to = Integer.MAX_VALUE) int n) {
         if (n == 0) return this;
-
 
         return () -> new AbstractIterator<T>() {
             private final Iterator<T> itr = iterator();
