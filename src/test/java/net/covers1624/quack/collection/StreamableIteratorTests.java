@@ -31,6 +31,27 @@ public class StreamableIteratorTests {
     }
 
     @Test
+    public void testOfNullable() {
+        List<String> entries = StreamableIterable.<String>ofNullable(null).toList();
+        assertEquals(0, entries.size());
+
+        entries = StreamableIterable.ofNullable("Single").toList();
+        assertEquals(1, entries.size());
+        assertEquals("Single", entries.get(0));
+    }
+
+    @Test
+    public void testOfOptional() {
+        List<String> entries = StreamableIterable.<String>of(Optional.empty()).toList();
+        assertEquals(0, entries.size());
+
+        entries = StreamableIterable.of(Optional.of("Single")).toList();
+        assertEquals(1, entries.size());
+        assertEquals("Single", entries.get(0));
+    }
+
+
+    @Test
     public void testOfVarargs() {
         List<String> entries = StreamableIterable.of("A", "B", "C").toList();
         assertEquals(3, entries.size());

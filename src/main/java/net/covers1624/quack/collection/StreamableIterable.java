@@ -75,13 +75,42 @@ public interface StreamableIterable<T> extends Iterable<T> {
     }
 
     /**
-     * Creates an {@link StreamableIterable} a single input.
+     * Creates a {@link StreamableIterable} for single input.
      *
      * @param thing The thing.
      * @return the {@link StreamableIterable}.
      */
     static <T> StreamableIterable<T> of(T thing) {
         return of(singletonList(thing));
+    }
+
+    /**
+     * Creates an {@link StreamableIterable} for a Nullable value.
+     * <p>
+     * If the value provided is <code>null</code>, this method will
+     * return {@link #empty()}, otherwise it will return a new {@link StreamableIterable}
+     * containing only the value provided.
+     *
+     * @param thing The thing.
+     * @return The {@link StreamableIterable}.
+     */
+    static <T> StreamableIterable<T> ofNullable(@Nullable T thing) {
+        if (thing == null) return empty();
+        return of(thing);
+    }
+
+    /**
+     * Creates an {@link StreamableIterable} for an {@link Optional} value.
+     * <p>
+     * If the value provided is not present, this method will
+     * return {@link #empty()}, otherwise it will return a new {@link StreamableIterable}
+     * containing only the value provided.
+     *
+     * @param optional The thing.
+     * @return The {@link StreamableIterable}.
+     */
+    static <T> StreamableIterable<T> of(Optional<T> optional) {
+        return optional.map(StreamableIterable::of).orElse(empty());
     }
 
     /**
