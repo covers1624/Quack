@@ -5,10 +5,7 @@
  */
 package net.covers1624.quack.collection;
 
-import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import net.covers1624.quack.annotation.Requires;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -523,12 +520,39 @@ public interface StreamableIterable<T> extends Iterable<T> {
     }
 
     /**
+     * Collect this {@link StreamableIterable} to an {@link ImmutableList}.
+     *
+     * @return The {@link ImmutableList}.
+     */
+    default ImmutableList<T> toImmutableList() {
+        return ImmutableList.copyOf(this);
+    }
+
+    /**
      * Collect this {@link StreamableIterable} to a {@link HashSet}.
      *
      * @return The {@link HashSet}.
      */
     default HashSet<T> toSet() {
         return Sets.newHashSet(this);
+    }
+
+    /**
+     * Collect this {@link StreamableIterable} to a {@link LinkedHashSet}.
+     *
+     * @return The {@link LinkedHashSet}.
+     */
+    default LinkedHashSet<T> toLinkedHashSet() {
+        return Sets.newLinkedHashSet(this);
+    }
+
+    /**
+     * Collect this {@link StreamableIterable} to a {@link LinkedHashSet}.
+     *
+     * @return The {@link LinkedHashSet}.
+     */
+    default ImmutableSet<T> toImmutableSet() {
+        return ImmutableSet.copyOf(this);
     }
 
     /**
@@ -577,6 +601,35 @@ public interface StreamableIterable<T> extends Iterable<T> {
      */
     default <K, V> HashMap<K, V> toLinkedHashMap(Function<T, K> keyFunc, Function<T, V> valueFunc, BinaryOperator<V> mergeFunc) {
         return toMap(new LinkedHashMap<>(), keyFunc, valueFunc, mergeFunc);
+    }
+
+    /**
+     * Collect this {@link StreamableIterable} to am {@link ImmutableMap}.
+     * <p>
+     * This function collects to an intermediate {@link LinkedHashMap} internally,
+     * iteration order will be preserved.
+     *
+     * @param keyFunc   The function for extracting the key.
+     * @param valueFunc The function for extracting the value.
+     * @return The {@link ImmutableMap}.
+     */
+    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<T, K> keyFunc, Function<T, V> valueFunc) {
+        return ImmutableMap.copyOf(toLinkedHashMap(keyFunc, valueFunc));
+    }
+
+    /**
+     * Collect this {@link StreamableIterable} to am {@link ImmutableMap}.
+     * <p>
+     * This function collects to an intermediate {@link LinkedHashMap} internally,
+     * iteration order will be preserved.
+     *
+     * @param keyFunc   The function for extracting the key.
+     * @param valueFunc The function for extracting the value.
+     * @param mergeFunc The function for merging 2 values on collision. (Left existing, Right toAdd)
+     * @return The {@link ImmutableMap}.
+     */
+    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<T, K> keyFunc, Function<T, V> valueFunc, BinaryOperator<V> mergeFunc) {
+        return ImmutableMap.copyOf(toLinkedHashMap(keyFunc, valueFunc, mergeFunc));
     }
 
     /**
