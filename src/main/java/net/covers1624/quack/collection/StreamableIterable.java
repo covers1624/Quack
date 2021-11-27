@@ -471,6 +471,40 @@ public interface StreamableIterable<T> extends Iterable<T> {
     }
 
     /**
+     * Returns the only element in this {@link StreamableIterable}.
+     *
+     * @return The single element.
+     * @throws IllegalArgumentException If there are none, or more than one element.
+     */
+    default T only() {
+        return ColUtils.only(this);
+    }
+
+    /**
+     * Returns the first element found in the {@link StreamableIterable} if it is the only element,
+     * otherwise <code>null</code> is returned.
+     *
+     * @return The first element or <code>null</code>.
+     */
+    @Nullable
+    default T onlyOrDefault() {
+        return ColUtils.onlyOrDefault(this, null);
+    }
+
+    /**
+     * Returns the first element found in the {@link StreamableIterable} if it is the only element,
+     * otherwise the default value is returned.
+     *
+     * @param _default The default value, in the event the {@link StreamableIterable} is empty, or has more than one element.
+     * @return The first element or the default.
+     */
+    @Nullable
+    @Contract ("!null -> !null")
+    default T onlyOrDefault(@Nullable T _default) {
+        return ColUtils.onlyOrDefault(this, _default);
+    }
+
+    /**
      * Collect this {@link StreamableIterable} to an {@link ArrayList}.
      *
      * @return The {@link ArrayList}.

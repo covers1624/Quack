@@ -587,6 +587,11 @@ public class ColUtils {
         return onlyOrDefault(iterable(stream), _default);
     }
 
+    @Nullable
+    public static <T> T onlyOrDefault(Iterable<T> iterable) {
+        return onlyOrDefault(iterable, null);
+    }
+
     /**
      * Returns the first element found in the Stream if it is the only element in the iterable,
      * otherwise the default value is returned.

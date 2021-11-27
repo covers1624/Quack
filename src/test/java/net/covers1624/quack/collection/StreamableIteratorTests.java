@@ -50,7 +50,6 @@ public class StreamableIteratorTests {
         assertEquals("Single", entries.get(0));
     }
 
-
     @Test
     public void testOfVarargs() {
         List<String> entries = StreamableIterable.of("A", "B", "C").toList();
@@ -272,6 +271,22 @@ public class StreamableIteratorTests {
 
         optional = StreamableIterable.<String>empty().findLast();
         assertFalse(optional.isPresent());
+    }
+
+    @Test
+    public void testOnly() {
+        assertEquals("a", StreamableIterable.of("a").only());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> StreamableIterable.of("a", "b").only());
+        assertEquals("More than one element.", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> StreamableIterable.empty().only());
+        assertEquals("Not found.", ex.getMessage());
+    }
+
+    @Test
+    public void testOnlyOrDefault() {
+        assertEquals("a", StreamableIterable.of("a").onlyOrDefault());
+        assertNull(StreamableIterable.of("a", "b").onlyOrDefault());
+        assertNull(StreamableIterable.empty().onlyOrDefault());
     }
 
     @Test
