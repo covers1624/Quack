@@ -19,8 +19,10 @@ public class StreamableIteratorTests {
 
     @Test
     public void testEmpty() {
-        assertFalse(StreamableIterable.empty().iterator().hasNext());
-        assertFalse(StreamableIterable.of().iterator().hasNext());
+        assertTrue(StreamableIterable.empty().isEmpty());
+        assertTrue(StreamableIterable.of().isEmpty());
+
+        assertFalse(StreamableIterable.of("a").isEmpty());
     }
 
     @Test
@@ -264,6 +266,21 @@ public class StreamableIteratorTests {
     }
 
     @Test
+    public void testFirst() {
+        assertEquals("a", StreamableIterable.of("a").first());
+        assertEquals("a", StreamableIterable.of("a", "b").first());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> StreamableIterable.empty().first());
+        assertEquals("Not found.", ex.getMessage());
+    }
+
+    @Test
+    public void testFirstOrDefault() {
+        assertEquals("a", StreamableIterable.of("a").firstOrDefault());
+        assertEquals("a", StreamableIterable.of("a", "b").firstOrDefault());
+        assertNull(StreamableIterable.empty().firstOrDefault());
+    }
+
+    @Test
     public void testFindLast() {
         Optional<String> optional = StreamableIterable.of(of("a", "b", "c", "d")).findLast();
         assertTrue(optional.isPresent());
@@ -271,6 +288,21 @@ public class StreamableIteratorTests {
 
         optional = StreamableIterable.<String>empty().findLast();
         assertFalse(optional.isPresent());
+    }
+
+    @Test
+    public void testLast() {
+        assertEquals("a", StreamableIterable.of("a").last());
+        assertEquals("b", StreamableIterable.of("a", "b").last());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> StreamableIterable.empty().last());
+        assertEquals("Not found.", ex.getMessage());
+    }
+
+    @Test
+    public void testLastOrDefault() {
+        assertEquals("a", StreamableIterable.of("a").lastOrDefault());
+        assertEquals("b", StreamableIterable.of("a", "b").lastOrDefault());
+        assertNull(StreamableIterable.empty().lastOrDefault());
     }
 
     @Test

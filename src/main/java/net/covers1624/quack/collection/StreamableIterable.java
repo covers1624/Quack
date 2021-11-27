@@ -7,6 +7,7 @@ package net.covers1624.quack.collection;
 
 import com.google.common.collect.*;
 import net.covers1624.quack.annotation.Requires;
+import net.covers1624.quack.util.SneakyUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -21,7 +22,6 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static net.covers1624.quack.util.SneakyUtils.first;
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
@@ -411,6 +411,13 @@ public interface StreamableIterable<T> extends Iterable<T> {
     }
 
     /**
+     * @return If this {@link StreamableIterable} is empty.
+     */
+    default boolean isEmpty() {
+        return !iterator().hasNext();
+    }
+
+    /**
      * Check if any elements in this {@link StreamableIterable} match the given predicate.
      *
      * @param test The predicate.
@@ -459,12 +466,80 @@ public interface StreamableIterable<T> extends Iterable<T> {
     }
 
     /**
-     * Optionally get the first element within this {@link StreamableIterable}.
+     * Asserts the {@link StreamableIterable} is not empty and returns the first element.
+     *
+     * @return The first element.
+     * @throws IllegalArgumentException If the {@link StreamableIterable} is empty.
+     */
+    default T first() {
+        return ColUtils.head(this);
+    }
+
+    /**
+     * Returns the first element in the {@link StreamableIterable} otherwise
+     * <code>null</code>.
+     *
+     * @return The first element, or <code>null</code>.
+     */
+    @Nullable
+    default T firstOrDefault() {
+        return ColUtils.headOrDefault(this);
+    }
+
+    /**
+     * Returns the first element in the {@link StreamableIterable} otherwise
+     * the supplied default.
+     *
+     * @param _default The default if the {@link StreamableIterable} is empty.
+     * @return The first element, or the default.
+     */
+    @Nullable
+    @Contract ("!null -> !null")
+    default T firstOrDefault(@Nullable T _default) {
+        return ColUtils.headOrDefault(this, _default);
+    }
+
+    /**
+     * Optionally get the last element within this {@link StreamableIterable}.
      *
      * @return The last element.
      */
     default Optional<T> findLast() {
         return ColUtils.tailOption(this);
+    }
+
+    /**
+     * Asserts the {@link StreamableIterable} is not empty and returns the last element.
+     *
+     * @return The last element.
+     * @throws IllegalArgumentException If the {@link StreamableIterable} is empty.
+     */
+    default T last() {
+        return ColUtils.tail(this);
+    }
+
+    /**
+     * Returns the last element in the {@link StreamableIterable} otherwise
+     * <code>null</code>.
+     *
+     * @return The last element, or <code>null</code>.
+     */
+    @Nullable
+    default T lastOrDefault() {
+        return ColUtils.tailOrDefault(this);
+    }
+
+    /**
+     * Returns the last element in the {@link StreamableIterable} otherwise
+     * the supplied default.
+     *
+     * @param _default The default if the {@link StreamableIterable} is empty.
+     * @return The last element, or the default.
+     */
+    @Nullable
+    @Contract ("!null -> !null")
+    default T lastOrDefault(@Nullable T _default) {
+        return ColUtils.tailOrDefault(this, _default);
     }
 
     /**
@@ -642,7 +717,7 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @return The same map that was passed in.
      */
     default <K, V, M extends Map<K, V>> M toMap(M map, Function<T, K> keyFunc, Function<T, V> valueFunc) {
-        return toMap(map, keyFunc, valueFunc, first());
+        return toMap(map, keyFunc, valueFunc, SneakyUtils.first());
     }
 
     /**

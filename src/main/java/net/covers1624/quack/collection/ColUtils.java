@@ -156,6 +156,51 @@ public class ColUtils {
     }
 
     /**
+     * Asserts the {@link Iterable} is not empty and returns the first element.
+     *
+     * @param col The {@link Iterable}.
+     * @return The first element.
+     * @throws IllegalArgumentException If the {@link Iterable} is empty.
+     */
+    public static <T> T head(Iterable<T> col) {
+        T head = headOrDefault(col);
+        if (head == null) {
+            throw new IllegalArgumentException("Not found.");
+        }
+        return head;
+    }
+
+    /**
+     * Returns the first element in the {@link Iterable} otherwise
+     * <code>null</code>.
+     *
+     * @param col The {@link Iterable}.
+     * @return The first element, or <code>null</code>.
+     */
+    @Nullable
+    public static <T> T headOrDefault(Iterable<T> col) {
+        return headOrDefault(col, null);
+    }
+
+    /**
+     * Returns the first element in the {@link Iterable} otherwise
+     * the supplied default.
+     *
+     * @param col      The {@link Iterable}.
+     * @param _default The default if the {@link Iterable} is empty.
+     * @return The first element, or the default.
+     */
+    @Nullable
+    @Contract ("_,!null -> !null")
+    public static <T> T headOrDefault(Iterable<T> col, @Nullable T _default) {
+        Iterator<T> itr = col.iterator();
+        if (itr.hasNext()) {
+            return itr.next();
+        }
+        return _default;
+    }
+
+    /**
      * Attempts to get the last element of the Iterable.
      *
      * @param col The collection.
@@ -168,6 +213,51 @@ public class ColUtils {
             last = itr.next();
         }
         return Optional.ofNullable(last);
+    }
+
+    /**
+     * Asserts the {@link Iterable} is not empty and returns the last element.
+     *
+     * @param col The {@link Iterable}.
+     * @return The last element.
+     * @throws IllegalArgumentException If the {@link Iterable} is empty.
+     */
+    public static <T> T tail(Iterable<T> col) {
+        T tail = tailOrDefault(col);
+        if (tail == null) {
+            throw new IllegalArgumentException("Not found.");
+        }
+        return tail;
+    }
+
+    /**
+     * Returns the last element in the {@link Iterable} otherwise
+     * <code>null</code>.
+     *
+     * @param col The {@link Iterable}.
+     * @return The last element, or <code>null</code>.
+     */
+    @Nullable
+    public static <T> T tailOrDefault(Iterable<T> col) {
+        return tailOrDefault(col, null);
+    }
+
+    /**
+     * Returns the last element in the {@link Iterable} otherwise
+     * the supplied default.
+     *
+     * @param col      The {@link Iterable}.
+     * @param _default The default if the {@link Iterable} is empty.
+     * @return The last element, or the default.
+     */
+    @Nullable
+    @Contract ("_,!null -> !null")
+    public static <T> T tailOrDefault(Iterable<T> col, @Nullable T _default) {
+        T last = _default;
+        for (T e : col) {
+            last = e;
+        }
+        return last;
     }
 
     /**
