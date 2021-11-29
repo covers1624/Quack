@@ -13,10 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.util.*;
-import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -739,6 +736,109 @@ public interface StreamableIterable<T> extends Iterable<T> {
             } else {
                 map.put(key, mergeFunc.apply(existing, value));
             }
+        }
+        return map;
+    }
+
+    /**
+     * Collects this {@link StreamableIterable} into a {@link HashMap} grouped by a key.
+     * <p>
+     * This function uses {@link ArrayList} values.
+     *
+     * @param keyFunc The function to extract the {@link Map} key.
+     * @return The {@link HashMap} representing the grouped values.
+     */
+    default <K> HashMap<K, List<T>> groupBy(Function<T, K> keyFunc) {
+        return groupBy(keyFunc, Function.identity());
+    }
+
+    /**
+     * Collects this {@link StreamableIterable} into a {@link HashMap} grouped by a key.
+     * <p>
+     * This function uses {@link ArrayList} values.
+     *
+     * @param keyFunc   The function to extract the {@link Map} key.
+     * @param valueFunc The function to extract the {@link List} value.
+     * @return The {@link HashMap} representing the grouped values.
+     */
+    default <K, V> HashMap<K, List<V>> groupBy(Function<T, K> keyFunc, Function<T, V> valueFunc) {
+        return groupBy(new HashMap<>(), ArrayList::new, keyFunc, valueFunc);
+    }
+
+    /**
+     * Collects this {@link StreamableIterable} into a {@link LinkedHashMap} grouped by a key.
+     * <p>
+     * This function uses {@link LinkedList} values.
+     *
+     * @param keyFunc The function to extract the {@link LinkedHashMap} key.
+     * @return The {@link LinkedHashMap} representing the grouped values.
+     */
+    default <K> LinkedHashMap<K, List<T>> groupByLinked(Function<T, K> keyFunc) {
+        return groupByLinked(keyFunc, Function.identity());
+    }
+
+    /**
+     * Collects this {@link StreamableIterable} into a {@link LinkedHashMap} grouped by a key.
+     * <p>
+     * This function uses {@link LinkedList} values.
+     * <p>
+     * This function will preserve iteration order.
+     *
+     * @param keyFunc   The function to extract the {@link LinkedHashMap} key.
+     * @param valueFunc The function to extract the {@link LinkedList} value.
+     * @return The {@link LinkedHashMap} representing the grouped values.
+     */
+    default <K, V> LinkedHashMap<K, List<V>> groupByLinked(Function<T, K> keyFunc, Function<T, V> valueFunc) {
+        return groupBy(new LinkedHashMap<>(), LinkedList::new, keyFunc, valueFunc);
+    }
+
+    /**
+     * Collects this {@link StreamableIterable} into a {@link ImmutableMap} grouped by a key.
+     * <p>
+     * This function uses {@link ImmutableList} values.
+     * <p>
+     * This function will preserve iteration order.
+     *
+     * @param keyFunc The function to extract the {@link ImmutableMap} key.
+     * @return The {@link ImmutableMap} representing the grouped values.
+     */
+    default <K> ImmutableMap<K, List<T>> groupByImmutable(Function<T, K> keyFunc) {
+        return groupByImmutable(keyFunc, Function.identity());
+    }
+
+    /**
+     * Collects this {@link StreamableIterable} into a {@link ImmutableMap} grouped by a key.
+     * <p>
+     * This function uses {@link ImmutableList} values.
+     * <p>
+     * This function will preserve iteration order.
+     *
+     * @param keyFunc   The function to extract the {@link ImmutableMap} key.
+     * @param valueFunc The function to extract the {@link ImmutableList} value.
+     * @return The {@link ImmutableMap} representing the grouped values.
+     */
+    default <K, V> ImmutableMap<K, List<V>> groupByImmutable(Function<T, K> keyFunc, Function<T, V> valueFunc) {
+        ImmutableMap.Builder<K, List<V>> builder = ImmutableMap.builder();
+        for (Map.Entry<K, List<V>> entry : groupByLinked(keyFunc, valueFunc).entrySet()) {
+            builder.put(entry.getKey(), ImmutableList.copyOf(entry.getValue()));
+        }
+        return builder.build();
+    }
+
+    /**
+     * Collects this {@link StreamableIterable} into a {@link Map} grouped by a key.
+     *
+     * @param map         The map to collect into.
+     * @param listFactory The function to construct {@link List} instances.
+     * @param keyFunc     The function to extract the {@link Map} key.
+     * @param valueFunc   The function to extract the {@link List} value.
+     * @return The same map that was passed in.
+     */
+    default <K, V, L extends List<V>, M extends Map<K, L>> M groupBy(M map, Supplier<L> listFactory, Function<T, K> keyFunc, Function<T, V> valueFunc) {
+        for (T t : this) {
+            K key = keyFunc.apply(t);
+            L list = map.computeIfAbsent(key, k -> listFactory.get());
+            list.add(valueFunc.apply(t));
         }
         return map;
     }

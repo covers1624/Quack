@@ -5,6 +5,7 @@
  */
 package net.covers1624.quack.collection;
 
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -361,5 +362,24 @@ public class StreamableIteratorTests {
         assertEquals("value_b", entries.get("b"));
         assertEquals("value_c_value_c", entries.get("c"));
         assertEquals("value_d_value_d", entries.get("d"));
+    }
+
+    @Test
+    public void testGroupBy() {
+        Map<Character, List<String>> grouped = StreamableIterable.of("apple", "banana", "boat", "pair", "pool")
+                .groupBy(e -> e.charAt(0));
+        assertEquals(3, grouped.size());
+        assertCollectionEquals(grouped.get('a'), "apple");
+        assertCollectionEquals(grouped.get('b'), "banana", "boat");
+        assertCollectionEquals(grouped.get('p'), "pair", "pool");
+    }
+
+    private void assertCollectionEquals(@Nullable Collection<?> col, Object... values) {
+        assertNotNull(col);
+        assertEquals(values.length, col.size());
+        int i = 0;
+        for (Object o : col) {
+            assertEquals(values[i++], o);
+        }
     }
 }
