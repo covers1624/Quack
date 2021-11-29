@@ -126,7 +126,7 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @return The concatenated {@link StreamableIterable}.
      */
     @SafeVarargs
-    static <T> StreamableIterable<T> concat(StreamableIterable<T>... iterables) {
+    static <T> StreamableIterable<T> concat(StreamableIterable<? extends T>... iterables) {
         return of(Iterables.concat(iterables));
     }
 
@@ -137,7 +137,7 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @param iterables The {@link StreamableIterable}s to concatenate.
      * @return The concatenated {@link StreamableIterable}.
      */
-    static <T> StreamableIterable<T> concat(Iterable<StreamableIterable<T>> iterables) {
+    static <T> StreamableIterable<T> concat(Iterable<StreamableIterable<? extends T>> iterables) {
         return of(Iterables.concat(iterables));
     }
 
@@ -147,7 +147,7 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @param other The other {@link StreamableIterable} to append.
      * @return The new concatenated {@link StreamableIterable}.
      */
-    default StreamableIterable<T> concat(StreamableIterable<T> other) {
+    default StreamableIterable<T> concat(StreamableIterable<? extends T> other) {
         return concat(this, other);
     }
 
