@@ -13,9 +13,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -271,5 +270,55 @@ public class IOUtils {
             Path outRoot = outFs.getPath("/");
             Files.walkFileTree(inRoot, new CopyingFileVisitor(inRoot, outRoot, predicate));
         }
+    }
+
+    /**
+     * Converts a Posix 'file mode' into a set of {@link PosixFilePermission}s.
+     * <p>
+     * Thanks: https://stackoverflow.com/a/54422530/11313544
+     *
+     * @param mode The file mode.
+     * @return The parsed permissions.
+     */
+    public static Set<PosixFilePermission> parseMode(int mode) {
+        Set<PosixFilePermission> perms = new HashSet<>();
+        char[] ds = Integer.toString(mode).toCharArray();
+        for (int i = ds.length - 1; i >= 0; i--) {
+            int n = ds[i] - '0';
+            if (i == ds.length - 1) {
+                if ((n & 1) != 0) perms.add(PosixFilePermission.OTHERS_EXECUTE);
+                if ((n & 2) != 0) perms.add(PosixFilePermission.OTHERS_WRITE);
+                if ((n & 4) != 0) perms.add(PosixFilePermission.OTHERS_READ);
+            } else if (i == ds.length - 2) {
+                if ((n & 1) != 0) perms.add(PosixFilePermission.GROUP_EXECUTE);
+                if ((n & 2) != 0) perms.add(PosixFilePermission.GROUP_WRITE);
+                if ((n & 4) != 0) perms.add(PosixFilePermission.GROUP_READ);
+            } else if (i == ds.length - 3) {
+                if ((n & 1) != 0) perms.add(PosixFilePermission.OWNER_EXECUTE);
+                if ((n & 2) != 0) perms.add(PosixFilePermission.OWNER_WRITE);
+                if ((n & 4) != 0) perms.add(PosixFilePermission.OWNER_READ);
+            }
+        }
+        return perms;
+    }
+
+    /**
+     * Writes a set of {@link PosixFilePermission}s to a Posix 'file mode' integer.
+     *
+     * @param perms The permissions.
+     * @return The 'file mode'.
+     */
+    public static int writeMode(Set<PosixFilePermission> perms) {
+        int[] segs = new int[3];
+        if (perms.contains(PosixFilePermission.OTHERS_EXECUTE)) segs[2] |= 1;
+        if (perms.contains(PosixFilePermission.OTHERS_WRITE)) segs[2] |= 2;
+        if (perms.contains(PosixFilePermission.OTHERS_READ)) segs[2] |= 4;
+        if (perms.contains(PosixFilePermission.GROUP_EXECUTE)) segs[1] |= 1;
+        if (perms.contains(PosixFilePermission.GROUP_WRITE)) segs[1] |= 2;
+        if (perms.contains(PosixFilePermission.GROUP_READ)) segs[1] |= 4;
+        if (perms.contains(PosixFilePermission.OWNER_EXECUTE)) segs[0] |= 1;
+        if (perms.contains(PosixFilePermission.OWNER_WRITE)) segs[0] |= 2;
+        if (perms.contains(PosixFilePermission.OWNER_READ)) segs[0] |= 4;
+        return Integer.parseInt(String.valueOf(segs[0]) + segs[1] + segs[2]);
     }
 }
