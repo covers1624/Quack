@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
@@ -47,6 +49,11 @@ public class ApacheHttpClientDownloadAction extends AbstractDownloadAction {
         Dest dest = requireNonNull(this.dest, "Dest not set");
 
         HttpGet get = new HttpGet(url);
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            for (String value : entry.getValue()) {
+                get.addHeader(entry.getKey(), value);
+            }
+        }
         if (userAgent != null) {
             get.addHeader("User-Agent", userAgent);
         }
@@ -137,6 +144,7 @@ public class ApacheHttpClientDownloadAction extends AbstractDownloadAction {
     @Override public ApacheHttpClientDownloadAction setOnlyIfModified(boolean onlyIfModified) { super.setOnlyIfModified(onlyIfModified); return this; }
     @Override public ApacheHttpClientDownloadAction setUseETag(boolean useETag) { super.setUseETag(useETag); return this; }
     @Override public ApacheHttpClientDownloadAction setQuiet(boolean quiet) { super.setQuiet(quiet); return this; }
+    @Override public ApacheHttpClientDownloadAction addRequestHeader(String key, String value) { super.addRequestHeader(key, value); return this; }
     @Override public ApacheHttpClientDownloadAction setUserAgent(String userAgent) { super.setUserAgent(userAgent); return this; }
     @Override public ApacheHttpClientDownloadAction setDownloadListener(DownloadListener downloadListener) { super.setDownloadListener(downloadListener); return this; }
     public CloseableHttpClient getClient() { return client; }

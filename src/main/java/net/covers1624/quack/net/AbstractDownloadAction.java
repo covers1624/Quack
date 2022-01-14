@@ -15,10 +15,7 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 import static java.net.HttpURLConnection.HTTP_NOT_MODIFIED;
 
@@ -61,6 +58,8 @@ public abstract class AbstractDownloadAction implements DownloadAction {
     protected String userAgent;
     @Nullable
     protected DownloadListener downloadListener;
+
+    protected final Map<String, List<String>> headers = new HashMap<>();
 
     protected boolean upToDate;
 
@@ -146,6 +145,12 @@ public abstract class AbstractDownloadAction implements DownloadAction {
     @Override
     public AbstractDownloadAction setUserAgent(String userAgent) {
         this.userAgent = userAgent;
+        return this;
+    }
+
+    @Override
+    public DownloadAction addRequestHeader(String key, String value) {
+        headers.computeIfAbsent(key, k -> new LinkedList<>()).add(value);
         return this;
     }
 

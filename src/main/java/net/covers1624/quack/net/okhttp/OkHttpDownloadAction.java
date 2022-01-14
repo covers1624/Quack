@@ -23,10 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
@@ -62,6 +59,11 @@ public class OkHttpDownloadAction extends AbstractDownloadAction {
 
         Request.Builder builder = new Request.Builder()
                 .url(url);
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            for (String value : entry.getValue()) {
+                builder.addHeader(entry.getKey(), value);
+            }
+        }
         if (userAgent != null) {
             builder.addHeader("User-Agent", userAgent);
         }
@@ -166,6 +168,7 @@ public class OkHttpDownloadAction extends AbstractDownloadAction {
     @Override public OkHttpDownloadAction setUseETag(boolean useETag) { super.setUseETag(useETag); return this; }
     @Override public OkHttpDownloadAction setQuiet(boolean quiet) { super.setQuiet(quiet); return this; }
     @Override public OkHttpDownloadAction setUserAgent(String userAgent) { super.setUserAgent(userAgent); return this; }
+    @Override public OkHttpDownloadAction addRequestHeader(String key, String value) { super.addRequestHeader(key, value); return this; }
     @Override public OkHttpDownloadAction setDownloadListener(DownloadListener downloadListener) { super.setDownloadListener(downloadListener); return this; }
     public OkHttpClient getClient() { return client; }
     public Map<Class<?>, Object> getTags() { return Collections.unmodifiableMap(tags); }

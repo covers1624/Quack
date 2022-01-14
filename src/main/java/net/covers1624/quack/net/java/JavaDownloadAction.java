@@ -18,6 +18,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static java.net.HttpURLConnection.HTTP_NOT_MODIFIED;
 import static java.util.Objects.requireNonNull;
@@ -48,6 +50,11 @@ public class JavaDownloadAction extends AbstractDownloadAction {
             conn.setConnectTimeout(15000);
             conn.setReadTimeout(15000);
             conn.setInstanceFollowRedirects(false);
+            for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+                for (String value : entry.getValue()) {
+                    conn.setRequestProperty(entry.getKey(), value);
+                }
+            }
             if (userAgent != null) {
                 conn.setRequestProperty("User-Agent", userAgent);
             }
@@ -143,6 +150,7 @@ public class JavaDownloadAction extends AbstractDownloadAction {
     @Override public JavaDownloadAction setUseETag(boolean useETag) { super.setUseETag(useETag); return this; }
     @Override public JavaDownloadAction setQuiet(boolean quiet) { super.setQuiet(quiet); return this; }
     @Override public JavaDownloadAction setUserAgent(String userAgent) { super.setUserAgent(userAgent); return this; }
+    @Override public JavaDownloadAction addRequestHeader(String key, String value) { super.addRequestHeader(key, value); return this; }
     @Override public JavaDownloadAction setDownloadListener(DownloadListener downloadListener) { super.setDownloadListener(downloadListener); return this; }
     //@formatter:on
 }

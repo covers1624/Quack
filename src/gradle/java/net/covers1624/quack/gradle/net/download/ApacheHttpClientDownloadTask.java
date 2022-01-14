@@ -62,6 +62,7 @@ public class ApacheHttpClientDownloadTask extends DefaultTask implements Downloa
     @Override public ApacheHttpClientDownloadTask setUseETag(boolean useETag) { action.setUseETag(useETag);return this; }
     @Override public ApacheHttpClientDownloadTask setQuiet(boolean quiet) { action.setQuiet(quiet);return this; }
     @Override public ApacheHttpClientDownloadTask setUserAgent(String userAgent) { action.setUserAgent(userAgent);return this; }
+    @Override public DownloadAction addRequestHeader(String key, String value) { action.addRequestHeader(key, value);return this; }
     @Override public ApacheHttpClientDownloadTask setDownloadListener(DownloadListener downloadListener) { action.setDownloadListener(downloadListener);return this; }
     public CloseableHttpClient getClient() { return action.getClient(); }
     @Nullable @Override public String getUrl() { return action.getUrl(); }

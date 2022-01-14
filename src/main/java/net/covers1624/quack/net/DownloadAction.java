@@ -128,6 +128,15 @@ public interface DownloadAction {
     DownloadAction setUserAgent(String userAgent);
 
     /**
+     * Adds an arbitrary Http header to the action.
+     *
+     * @param key   The key.
+     * @param value The value.
+     * @return The same download action.
+     */
+    DownloadAction addRequestHeader(String key, String value);
+
+    /**
      * Set the {@link DownloadListener} to use.
      *
      * @param downloadListener The {@link DownloadListener}.
