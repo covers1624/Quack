@@ -9,6 +9,7 @@ import net.covers1624.quack.io.IOUtils;
 import net.covers1624.quack.io.WriterOutputStream;
 import net.covers1624.quack.net.apache.ApacheHttpClientDownloadAction;
 import net.covers1624.quack.net.download.DownloadListener;
+import net.covers1624.quack.net.java.JavaDownloadAction;
 import net.covers1624.quack.net.okhttp.OkHttpDownloadAction;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +31,7 @@ import java.nio.file.attribute.FileTime;
  * the file to an in-memory String/byte array.
  * <p>
  * Several implementations of this exist:
+ * Java HttpURLConnection: {@link JavaDownloadAction}.
  * OkHttp: {@link OkHttpDownloadAction}.
  * Apache HttpClient: {@link ApacheHttpClientDownloadAction}.
  * <p>

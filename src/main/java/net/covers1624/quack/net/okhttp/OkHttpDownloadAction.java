@@ -6,10 +6,10 @@
 package net.covers1624.quack.net.okhttp;
 
 import net.covers1624.quack.annotation.Requires;
+import net.covers1624.quack.net.AbstractDownloadAction;
 import net.covers1624.quack.net.DownloadAction;
 import net.covers1624.quack.net.HttpResponseException;
 import net.covers1624.quack.net.download.DownloadListener;
-import net.covers1624.quack.util.SneakyUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -17,7 +17,6 @@ import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.Okio;
 import okio.Source;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +25,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import static java.net.HttpURLConnection.HTTP_NOT_MODIFIED;
 import static java.util.Objects.requireNonNull;
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
@@ -40,34 +40,16 @@ import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
  */
 @Requires ("org.slf4j:slf4j-api")
 @Requires ("com.squareup.okhttp3:okhttp")
-public class OkHttpDownloadAction implements DownloadAction {
+public class OkHttpDownloadAction extends AbstractDownloadAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OkHttpDownloadAction.class);
-
-    private static final SimpleDateFormat FORMAT_RFC1123 = SneakyUtils.sneaky(() -> {
-        SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-        format.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return format;
-    });
 
     private static final OkHttpClient CLIENT = new OkHttpClient.Builder()
             .build();
 
     private OkHttpClient client = CLIENT;
-    @Nullable
-    private String url;
-    @Nullable
-    private Dest dest;
-    private boolean onlyIfModified;
-    private boolean useETag;
-    private boolean quiet = true;
-    @Nullable
-    private String userAgent;
-    @Nullable
-    private DownloadListener downloadListener;
-    private final Map<Class<?>, Object> tags = new HashMap<>();
 
-    private boolean upToDate;
+    private final Map<Class<?>, Object> tags = new HashMap<>();
 
     /**
      * Execute the download action.
@@ -106,28 +88,15 @@ public class OkHttpDownloadAction implements DownloadAction {
         }
         try (Response response = client.newCall(builder.build()).execute()) {
             int code = response.code();
-            boolean expectNotModified = useETag || onlyIfModified;
-            if ((code < 200 || code > 299) && (!expectNotModified || code != HTTP_NOT_MODIFIED)) {
-                throw new HttpResponseException(code, response.message());
-            }
+            validateCode(code, response.message());
+
             Date lastModifiedHeader = response.headers().getDate("Last-Modified");
 
-            boolean notModified = expectNotModified && code == HTTP_NOT_MODIFIED;
-            boolean timestampNotModified = onlyIfModified && lastModifiedHeader != null && lastModified >= lastModifiedHeader.getTime();
-            if (notModified || timestampNotModified) {
-                if (!quiet) {
-                    String reason = "";
-                    if (code == HTTP_NOT_MODIFIED) {
-                        reason += "304 not modified ";
-                    }
-                    if (timestampNotModified) {
-                        reason += "Last-Modified header";
-                    }
-                    LOGGER.info("Not Modified ({}). Skipping '{}'.", reason.trim(), url);
-                }
-                upToDate = true;
+            upToDate = calcUpToDate(code, lastModified, lastModifiedHeader);
+            if (upToDate) {
                 return;
             }
+
             ResponseBody body = response.body();
             if (body == null) return; // Okay...
 
@@ -176,68 +145,6 @@ public class OkHttpDownloadAction implements DownloadAction {
         return this;
     }
 
-    @Override
-    public OkHttpDownloadAction setUrl(String url) {
-        this.url = url;
-        return this;
-    }
-
-    @Override
-    public OkHttpDownloadAction setDest(Dest dest) {
-        this.dest = dest;
-        return this;
-    }
-
-    @Override
-    public OkHttpDownloadAction setDest(StringWriter sw) {
-        return setDest(Dest.string(sw));
-    }
-
-    @Override
-    public DownloadAction setDest(OutputStream os) {
-        return setDest(Dest.stream(os));
-    }
-
-    @Override
-    public OkHttpDownloadAction setDest(File file) {
-        return setDest(Dest.file(file));
-    }
-
-    @Override
-    public OkHttpDownloadAction setDest(Path path) {
-        return setDest(Dest.path(path));
-    }
-
-    @Override
-    public OkHttpDownloadAction setOnlyIfModified(boolean onlyIfModified) {
-        this.onlyIfModified = onlyIfModified;
-        return this;
-    }
-
-    @Override
-    public OkHttpDownloadAction setUseETag(boolean useETag) {
-        this.useETag = useETag;
-        return this;
-    }
-
-    @Override
-    public OkHttpDownloadAction setQuiet(boolean quiet) {
-        this.quiet = quiet;
-        return this;
-    }
-
-    @Override
-    public OkHttpDownloadAction setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
-        return this;
-    }
-
-    @Override
-    public OkHttpDownloadAction setDownloadListener(DownloadListener downloadListener) {
-        this.downloadListener = downloadListener;
-        return this;
-    }
-
     /**
      * Add a Tag to the OkHttp {@link Request}.
      *
@@ -250,20 +157,19 @@ public class OkHttpDownloadAction implements DownloadAction {
         return this;
     }
 
-    @Override
-    public boolean isUpToDate() {
-        return upToDate;
-    }
-
     //@formatter:off
+    @Override public OkHttpDownloadAction setUrl(String url) { super.setUrl(url); return this; }
+    @Override public OkHttpDownloadAction setDest(Dest dest) { super.setDest(dest); return this; }
+    @Override public OkHttpDownloadAction setDest(StringWriter sw) { super.setDest(sw); return this; }
+    @Override public OkHttpDownloadAction setDest(OutputStream os) { super.setDest(os); return this; }
+    @Override public OkHttpDownloadAction setDest(File file) { super.setDest(file); return this; }
+    @Override public OkHttpDownloadAction setDest(Path path) { super.setDest(path); return this; }
+    @Override public OkHttpDownloadAction setOnlyIfModified(boolean onlyIfModified) { super.setOnlyIfModified(onlyIfModified); return this; }
+    @Override public OkHttpDownloadAction setUseETag(boolean useETag) { super.setUseETag(useETag); return this; }
+    @Override public OkHttpDownloadAction setQuiet(boolean quiet) { super.setQuiet(quiet); return this; }
+    @Override public OkHttpDownloadAction setUserAgent(String userAgent) { super.setUserAgent(userAgent); return this; }
+    @Override public OkHttpDownloadAction setDownloadListener(DownloadListener downloadListener) { super.setDownloadListener(downloadListener); return this; }
     public OkHttpClient getClient() { return client; }
-    @Override @Nullable public String getUrl() { return url; }
-    @Override @Nullable public Dest getDest() { return dest; }
-    @Override public boolean getOnlyIfModified() { return onlyIfModified; }
-    @Override public boolean getUseETag() { return useETag; }
-    @Override public boolean getQuiet() { return quiet; }
-    @Override @Nullable public String getUserAgent() { return userAgent; }
-    @Override @Nullable public DownloadListener getDownloadListener() { return downloadListener; }
     public Map<Class<?>, Object> getTags() { return Collections.unmodifiableMap(tags); }
     //@formatter:on
 }

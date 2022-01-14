@@ -7,6 +7,7 @@ package net.covers1624.quack.net;
 
 import net.covers1624.quack.net.apache.ApacheHttpClientDownloadAction;
 import net.covers1624.quack.net.download.DownloadListener;
+import net.covers1624.quack.net.java.JavaDownloadAction;
 import net.covers1624.quack.net.okhttp.OkHttpDownloadAction;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
@@ -29,6 +30,7 @@ public class TestDownloadAction {
     // This is very well known, and likely not to disappear any time soon.
     // These tests only validate that this file is readable Maven Metadata XML with the 'groupId' attribute.
     private static final String WELL_KNOWN_XML = "https://repo1.maven.org/maven2/com/google/guava/guava/maven-metadata.xml";
+    private static final String HTTP_REDIRECT = "http://proxy-maven.covers1624.net/com/google/guava/guava/maven-metadata.xml";
     private static final String GROUP_ID = "com.google.guava";
     private static final MetadataXpp3Reader XPP_3_READER = new MetadataXpp3Reader();
 
@@ -83,6 +85,33 @@ public class TestDownloadAction {
     @Test
     public void test404Apache() throws Throwable {
         test404(ApacheHttpClientDownloadAction::new);
+    }
+    //endregion
+
+    //region Java HttpURLConnection
+    @Test
+    public void testStringJava() throws Throwable {
+        testDownloadString(JavaDownloadAction::new);
+    }
+
+    @Test
+    public void testOnlyIfModifiedJava() throws Throwable {
+        testNotModified(JavaDownloadAction::new, false, true);
+    }
+
+    @Test
+    public void testETagJava() throws Throwable {
+        testNotModified(JavaDownloadAction::new, true, false);
+    }
+
+    @Test
+    public void testETagAndOnlyIfModifiedJava() throws Throwable {
+        testNotModified(JavaDownloadAction::new, true, true);
+    }
+
+    @Test
+    public void test404Java() throws Throwable {
+        test404(JavaDownloadAction::new);
     }
     //endregion
 
