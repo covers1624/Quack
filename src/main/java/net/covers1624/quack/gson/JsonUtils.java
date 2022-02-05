@@ -45,6 +45,21 @@ public class JsonUtils {
     }
 
     /**
+     * Deserialize Json from the given {@link String} as the given {@link Type}.
+     *
+     * @param gson The {@link Gson} instance to use.
+     * @param str  The {@link String} representing the json to parse.
+     * @param t    The {@link Type} to deserialize from.
+     * @return The Object deserialized from Json.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static <T> T parse(Gson gson, String str, Type t) throws IOException, JsonParseException {
+        return parse(gson, new StringReader(str), t);
+    }
+
+    /**
      * Deserialize Json from the given {@link InputStream} as the given {@link Type}.
      *
      * @param gson The {@link Gson} instance to use.
