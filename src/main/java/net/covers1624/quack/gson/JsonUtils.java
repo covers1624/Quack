@@ -27,6 +27,8 @@ import java.nio.file.Path;
 @Requires ("com.google.code.gson:gson")
 public class JsonUtils {
 
+    private static final Gson GSON = new Gson();
+
     //region Deserialize
 
     /**
@@ -88,6 +90,63 @@ public class JsonUtils {
     public static <T> T parse(Gson gson, Reader reader, Type t) throws IOException, JsonParseException {
         try (Reader r = reader) {
             return gson.fromJson(r, t);
+        }
+    }
+    //endregion
+
+    //region Deserialize raw
+
+    /**
+     * Deserialize Json from the given {@link Path} as a raw {@link JsonElement}.
+     *
+     * @param path The {@link Path} to read from.
+     * @return The {@link JsonElement}.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static JsonElement parseRaw(Path path) throws IOException, JsonParseException {
+        return parseRaw(Files.newInputStream(path));
+    }
+
+    /**
+     * Deserialize Json from the given {@link String} as a raw {@link JsonElement}.
+     *
+     * @param str The {@link String} representing the json to parse.
+     * @return The {@link JsonElement}.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static JsonElement parseRaw(String str) throws IOException, JsonParseException {
+        return parseRaw(new StringReader(str));
+    }
+
+    /**
+     * Deserialize Json from the given {@link InputStream} as a raw {@link JsonElement}.
+     *
+     * @param is The {@link InputStream} to read from.
+     * @return The {@link JsonElement}.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static JsonElement parseRaw(InputStream is) throws IOException, JsonParseException {
+        return parseRaw(new InputStreamReader(is));
+    }
+
+    /**
+     * Deserialize Json from the given {@link Reader} as a raw {@link JsonElement}.
+     *
+     * @param reader The {@link Reader} to read from.
+     * @return The {@link JsonElement}.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static JsonElement parseRaw(Reader reader) throws IOException, JsonParseException {
+        try (Reader r = reader) {
+            return GSON.fromJson(r, JsonElement.class);
         }
     }
     //endregion
@@ -162,6 +221,8 @@ public class JsonUtils {
         }
     }
     //endregion
+
+    //region Getter helpers.
 
     /**
      * Try and get a {@link JsonPrimitive} child from the given {@link JsonObject}.
@@ -255,4 +316,5 @@ public class JsonUtils {
         if (!prim.isString()) return default_;
         return prim.getAsString();
     }
+    //endregion
 }
