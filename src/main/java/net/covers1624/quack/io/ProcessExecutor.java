@@ -296,6 +296,20 @@ public class ProcessExecutor {
             ioThread.start();
         }
 
+        public void stop() {
+            assert process != null;
+            assert process.isAlive();
+
+            process.destroy();
+        }
+
+        public void forceStop() {
+            assert process != null;
+            assert process.isAlive();
+
+            process.destroyForcibly();
+        }
+
         /**
          * @return If this Process is currently running.
          */
