@@ -309,7 +309,7 @@ public class JsonUtils {
      * @return The {@link String}. Otherwise, <code>default_</code>.
      */
     @Nullable
-    @Contract ("_,_,null->null")
+    @Contract ("_,_,!null->!null")
     public static String getString(JsonObject obj, String key, @Nullable String default_) {
         JsonPrimitive prim = getAsPrimitiveOrNull(obj, key);
         if (prim == null) return default_;
