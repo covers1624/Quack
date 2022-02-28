@@ -79,6 +79,9 @@ test {
 
 jar {
     from sourceSets.gradle.output
+    manifest {
+        attributes 'FMLModType': 'GAMELIBRARY'
+    }
     from file("LICENSE.txt")
 }
 
