@@ -372,6 +372,11 @@ public class StreamableIteratorTests {
         assertCollectionEquals(grouped.get('p'), "pair", "pool");
     }
 
+    @Test
+    public void testJoin() {
+        assertEquals("apple, banana, boat, pair, pool", StreamableIterable.of("apple", "banana", "boat", "pair", "pool").join(", "));
+    }
+
     private void assertCollectionEquals(@Nullable Collection<?> col, Object... values) {
         assertNotNull(col);
         assertEquals(values.length, col.size());

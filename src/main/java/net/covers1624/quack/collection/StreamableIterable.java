@@ -842,6 +842,26 @@ public interface StreamableIterable<T> extends Iterable<T> {
     }
 
     /**
+     * Join all elements of the {@link StreamableIterable} together into a {@link String}, seperated by {@code sep}.
+     *
+     * @param sep The separator.
+     * @return The joined string.
+     */
+    default String join(String sep) {
+        StringBuilder str = new StringBuilder();
+        boolean first = true;
+        for (T t : this) {
+            if (!first) {
+                str.append(sep);
+            }
+            first = false;
+            str.append(t);
+        }
+
+        return str.toString();
+    }
+
+    /**
      * Convert this {@link StreamableIterable} to a {@link Stream}.
      *
      * @return The {@link Stream}
