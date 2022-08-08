@@ -54,6 +54,8 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @return The {@link StreamableIterable}
      */
     static <T> StreamableIterable<T> of(Iterable<T> itr) {
+        if (itr instanceof StreamableIterable) return (StreamableIterable<T>) itr;
+
         return itr::iterator;
     }
 
