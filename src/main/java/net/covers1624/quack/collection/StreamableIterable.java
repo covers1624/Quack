@@ -426,6 +426,51 @@ public interface StreamableIterable<T> extends Iterable<T> {
     }
 
     /**
+     * Map all elements of this {@link StreamableIterable} to an int,
+     * then sum the result.
+     *
+     * @param func The mapping function.
+     * @return The sum result.
+     */
+    default int intSum(ToIntFunction<? super T> func) {
+        int i = 0;
+        for (T thing : this) {
+            i += func.applyAsInt(thing);
+        }
+        return i;
+    }
+
+    /**
+     * Map all elements of this {@link StreamableIterable} to a long,
+     * then sum the result.
+     *
+     * @param func The mapping function.
+     * @return The sum result.
+     */
+    default long longSum(ToLongFunction<? super T> func) {
+        long l = 0;
+        for (T thing : this) {
+            l += func.applyAsLong(thing);
+        }
+        return l;
+    }
+
+    /**
+     * Map all elements of this {@link StreamableIterable} to a double,
+     * then sum the result.
+     *
+     * @param func The mapping function.
+     * @return The sum result.
+     */
+    default double doubleSum(ToDoubleFunction<? super T> func) {
+        double d = 0;
+        for (T thing : this) {
+            d += func.applyAsDouble(thing);
+        }
+        return d;
+    }
+
+    /**
      * @return If this {@link StreamableIterable} is empty.
      */
     default boolean isEmpty() {

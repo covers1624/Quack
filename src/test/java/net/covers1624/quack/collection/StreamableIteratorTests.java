@@ -237,6 +237,30 @@ public class StreamableIteratorTests {
     }
 
     @Test
+    public void testIntSum() {
+        int sum = StreamableIterable.of("one", "two", "three")
+                .intSum(String::length);
+
+        assertEquals(11, sum);
+    }
+
+    @Test
+    public void testLongSum() {
+        long sum = StreamableIterable.of("one", "two", "three")
+                .longSum(String::length);
+
+        assertEquals(11L, sum);
+    }
+
+    @Test
+    public void testDoubleSum() {
+        double sum = StreamableIterable.of("one", "two", "three")
+                .doubleSum(e -> e.length() / 2D);
+
+        assertEquals(5.5D, sum);
+    }
+
+    @Test
     public void testAnyMatch() {
         assertTrue(StreamableIterable.of(of("a", "b", "c", "d")).anyMatch(e -> e.equals("a")));
         assertFalse(StreamableIterable.of(of("a", "b", "c", "d")).anyMatch(e -> e.equals("e")));
