@@ -6,6 +6,7 @@ package net.covers1624.quack.collection;
 import com.google.common.collect.*;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.util.SneakyUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -53,10 +54,11 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @param itr The {@link Iterable} to wrap.
      * @return The {@link StreamableIterable}
      */
-    static <T> StreamableIterable<T> of(Iterable<T> itr) {
+    @SuppressWarnings ("unchecked")
+    static <T> StreamableIterable<T> of(Iterable<? extends T> itr) {
         if (itr instanceof StreamableIterable) return (StreamableIterable<T>) itr;
 
-        return itr::iterator;
+        return ((Iterable<T>) itr)::iterator;
     }
 
     /**
@@ -103,8 +105,8 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @param optional The thing.
      * @return The {@link StreamableIterable}.
      */
-    static <T> StreamableIterable<T> of(Optional<T> optional) {
-        return optional.map(StreamableIterable::of).orElse(empty());
+    static <T> StreamableIterable<T> of(Optional<? extends T> optional) {
+        return optional.map(StreamableIterable::<T>of).orElse(empty());
     }
 
     /**
@@ -263,7 +265,7 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @param action The consumer.
      * @return A wrapped {@link StreamableIterable} with the peek function applied.
      */
-    default StreamableIterable<T> peek(Consumer<T> action) {
+    default StreamableIterable<T> peek(Consumer<? super T> action) {
         return () -> new Iterator<T>() {
             private final Iterator<T> itr = iterator();
 
@@ -363,11 +365,27 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @param identity    The starting element.
      * @param accumulator The function to fold elements with.
      * @return The result.
+     * @deprecated Remains for ABI compat.
      */
     @Nullable
     @Contract ("null,_->null")
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
     default T fold(@Nullable T identity, BinaryOperator<@Nullable T> accumulator) {
-        T ret = identity;
+        return fold(identity, (BiFunction<@Nullable T, T, T>) accumulator);
+    }
+
+    /**
+     * Folds each element of this {@link StreamableIterable} into the previous.
+     *
+     * @param identity    The starting element.
+     * @param accumulator The function to fold elements with.
+     * @return The result.
+     */
+    @Nullable
+    @Contract ("null,_->null")
+    default <U> U fold(@Nullable U identity, BiFunction<? super @Nullable U, ? super T, ? extends U> accumulator) {
+        U ret = identity;
         for (T t : this) {
             ret = accumulator.apply(ret, t);
         }
