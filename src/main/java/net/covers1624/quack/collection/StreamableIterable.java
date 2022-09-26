@@ -368,7 +368,7 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @deprecated Remains for ABI compat.
      */
     @Nullable
-    @Contract ("null,_->null")
+    @Contract ("!null,_ -> !null")
     @Deprecated
     @ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
     default T fold(@Nullable T identity, BinaryOperator<@Nullable T> accumulator) {
@@ -383,7 +383,7 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * @return The result.
      */
     @Nullable
-    @Contract ("null,_->null")
+    @Contract ("!null,_ -> !null")
     default <U> U fold(@Nullable U identity, BiFunction<? super @Nullable U, ? super T, ? extends U> accumulator) {
         U ret = identity;
         for (T t : this) {
