@@ -27,26 +27,6 @@ public abstract class AbstractDownloadAction implements DownloadAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDownloadAction.class);
 
-    protected static final SimpleDateFormat FORMAT_RFC1123 = parseFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
-    protected static final SimpleDateFormat FORMAT_RFC1036 = parseFormat("EEE, dd-MMM-yy HH:mm:ss zzz");
-    protected static final SimpleDateFormat FORMAT_ASCTIME = parseFormat("EEE MMM d HH:mm:ss yyyy");
-
-    protected static final SimpleDateFormat[] PATTERNS = new SimpleDateFormat[] {
-            FORMAT_RFC1123,
-            FORMAT_RFC1036,
-            FORMAT_ASCTIME
-    };
-
-    private static final Date TWO_DIGIT_YEAR_START;
-
-    static {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        cal.set(2000, Calendar.JANUARY, 1, 0, 0, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        TWO_DIGIT_YEAR_START = cal.getTime();
-    }
-
     @Nullable
     protected String url;
     @Nullable
@@ -165,23 +145,6 @@ public abstract class AbstractDownloadAction implements DownloadAction {
         return upToDate;
     }
 
-    @Nullable
-    protected static Date parseDate(@Nullable String str) {
-        if (str == null) return null;
-        if (str.length() > 1 && str.startsWith("'") && str.endsWith("'")) {
-            str = str.substring(1, str.length() - 1);
-        }
-        for (SimpleDateFormat pattern : PATTERNS) {
-            pattern.set2DigitYearStart(TWO_DIGIT_YEAR_START);
-            ParsePosition parsePosition = new ParsePosition(0);
-            Date date = pattern.parse(str, parsePosition);
-            if (parsePosition.getIndex() != 0) {
-                return date;
-            }
-        }
-        return null;
-    }
-
     //@formatter:off
     @Override @Nullable public String getUrl() { return url; }
     @Override @Nullable public Dest getDest() { return dest; }
@@ -191,10 +154,4 @@ public abstract class AbstractDownloadAction implements DownloadAction {
     @Override @Nullable public String getUserAgent() { return userAgent; }
     @Override @Nullable public DownloadListener getDownloadListener() { return downloadListener; }
     //@formatter:on
-
-    private static SimpleDateFormat parseFormat(String pattern) {
-        SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.US);
-        format.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return format;
-    }
 }

@@ -9,6 +9,7 @@ import net.covers1624.quack.io.ProgressInputStream;
 import net.covers1624.quack.net.AbstractDownloadAction;
 import net.covers1624.quack.net.DownloadAction;
 import net.covers1624.quack.net.download.DownloadListener;
+import net.covers1624.quack.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class JavaDownloadAction extends AbstractDownloadAction {
             }
 
             if (onlyIfModified && lastModified != -1) {
-                conn.setRequestProperty("If-Modified-Since", FORMAT_RFC1123.format(new Date(lastModified)));
+                conn.setRequestProperty("If-Modified-Since", TimeUtils.FORMAT_RFC1123.format(new Date(lastModified)));
             }
 
             if (downloadListener != null) {
@@ -93,7 +94,7 @@ public class JavaDownloadAction extends AbstractDownloadAction {
             InputStream stream = conn.getInputStream();
 
             String eTagHeader = conn.getHeaderField("ETag");
-            Date lastModifiedHeader = parseDate(conn.getHeaderField("Last-Modified"));
+            Date lastModifiedHeader = TimeUtils.parseDate(conn.getHeaderField("Last-Modified"));
             long contentLength = conn.getHeaderFieldLong("Content-Length", -1);
 
             upToDate = calcUpToDate(code, lastModified, lastModifiedHeader);

@@ -8,6 +8,7 @@ import net.covers1624.quack.net.AbstractDownloadAction;
 import net.covers1624.quack.net.DownloadAction;
 import net.covers1624.quack.net.HttpResponseException;
 import net.covers1624.quack.net.download.DownloadListener;
+import net.covers1624.quack.util.TimeUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -74,7 +75,7 @@ public class OkHttpDownloadAction extends AbstractDownloadAction {
 
         long lastModified = dest.getLastModified();
         if (onlyIfModified && lastModified != -1) {
-            builder.addHeader("If-Modified-Since", FORMAT_RFC1123.format(new Date(lastModified)));
+            builder.addHeader("If-Modified-Since", TimeUtils.FORMAT_RFC1123.format(new Date(lastModified)));
         }
         for (Map.Entry<Class<?>, Object> entry : tags.entrySet()) {
             builder.tag(unsafeCast(entry.getKey()), entry.getValue());
