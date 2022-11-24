@@ -81,6 +81,7 @@ jar {
     from sourceSets.gradle.output
     manifest {
         attributes 'FMLModType': 'GAMELIBRARY'
+        attributes 'Automatic-Module-Name': 'net.covers1624.quack'
     }
     from file("LICENSE.txt")
 }
