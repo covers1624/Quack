@@ -10,6 +10,7 @@ import net.covers1624.quack.net.download.DownloadListener;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.internal.tasks.TaskExecutionOutcome;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,14 +65,14 @@ public class ApacheHttpClientDownloadTask extends DefaultTask implements Downloa
     @Override public ApacheHttpClientDownloadTask setUserAgent(String userAgent) { action.setUserAgent(userAgent);return this; }
     @Override public DownloadAction addRequestHeader(String key, String value) { action.addRequestHeader(key, value);return this; }
     @Override public ApacheHttpClientDownloadTask setDownloadListener(DownloadListener downloadListener) { action.setDownloadListener(downloadListener);return this; }
-    public CloseableHttpClient getClient() { return action.getClient(); }
-    @Nullable @Override public String getUrl() { return action.getUrl(); }
-    @Nullable @Override public Dest getDest() { return action.getDest(); }
-    @Override public boolean getOnlyIfModified() { return action.getOnlyIfModified(); }
-    @Override public boolean getUseETag() { return action.getUseETag(); }
-    @Override public boolean getQuiet() { return action.getQuiet(); }
-    @Nullable @Override public String getUserAgent() { return action.getUserAgent(); }
-    @Nullable @Override public DownloadListener getDownloadListener() { return action.getDownloadListener(); }
-    @Override public boolean isUpToDate() { return action.isUpToDate(); }
+    @Internal public CloseableHttpClient getClient() { return action.getClient(); }
+    @Internal @Nullable @Override public String getUrl() { return action.getUrl(); }
+    @Internal @Nullable @Override public Dest getDest() { return action.getDest(); }
+    @Internal @Override public boolean getOnlyIfModified() { return action.getOnlyIfModified(); }
+    @Internal @Override public boolean getUseETag() { return action.getUseETag(); }
+    @Internal @Override public boolean getQuiet() { return action.getQuiet(); }
+    @Internal @Nullable @Override public String getUserAgent() { return action.getUserAgent(); }
+    @Internal @Nullable @Override public DownloadListener getDownloadListener() { return action.getDownloadListener(); }
+    @Internal @Override public boolean isUpToDate() { return action.isUpToDate(); }
     //@formatter:on
 }
