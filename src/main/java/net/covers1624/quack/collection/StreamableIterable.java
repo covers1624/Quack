@@ -637,6 +637,40 @@ public interface StreamableIterable<T> extends Iterable<T> {
     }
 
     /**
+     * Returns the element with the highest value returned by the supplied function.
+     *
+     * @param func The function.
+     * @return The element with the highest value.
+     */
+    default T maxBy(ToIntFunction<T> func) {
+        return ColUtils.requireMaxBy(this, func);
+    }
+
+    /**
+     * Returns the element with the highest value returned by the supplied function.
+     *
+     * @param func The function.
+     * @return The element with the highest value or null.
+     */
+    @Nullable
+    default T maxByOrDefault(ToIntFunction<T> func) {
+        return maxByOrDefault(func, null);
+    }
+
+    /**
+     * Returns the element with the highest value returned by the supplied function.
+     *
+     * @param func     The function.
+     * @param _default The default value of the collection is empty.
+     * @return The element with the highest value or the default value.
+     */
+    @Nullable
+    @Contract ("_,!null -> !null")
+    default T maxByOrDefault(ToIntFunction<T> func, @Nullable T _default) {
+        return ColUtils.maxByOrDefault(this, func, _default);
+    }
+
+    /**
      * Collect this {@link StreamableIterable} to an {@link ArrayList}.
      *
      * @return The {@link ArrayList}.

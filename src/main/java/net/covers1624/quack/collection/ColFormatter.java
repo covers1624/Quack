@@ -16,7 +16,7 @@ public class ColFormatter {
         List<List<String>> cols = rotateLists(input);
         List<List<String>> newCols = new ArrayList<>();
         for (List<String> col : cols) {
-            int max = ColUtils.maxBy(col, String::length).length();
+            int max = ColUtils.requireMaxBy(col, String::length).length();
             List<String> newCol = new ArrayList<>();
             for (String cell : col) {
                 StringBuilder str = new StringBuilder(cell);
@@ -61,7 +61,7 @@ public class ColFormatter {
     }
 
     public static List<List<String>> toSquare(List<List<String>> input) {
-        int len = ColUtils.maxBy(input, List::size).size();
+        int len = ColUtils.requireMaxBy(input, List::size).size();
         if (ColUtils.allMatch(input, e -> e.size() == len)) {
             return input;
         }

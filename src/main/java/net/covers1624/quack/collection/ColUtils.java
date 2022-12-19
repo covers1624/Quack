@@ -3,7 +3,9 @@
  */
 package net.covers1624.quack.collection;
 
+import net.covers1624.quack.annotation.ReplaceWithExpr;
 import net.covers1624.quack.util.Copyable;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +66,39 @@ public class ColUtils {
      * @return The max element or null.
      */
     @Nullable
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.5.0")
+    @ReplaceWithExpr ("maxByOrDefault(col, () -> ..., null)")
     public static <T> T maxBy(Iterable<T> col, ToIntFunction<T> func) {
+        return maxByOrDefault(col, func, null);
+    }
+
+    /**
+     * Returns the element in the Iterable with the highest value returned by the supplied function.
+     *
+     * @param col  The collection.
+     * @param func The function.
+     * @return The max element.
+     */
+    public static <T> T requireMaxBy(Iterable<T> col, ToIntFunction<T> func) {
+        T ret = maxByOrDefault(col, func, null);
+        if (ret == null) {
+            throw new IllegalArgumentException("Not found.");
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the element in the Iterable with the highest value returned by the supplied function.
+     *
+     * @param col      The collection.
+     * @param func     The function.
+     * @param default_ The default value to return if the collection is empty.
+     * @return The max element or the default value.
+     */
+    @Nullable
+    @Contract ("_,_,!null -> !null")
+    public static <T> T maxByOrDefault(Iterable<T> col, ToIntFunction<T> func, @Nullable T default_) {
         int max = Integer.MIN_VALUE;
         T maxT = null;
         for (T t : col) {
@@ -74,7 +108,7 @@ public class ColUtils {
                 max = x;
             }
         }
-        return maxT;
+        return maxT == null ? default_ : maxT;
     }
 
     /**
