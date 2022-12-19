@@ -6,7 +6,7 @@ package net.covers1624.quack.collection;
 import com.google.common.collect.*;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.util.SneakyUtils;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -124,11 +124,11 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * Returns an {@link StreamableIterable} containing the elements
      * from all the provided iterables concatenated together.
      *
-     * @param iterables The {@link StreamableIterable}s to concatenate.
+     * @param iterables The {@link Iterable}s to concatenate.
      * @return The concatenated {@link StreamableIterable}.
      */
     @SafeVarargs
-    static <T> StreamableIterable<T> concat(StreamableIterable<? extends T>... iterables) {
+    static <T> StreamableIterable<T> concat(Iterable<? extends T>... iterables) {
         return of(Iterables.concat(iterables));
     }
 
@@ -136,20 +136,20 @@ public interface StreamableIterable<T> extends Iterable<T> {
      * Returns an {@link StreamableIterable} containing the elements
      * from all the provided iterables concatenated together.
      *
-     * @param iterables The {@link StreamableIterable}s to concatenate.
+     * @param iterables The {@link Iterable}s to concatenate.
      * @return The concatenated {@link StreamableIterable}.
      */
-    static <T> StreamableIterable<T> concat(Iterable<StreamableIterable<? extends T>> iterables) {
+    static <T> StreamableIterable<T> concatMany(Iterable<? extends Iterable<? extends T>> iterables) {
         return of(Iterables.concat(iterables));
     }
 
     /**
      * Concatenates another {@link StreamableIterable} onto this one.
      *
-     * @param other The other {@link StreamableIterable} to append.
+     * @param other The other {@link Iterable} to append.
      * @return The new concatenated {@link StreamableIterable}.
      */
-    default StreamableIterable<T> concat(StreamableIterable<? extends T> other) {
+    default StreamableIterable<T> concat(Iterable<? extends T> other) {
         return concat(this, other);
     }
 
@@ -370,7 +370,7 @@ public interface StreamableIterable<T> extends Iterable<T> {
     @Nullable
     @Contract ("!null,_ -> !null")
     @Deprecated
-    @ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
+    @ScheduledForRemoval (inVersion = "0.5.0")
     default T fold(@Nullable T identity, BinaryOperator<@Nullable T> accumulator) {
         return fold(identity, (BiFunction<@Nullable T, T, T>) accumulator);
     }
