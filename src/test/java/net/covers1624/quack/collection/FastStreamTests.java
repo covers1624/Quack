@@ -3,58 +3,57 @@
  */
 package net.covers1624.quack.collection;
 
+import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by covers1624 on 5/10/21.
  */
-@Deprecated
-public class StreamableIteratorTests {
+public class FastStreamTests {
 
     @Test
     public void testEmpty() {
-        assertTrue(StreamableIterable.empty().isEmpty());
-        assertTrue(StreamableIterable.of().isEmpty());
+        assertTrue(FastStream.empty().isEmpty());
+        assertTrue(FastStream.of().isEmpty());
 
-        assertFalse(StreamableIterable.of("a").isEmpty());
+        assertFalse(FastStream.of("a").isEmpty());
     }
 
     @Test
     public void testOfSingle() {
-        List<String> entries = StreamableIterable.of("Single").toList();
+        List<String> entries = FastStream.of("Single").toList();
         assertEquals(1, entries.size());
         assertEquals("Single", entries.get(0));
     }
 
     @Test
     public void testOfNullable() {
-        List<String> entries = StreamableIterable.<String>ofNullable(null).toList();
+        List<String> entries = FastStream.<String>ofNullable(null).toList();
         assertEquals(0, entries.size());
 
-        entries = StreamableIterable.ofNullable("Single").toList();
+        entries = FastStream.ofNullable("Single").toList();
         assertEquals(1, entries.size());
         assertEquals("Single", entries.get(0));
     }
 
     @Test
     public void testOfOptional() {
-        List<String> entries = StreamableIterable.<String>of(Optional.empty()).toList();
+        List<String> entries = FastStream.<String>of(Optional.empty()).toList();
         assertEquals(0, entries.size());
 
-        entries = StreamableIterable.of(Optional.of("Single")).toList();
+        entries = FastStream.of(Optional.of("Single")).toList();
         assertEquals(1, entries.size());
         assertEquals("Single", entries.get(0));
     }
 
     @Test
     public void testOfVarargs() {
-        List<String> entries = StreamableIterable.of("A", "B", "C").toList();
+        List<String> entries = FastStream.of("A", "B", "C").toList();
         assertEquals(3, entries.size());
         assertEquals("A", entries.get(0));
         assertEquals("B", entries.get(1));
@@ -63,7 +62,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testConcat() {
-        List<String> entries = StreamableIterable.of("A", "B", "C").concat(StreamableIterable.of("D", "E", "F")).toList();
+        List<String> entries = FastStream.of("A", "B", "C").concat(FastStream.of("D", "E", "F")).toList();
         assertEquals(6, entries.size());
         assertEquals("A", entries.get(0));
         assertEquals("B", entries.get(1));
@@ -75,7 +74,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testToList() {
-        List<String> entries = StreamableIterable.of(of("a", "b", "c", "d")).toList();
+        List<String> entries = FastStream.of("a", "b", "c", "d").toList();
         assertEquals(4, entries.size());
         assertEquals("a", entries.get(0));
         assertEquals("b", entries.get(1));
@@ -85,7 +84,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testFilter() {
-        List<String> entries = StreamableIterable.of(of("a", "b", "c", "d"))
+        List<String> entries = FastStream.of("a", "b", "c", "d")
                 .filter(e -> !e.equals("c"))
                 .toList();
         assertEquals(3, entries.size());
@@ -96,7 +95,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testFilterNot() {
-        List<String> entries = StreamableIterable.of(of("a", "b", "c", "d"))
+        List<String> entries = FastStream.of("a", "b", "c", "d")
                 .filterNot(e -> e.equals("c"))
                 .toList();
         assertEquals(3, entries.size());
@@ -107,7 +106,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testMap() {
-        List<String> entries = StreamableIterable.of(of("a", "b", "c", "d"))
+        List<String> entries = FastStream.of("a", "b", "c", "d")
                 .map(e -> e + "_mapped")
                 .toList();
         assertEquals(4, entries.size());
@@ -119,7 +118,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testFlatMap() {
-        List<String> entries = StreamableIterable.of(of(of("a", "b"), of("c", "d")))
+        List<String> entries = FastStream.of(Arrays.asList("a", "b"), Arrays.asList("c", "d"))
                 .flatMap(e -> e)
                 .toList();
         assertEquals(4, entries.size());
@@ -131,7 +130,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testDistinct() {
-        List<String> entries = StreamableIterable.of(of("a", "a", "a", "b", "b", "b", "c", "c", "c", "d", "d", "d"))
+        List<String> entries = FastStream.of("a", "a", "a", "b", "b", "b", "c", "c", "c", "d", "d", "d")
                 .distinct()
                 .toList();
         assertEquals(4, entries.size());
@@ -144,7 +143,7 @@ public class StreamableIteratorTests {
     @Test
     public void testPeek() {
         List<String> peekList = new ArrayList<>();
-        List<String> entries = StreamableIterable.of(of("a", "b", "c", "d"))
+        List<String> entries = FastStream.of("a", "b", "c", "d")
                 .peek(peekList::add)
                 .toList();
         assertEquals(4, entries.size());
@@ -162,7 +161,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testLimit() {
-        StreamableIterable<String> baseIterable = StreamableIterable.of(of("a", "b", "c", "d", "a", "b", "c", "d", "a", "b", "c", "d"));
+        FastStream<String> baseIterable = FastStream.of("a", "b", "c", "d", "a", "b", "c", "d", "a", "b", "c", "d");
         List<String> entries = baseIterable
                 .limit(4)
                 .toList();
@@ -178,7 +177,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testSkip() {
-        StreamableIterable<String> baseIterable = StreamableIterable.of(of("a", "b", "c", "d", "a", "b", "c", "d", "a", "b", "c", "d"));
+        FastStream<String> baseIterable = FastStream.of("a", "b", "c", "d", "a", "b", "c", "d", "a", "b", "c", "d");
         List<String> entries = baseIterable
                 .skip(8)
                 .toList();
@@ -193,7 +192,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testToArray() {
-        Object[] objectArray = StreamableIterable.of(of("a", "b", "c", "d")).toArray();
+        Object[] objectArray = FastStream.of("a", "b", "c", "d").toArray();
 
         assertEquals(4, objectArray.length);
         assertEquals("a", objectArray[0]);
@@ -201,7 +200,7 @@ public class StreamableIteratorTests {
         assertEquals("c", objectArray[2]);
         assertEquals("d", objectArray[3]);
 
-        Object[] stringArray = StreamableIterable.of(of("a", "b", "c", "d")).toArray(new String[0]);
+        Object[] stringArray = FastStream.of("a", "b", "c", "d").toArray(new String[0]);
 
         assertEquals(4, stringArray.length);
         assertEquals("a", stringArray[0]);
@@ -212,26 +211,26 @@ public class StreamableIteratorTests {
 
     @Test
     public void testFold() {
-        Optional<String> sOption = StreamableIterable.of(of("a", "b", "c", "d"))
+        Optional<String> sOption = FastStream.of("a", "b", "c", "d")
                 .fold((a, b) -> a + b);
         assertTrue(sOption.isPresent());
         assertEquals("abcd", sOption.get());
 
-        assertFalse(StreamableIterable.<String>empty().fold((a, b) -> a + b).isPresent());
+        assertFalse(FastStream.<String>empty().fold((a, b) -> a + b).isPresent());
     }
 
     @Test
     public void testFoldWithIdentity() {
-        String s = StreamableIterable.of(of("a", "b", "c", "d"))
+        String s = FastStream.of("a", "b", "c", "d")
                 .fold("identity_", (a, b) -> a + b);
         assertEquals("identity_abcd", s);
 
-        assertEquals(StreamableIterable.<String>empty().fold("identity", (a, b) -> a + b), "identity");
+        assertEquals(FastStream.<String>empty().fold("identity", (a, b) -> a + b), "identity");
     }
 
     @Test
     public void testCount() {
-        int count = StreamableIterable.of(of("a", "b", "c", "d"))
+        int count = FastStream.of("a", "b", "c", "d")
                 .count();
 
         assertEquals(4, count);
@@ -239,7 +238,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testIntSum() {
-        int sum = StreamableIterable.of("one", "two", "three")
+        int sum = FastStream.of("one", "two", "three")
                 .intSum(String::length);
 
         assertEquals(11, sum);
@@ -247,7 +246,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testLongSum() {
-        long sum = StreamableIterable.of("one", "two", "three")
+        long sum = FastStream.of("one", "two", "three")
                 .longSum(String::length);
 
         assertEquals(11L, sum);
@@ -255,7 +254,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testDoubleSum() {
-        double sum = StreamableIterable.of("one", "two", "three")
+        double sum = FastStream.of("one", "two", "three")
                 .doubleSum(e -> e.length() / 2D);
 
         assertEquals(5.5D, sum);
@@ -263,91 +262,91 @@ public class StreamableIteratorTests {
 
     @Test
     public void testAnyMatch() {
-        assertTrue(StreamableIterable.of(of("a", "b", "c", "d")).anyMatch(e -> e.equals("a")));
-        assertFalse(StreamableIterable.of(of("a", "b", "c", "d")).anyMatch(e -> e.equals("e")));
+        assertTrue(FastStream.of("a", "b", "c", "d").anyMatch(e -> e.equals("a")));
+        assertFalse(FastStream.of("a", "b", "c", "d").anyMatch(e -> e.equals("e")));
     }
 
     @Test
     public void testAllMatch() {
-        assertTrue(StreamableIterable.of(of("a", "b", "c", "d")).allMatch(e -> e.length() == 1));
-        assertFalse(StreamableIterable.of(of("a", "b", "c", "d", "ef")).allMatch(e -> e.length() == 1));
+        assertTrue(FastStream.of("a", "b", "c", "d").allMatch(e -> e.length() == 1));
+        assertFalse(FastStream.of("a", "b", "c", "d", "ef").allMatch(e -> e.length() == 1));
     }
 
     @Test
     public void testNoneMatch() {
-        assertTrue(StreamableIterable.of(of("a", "b", "c", "d")).noneMatch(e -> e.length() == 2));
-        assertFalse(StreamableIterable.of(of("a", "b", "c", "d", "ef")).allMatch(e -> e.length() == 2));
+        assertTrue(FastStream.of("a", "b", "c", "d").noneMatch(e -> e.length() == 2));
+        assertFalse(FastStream.of("a", "b", "c", "d", "ef").noneMatch(e -> e.length() == 2));
     }
 
     @Test
     public void testFindFirst() {
-        Optional<String> optional = StreamableIterable.of(of("a", "b", "c", "d")).findFirst();
+        Optional<String> optional = FastStream.of("a", "b", "c", "d").findFirst();
         assertTrue(optional.isPresent());
         assertEquals("a", optional.get());
 
-        optional = StreamableIterable.<String>empty().findFirst();
+        optional = FastStream.<String>empty().findFirst();
         assertFalse(optional.isPresent());
     }
 
     @Test
     public void testFirst() {
-        assertEquals("a", StreamableIterable.of("a").first());
-        assertEquals("a", StreamableIterable.of("a", "b").first());
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> StreamableIterable.empty().first());
+        assertEquals("a", FastStream.of("a").first());
+        assertEquals("a", FastStream.of("a", "b").first());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> FastStream.empty().first());
         assertEquals("Not found.", ex.getMessage());
     }
 
     @Test
     public void testFirstOrDefault() {
-        assertEquals("a", StreamableIterable.of("a").firstOrDefault());
-        assertEquals("a", StreamableIterable.of("a", "b").firstOrDefault());
-        assertNull(StreamableIterable.empty().firstOrDefault());
+        assertEquals("a", FastStream.of("a").firstOrDefault());
+        assertEquals("a", FastStream.of("a", "b").firstOrDefault());
+        assertNull(FastStream.empty().firstOrDefault());
     }
 
     @Test
     public void testFindLast() {
-        Optional<String> optional = StreamableIterable.of(of("a", "b", "c", "d")).findLast();
+        Optional<String> optional = FastStream.of("a", "b", "c", "d").findLast();
         assertTrue(optional.isPresent());
         assertEquals("d", optional.get());
 
-        optional = StreamableIterable.<String>empty().findLast();
+        optional = FastStream.<String>empty().findLast();
         assertFalse(optional.isPresent());
     }
 
     @Test
     public void testLast() {
-        assertEquals("a", StreamableIterable.of("a").last());
-        assertEquals("b", StreamableIterable.of("a", "b").last());
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> StreamableIterable.empty().last());
+        assertEquals("a", FastStream.of("a").last());
+        assertEquals("b", FastStream.of("a", "b").last());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> FastStream.empty().last());
         assertEquals("Not found.", ex.getMessage());
     }
 
     @Test
     public void testLastOrDefault() {
-        assertEquals("a", StreamableIterable.of("a").lastOrDefault());
-        assertEquals("b", StreamableIterable.of("a", "b").lastOrDefault());
-        assertNull(StreamableIterable.empty().lastOrDefault());
+        assertEquals("a", FastStream.of("a").lastOrDefault());
+        assertEquals("b", FastStream.of("a", "b").lastOrDefault());
+        assertNull(FastStream.empty().lastOrDefault());
     }
 
     @Test
     public void testOnly() {
-        assertEquals("a", StreamableIterable.of("a").only());
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> StreamableIterable.of("a", "b").only());
+        assertEquals("a", FastStream.of("a").only());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> FastStream.of("a", "b").only());
         assertEquals("More than one element.", ex.getMessage());
-        ex = assertThrows(IllegalArgumentException.class, () -> StreamableIterable.empty().only());
+        ex = assertThrows(IllegalArgumentException.class, () -> FastStream.empty().only());
         assertEquals("Not found.", ex.getMessage());
     }
 
     @Test
     public void testOnlyOrDefault() {
-        assertEquals("a", StreamableIterable.of("a").onlyOrDefault());
-        assertNull(StreamableIterable.of("a", "b").onlyOrDefault());
-        assertNull(StreamableIterable.empty().onlyOrDefault());
+        assertEquals("a", FastStream.of("a").onlyOrDefault());
+        assertNull(FastStream.of("a", "b").onlyOrDefault());
+        assertNull(FastStream.empty().onlyOrDefault());
     }
 
     @Test
     public void testToLinkedList() {
-        List<String> entries = StreamableIterable.of(of("a", "b", "c", "d")).toLinkedList();
+        List<String> entries = FastStream.of("a", "b", "c", "d").toLinkedList();
         assertEquals(4, entries.size());
         assertEquals("a", entries.get(0));
         assertEquals("b", entries.get(1));
@@ -357,7 +356,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testToSet() {
-        HashSet<String> entries = StreamableIterable.of(of("a", "b", "c", "d")).toSet();
+        HashSet<String> entries = FastStream.of("a", "b", "c", "d").toSet();
         assertEquals(4, entries.size());
         assertTrue(entries.contains("a"));
         assertTrue(entries.contains("b"));
@@ -367,7 +366,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testToMap() {
-        HashMap<String, String> entries = StreamableIterable.of(of("a", "b", "c", "d"))
+        HashMap<String, String> entries = FastStream.of("a", "b", "c", "d")
                 .toMap(e -> e, e -> "value_" + e);
         assertEquals(4, entries.size());
         assertEquals("value_a", entries.get("a"));
@@ -378,7 +377,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testToMapWithMerge() {
-        HashMap<String, String> entries = StreamableIterable.of(of("a", "b", "c", "d", "c", "d"))
+        HashMap<String, String> entries = FastStream.of("a", "b", "c", "d", "c", "d")
                 .toMap(e -> e, e -> "value_" + e, (a, b) -> a + "_" + b);
         assertEquals(4, entries.size());
         assertEquals("value_a", entries.get("a"));
@@ -389,8 +388,9 @@ public class StreamableIteratorTests {
 
     @Test
     public void testGroupBy() {
-        Map<Character, List<String>> grouped = StreamableIterable.of("apple", "banana", "boat", "pair", "pool")
-                .groupBy(e -> e.charAt(0));
+        Map<Character, List<String>> grouped = FastStream.of("apple", "banana", "boat", "pair", "pool")
+                .groupBy(e -> e.charAt(0))
+                .toMap(FastStream.Group::getKey, FastStream::toList);
         assertEquals(3, grouped.size());
         assertCollectionEquals(grouped.get('a'), "apple");
         assertCollectionEquals(grouped.get('b'), "banana", "boat");
@@ -399,7 +399,7 @@ public class StreamableIteratorTests {
 
     @Test
     public void testJoin() {
-        assertEquals("apple, banana, boat, pair, pool", StreamableIterable.of("apple", "banana", "boat", "pair", "pool").join(", "));
+        assertEquals("apple, banana, boat, pair, pool", FastStream.of("apple", "banana", "boat", "pair", "pool").join(", "));
     }
 
     private void assertCollectionEquals(@Nullable Collection<?> col, Object... values) {
@@ -409,5 +409,21 @@ public class StreamableIteratorTests {
         for (Object o : col) {
             assertEquals(values[i++], o);
         }
+    }
+
+    @Test
+    public void testSorted() {
+        List<String> entries = FastStream.of("b", "a", "c", "d")
+                .sorted()
+                .toList();
+
+        assertEquals(entries, ImmutableList.of("a", "b", "c", "d"));
+
+        entries = new ArrayList<>();
+        FastStream.of("b", "a", "c", "d")
+                .sorted()
+                .forEach(entries::add);
+
+        assertEquals(entries, ImmutableList.of("a", "b", "c", "d"));
     }
 }

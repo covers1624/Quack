@@ -3,6 +3,7 @@
  */
 package net.covers1624.quack.collection;
 
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.annotation.ReplaceWithExpr;
 import net.covers1624.quack.util.Copyable;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
@@ -180,11 +182,7 @@ public class ColUtils {
      * @return The optional result.
      */
     public static <T> Optional<T> headOption(Iterable<T> col) {
-        Iterator<T> itr = col.iterator();
-        if (itr.hasNext()) {
-            return Optional.of(itr.next());
-        }
-        return Optional.empty();
+        return Optional.ofNullable(headOrDefault(col));
     }
 
     /**
@@ -225,11 +223,25 @@ public class ColUtils {
     @Nullable
     @Contract ("_,!null -> !null")
     public static <T> T headOrDefault(Iterable<T> col, @Nullable T _default) {
-        Iterator<T> itr = col.iterator();
-        if (itr.hasNext()) {
-            return itr.next();
+        class Cons implements Consumer<T> {
+
+            @Nullable
+            T t = _default;
+
+            @Override
+            public void accept(T t) {
+                if (this.t != null) {
+                    throw ForEachAbort.INSTANCE;
+                }
+                this.t = t;
+            }
         }
-        return _default;
+        Cons cons = new Cons();
+        try {
+            col.forEach(cons);
+        } catch (ForEachAbort ignored) {
+        }
+        return cons.t;
     }
 
     /**
@@ -239,12 +251,7 @@ public class ColUtils {
      * @return The optional result.
      */
     public static <T> Optional<T> tailOption(Iterable<T> col) {
-        Iterator<T> itr = col.iterator();
-        T last = null;
-        while (itr.hasNext()) {
-            last = itr.next();
-        }
-        return Optional.ofNullable(last);
+        return Optional.ofNullable(tailOrDefault(col));
     }
 
     /**
@@ -285,11 +292,19 @@ public class ColUtils {
     @Nullable
     @Contract ("_,!null -> !null")
     public static <T> T tailOrDefault(Iterable<T> col, @Nullable T _default) {
-        T last = _default;
-        for (T e : col) {
-            last = e;
+        class Cons implements Consumer<T> {
+
+            @Nullable
+            T t = _default;
+
+            @Override
+            public void accept(T t) {
+                this.t = t;
+            }
         }
-        return last;
+        Cons cons = new Cons();
+        col.forEach(cons);
+        return cons.t;
     }
 
     /**
@@ -666,6 +681,9 @@ public class ColUtils {
      * @param stream The Stream.
      * @return The Iterable.
      */
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.5.0")
+    @ReplaceWith ("Use FastStream in the first place. This has terrible performance.")
     public static <E> Iterable<E> iterable(Stream<E> stream) {
         return stream::iterator;
     }
@@ -676,6 +694,9 @@ public class ColUtils {
      * @param iter The iterable.
      * @return The Stream.
      */
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.5.0")
+    @ReplaceWithExpr ("StreamSupport.stream(iter.spliterator(), false)")
     public static <E> Stream<E> stream(Iterable<E> iter) {
         return StreamSupport.stream(iter.spliterator(), false);
     }
@@ -686,10 +707,16 @@ public class ColUtils {
      * @param iter The iterable.
      * @return The Parallel Stream.
      */
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.5.0")
+    @ReplaceWithExpr ("StreamSupport.stream(iter.spliterator(), true)")
     public static <E> Stream<E> parallelStream(Iterable<E> iter) {
         return StreamSupport.stream(iter.spliterator(), true);
     }
 
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.5.0")
+    @ReplaceWith ("Use FastStream in the first place.")
     @Nullable
     public static <T> T onlyOrDefault(Stream<T> stream) {
         return onlyOrDefault(stream, null);
@@ -703,36 +730,60 @@ public class ColUtils {
      * @param _default The default value, in the event the stream is empty, or has more than one element.
      * @return The first element or the default.
      */
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.5.0")
+    @ReplaceWith ("Use FastStream in the first place.")
     @Nullable
     @Contract ("_,!null -> !null")
     public static <T> T onlyOrDefault(Stream<T> stream, @Nullable T _default) {
         return onlyOrDefault(iterable(stream), _default);
     }
 
+    /**
+     * Returns the first element found in the {@link Iterable} if it's the first and only element in the iterable,
+     * otherwise {@code null} is returned.
+     *
+     * @param iterable The {@link Iterable}.
+     * @return The first and only element, or {@code null}
+     */
     @Nullable
     public static <T> T onlyOrDefault(Iterable<T> iterable) {
         return onlyOrDefault(iterable, null);
     }
 
     /**
-     * Returns the first element found in the Stream if it is the only element in the iterable,
+     * Returns the first element found in the {@link Iterable} if it's the first and only element in the iterable,
      * otherwise the default value is returned.
      *
-     * @param iterable The iterable.
+     * @param iterable The {@link Iterable}.
      * @param _default The default value, in the event the iterable is empty, or has more than one element.
      * @return The first element or the default.
      */
     @Nullable
     @Contract ("_,!null -> !null")
     public static <T> T onlyOrDefault(Iterable<T> iterable, @Nullable T _default) {
-        T thing = _default;
-        boolean found = false;
-        for (T t : iterable) {
-            if (found) return _default;
-            found = true;
-            thing = t;
+        final class Cons implements Consumer<T> {
+
+            @Nullable
+            T thing = _default;
+            boolean found = false;
+
+            @Override
+            public void accept(T t) {
+                if (found) {
+                    thing = _default;
+                    throw ForEachAbort.INSTANCE;
+                }
+                found = true;
+                thing = t;
+            }
         }
-        return thing;
+        Cons cons = new Cons();
+        try {
+            iterable.forEach(cons);
+        } catch (ForEachAbort ignored) {
+        }
+        return cons.thing;
     }
 
     /**
@@ -740,30 +791,85 @@ public class ColUtils {
      *
      * @param stream The stream.
      * @return The element.
+     * @throws IllegalArgumentException If the {@link Stream} contains no or more than one element.
      */
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.5.0")
+    @ReplaceWith ("Use FastStream in the first place.")
     public static <T> T only(Stream<T> stream) {
         return only(iterable(stream));
     }
 
     /**
-     * Assert the iterable contains a single element, and return it.
+     * Assert the {@link Iterable} contains a single element, and return it.
      *
-     * @param iterable The iterable.
+     * @param col The iterable.
      * @return The element.
+     * @throws IllegalArgumentException If the {@link Iterable} contains no or more than one element.
      */
-    public static <T> T only(Iterable<T> iterable) {
-        T thing = null;
-        boolean found = false;
-        for (T t : iterable) {
-            if (found) {
-                throw new IllegalArgumentException("More than one element.");
+    public static <T> T only(Iterable<T> col) {
+        final class Cons implements Consumer<T> {
+
+            @Nullable
+            T thing = null;
+            boolean found = false;
+
+            @Override
+            public void accept(T t) {
+                if (found) {
+                    throw new IllegalArgumentException("More than one element.");
+                }
+                found = true;
+                thing = t;
             }
-            found = true;
-            thing = t;
         }
-        if (!found) {
+        Cons cons = new Cons();
+        col.forEach(cons);
+        if (!cons.found) {
             throw new IllegalArgumentException("Not found.");
         }
-        return thing;
+        return cons.thing;
+    }
+
+    /**
+     * Return an iterator for an array.
+     *
+     * @param arr The array.
+     * @return The {@link Iterator}.
+     */
+    public static <T> Iterator<T> iterator(T[] arr) {
+        return iterator(arr, 0, arr.length);
+    }
+
+    /**
+     * Return an iterator for an array slice.
+     *
+     * @param arr The array to iterate.
+     * @param off The offset in the array.
+     * @param end The end offset.
+     * @return The {@link Iterator}.
+     */
+    public static <T> Iterator<T> iterator(T[] arr, int off, int end) {
+        if (end > arr.length) throw new IndexOutOfBoundsException();
+        return new Iterator<T>() {
+            int i = off;
+
+            @Override
+            public boolean hasNext() {
+                return i < end;
+            }
+
+            @Override
+            public T next() {
+                return arr[i++];
+            }
+
+            @Override
+            public void forEachRemaining(Consumer<? super T> action) {
+                for (; i < end; i++) {
+                    action.accept(arr[i]);
+                }
+            }
+        };
     }
 }

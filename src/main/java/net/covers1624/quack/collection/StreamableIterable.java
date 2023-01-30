@@ -4,6 +4,7 @@
 package net.covers1624.quack.collection;
 
 import com.google.common.collect.*;
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.util.SneakyUtils;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -28,7 +29,13 @@ import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
  * be faster and more memory efficient, that's what this class aims to solve.
  * <p>
  * Created by covers1624 on 1/10/21.
+ *
+ * @deprecated Deprecated in favour of {@link FastStream}. {@link FastStream} should be a drop-in replacement for
+ * {@link StreamableIterable}, however, it is recommended to switch to using {@link Iterable#forEach} where possible.
  */
+@Deprecated
+@ScheduledForRemoval (inVersion = "0.6.0")
+@ReplaceWith ("Use FastStream. Built from the ground up and much faster. Also does not require Guava for base operation.")
 @Requires ("com.google.guava:guava")
 public interface StreamableIterable<T> extends Iterable<T> {
 
