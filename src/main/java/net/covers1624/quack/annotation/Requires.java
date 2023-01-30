@@ -12,7 +12,6 @@ import java.lang.annotation.*;
  * <p>
  * Created by covers1624 on 13/1/21.
  */
-@Target (ElementType.TYPE)
 @Retention (RetentionPolicy.CLASS)
 @Repeatable (Requires.RequiresList.class)
 public @interface Requires {
