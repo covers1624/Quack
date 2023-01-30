@@ -405,8 +405,7 @@ public interface FastStream<T> extends Iterable<T> {
      * that the stream is about to be fully consumed.
      *
      * @param consumeToCalculate If the stream should eagerly resolve its length.
-     * @return The known length for the stream. {code -1} if {@code consumeToCalculate} is false
-     * and the length is not known.
+     * @return The known length for the stream. {code -1} if the length is not known.
      */
     default int knownLength(boolean consumeToCalculate) {
         return -1;
