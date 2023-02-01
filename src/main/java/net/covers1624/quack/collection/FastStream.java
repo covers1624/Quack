@@ -725,6 +725,17 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Collects this stream into an {@link ArrayList}.
+     *
+     * @param check Call {@link #infer()} in this argument for flexible return inference.
+     * @return The {@link ArrayList}.
+     */
+    @SuppressWarnings ("unchecked")
+    default <R> List<R> toList(TypeCheck<R, ? super T> check) {
+        return (List<R>) toList();
+    }
+
+    /**
      * Collects this stream into a {@link LinkedList}.
      *
      * @return The {@link LinkedList}.
@@ -733,6 +744,17 @@ public interface FastStream<T> extends Iterable<T> {
         LinkedList<T> list = new LinkedList<>();
         forEach(list::add);
         return list;
+    }
+
+    /**
+     * Collects this stream into a {@link LinkedList}.
+     *
+     * @param check Call {@link #infer()} in this argument for flexible return inference.
+     * @return The {@link LinkedList}.
+     */
+    @SuppressWarnings ("unchecked")
+    default <R> LinkedList<R> toLinkedList(TypeCheck<R, ? super T> check) {
+        return (LinkedList<R>) toLinkedList();
     }
 
     /**
@@ -749,6 +771,18 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Collects this stream into a {@link ImmutableList}.
+     *
+     * @param check Call {@link #infer()} in this argument for flexible return inference.
+     * @return The {@link ImmutableList}.
+     */
+    @SuppressWarnings ("unchecked")
+    @Requires ("com.google.guava:guava")
+    default <R> ImmutableList<R> toImmutableList(TypeCheck<R, ? super T> check) {
+        return (ImmutableList<R>) toImmutableList();
+    }
+
+    /**
      * Collects this stream into a {@link HashSet}.
      *
      * @return The {@link HashSet}.
@@ -757,6 +791,17 @@ public interface FastStream<T> extends Iterable<T> {
         HashSet<T> list = new HashSet<>();
         forEach(list::add);
         return list;
+    }
+
+    /**
+     * Collects this stream into a {@link HashSet}.
+     *
+     * @param check Call {@link #infer()} in this argument for flexible return inference.
+     * @return The {@link HashSet}.
+     */
+    @SuppressWarnings ("unchecked")
+    default <R> HashSet<R> toSet(TypeCheck<R, ? super T> check) {
+        return (HashSet<R>) toSet();
     }
 
     /**
@@ -771,6 +816,17 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Collects this stream into a {@link LinkedHashSet}.
+     *
+     * @param check Call {@link #infer()} in this argument for flexible return inference.
+     * @return The {@link LinkedHashSet}.
+     */
+    @SuppressWarnings ("unchecked")
+    default <R> LinkedHashSet<R> toLinkedHashSet(TypeCheck<R, ? super T> check) {
+        return (LinkedHashSet<R>) toLinkedHashSet();
+    }
+
+    /**
      * Collects this stream into a {@link ImmutableSet}.
      *
      * @return The {@link ImmutableSet}.
@@ -780,6 +836,18 @@ public interface FastStream<T> extends Iterable<T> {
         ImmutableSet.Builder<T> builder = ImmutableSet.builder();
         forEach(builder::add);
         return builder.build();
+    }
+
+    /**
+     * Collects this stream into a {@link ImmutableSet}.
+     *
+     * @param check Call {@link #infer()} in this argument for flexible return inference.
+     * @return The {@link ImmutableSet}.
+     */
+    @SuppressWarnings ("unchecked")
+    @Requires ("com.google.guava:guava")
+    default <R> ImmutableSet<R> toImmutableSet(TypeCheck<R, ? super T> check) {
+        return (ImmutableSet<R>) toImmutableSet();
     }
 
     /**
@@ -1653,6 +1721,19 @@ public interface FastStream<T> extends Iterable<T> {
             return Math.min(Math.max(pLen - min, 0), max);
         }
     }
+    // endregion
+
+    // region Type Hax
+    final class TypeCheck<T, S> {
+
+        private TypeCheck() { }
+    }
+
+    /**
+     * Used to nudge Javac to perform looser inference on return types of some
+     * collecting functions provided in here.
+     */
+    static <T> TypeCheck<T, T> infer() { return null; }
     // endregion
 
     // region Internal.
