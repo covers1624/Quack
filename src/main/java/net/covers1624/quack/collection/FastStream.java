@@ -828,7 +828,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @param vFunc The {@link Function} to extracting the value.
      * @return The {@link HashMap}.
      */
-    default <K, V> HashMap<K, V> toMap(Function<T, K> kFunc, Function<T, V> vFunc) {
+    default <K, V> HashMap<K, V> toMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) {
         return toMap(new HashMap<>(), kFunc, vFunc);
     }
 
@@ -840,7 +840,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @param mergeFunc The {@link BinaryOperator} to resolve merge conflicts.
      * @return The {@link HashMap}.
      */
-    default <K, V> HashMap<K, V> toMap(Function<T, K> kFunc, Function<T, V> vFunc, BinaryOperator<V> mergeFunc) {
+    default <K, V> HashMap<K, V> toMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) {
         return toMap(new HashMap<>(), kFunc, vFunc, mergeFunc);
     }
 
@@ -853,7 +853,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @param vFunc The {@link Function} to extracting the value.
      * @return The {@link LinkedHashMap}.
      */
-    default <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<T, K> kFunc, Function<T, V> vFunc) {
+    default <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) {
         return toMap(new LinkedHashMap<>(), kFunc, vFunc);
     }
 
@@ -865,7 +865,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @param mergeFunc The {@link BinaryOperator} to resolve merge conflicts.
      * @return The {@link LinkedHashMap}.
      */
-    default <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<T, K> kFunc, Function<T, V> vFunc, BinaryOperator<V> mergeFunc) {
+    default <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) {
         return toMap(new LinkedHashMap<>(), kFunc, vFunc, mergeFunc);
     }
 
@@ -879,7 +879,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @return The {@link ImmutableMap}.
      */
     @Requires ("com.google.guava:guava")
-    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<T, K> kFunc, Function<T, V> vFunc) {
+    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) {
         return ImmutableMap.copyOf(toLinkedHashMap(kFunc, vFunc));
     }
 
@@ -892,7 +892,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @return The {@link ImmutableMap}.
      */
     @Requires ("com.google.guava:guava")
-    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<T, K> kFunc, Function<T, V> vFunc, BinaryOperator<V> mergeFunc) {
+    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) {
         return ImmutableMap.copyOf(toLinkedHashMap(kFunc, vFunc, mergeFunc));
     }
 
@@ -905,7 +905,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @param vFunc The {@link Function} to extracting the value.
      * @return The {@link Map}.
      */
-    default <K, V, M extends Map<K, V>> M toMap(M map, Function<T, K> kFunc, Function<T, V> vFunc) {
+    default <K, V, M extends Map<K, V>> M toMap(M map, Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) {
         return toMap(map, kFunc, vFunc, SneakyUtils.first());
     }
 
@@ -917,7 +917,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @param mergeFunc The {@link BinaryOperator} to resolve merge conflicts.
      * @return The {@link Map}.
      */
-    default <K, V, M extends Map<K, V>> M toMap(M map, Function<T, K> kFunc, Function<T, V> vFunc, BinaryOperator<V> mergeFunc) {
+    default <K, V, M extends Map<K, V>> M toMap(M map, Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) {
         forEach(t -> {
             K key = kFunc.apply(t);
             V value = vFunc.apply(t);
@@ -1717,14 +1717,14 @@ public interface FastStream<T> extends Iterable<T> {
             @Override public ImmutableSet<T> toImmutableSet() { return ImmutableSet.of(); }
             @Override public Object[] toArray() { return new Object[0]; }
             @Override public T[] toArray(T[] arr) { return ColUtils.fill(arr, null); }
-            @Override public <K, V> HashMap<K, V> toMap(Function<T, K> kFunc, Function<T, V> vFunc) { return new HashMap<>(); }
-            @Override public <K, V> HashMap<K, V> toMap(Function<T, K> kFunc, Function<T, V> vFunc, BinaryOperator<V> mergeFunc) { return new HashMap<>(); }
-            @Override public <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<T, K> kFunc, Function<T, V> vFunc) { return new LinkedHashMap<>(); }
-            @Override public <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<T, K> kFunc, Function<T, V> vFunc, BinaryOperator<V> mergeFunc) { return new LinkedHashMap<>(); }
-            @Override public <K, V> ImmutableMap<K, V> toImmutableMap(Function<T, K> kFunc, Function<T, V> vFunc) { return ImmutableMap.of(); }
-            @Override public <K, V> ImmutableMap<K, V> toImmutableMap(Function<T, K> kFunc, Function<T, V> vFunc, BinaryOperator<V> mergeFunc) { return ImmutableMap.of(); }
-            @Override public <K, V, M extends Map<K, V>> M toMap(M map, Function<T, K> kFunc, Function<T, V> vFunc) { return map; }
-            @Override public <K, V, M extends Map<K, V>> M toMap(M map, Function<T, K> kFunc, Function<T, V> vFunc, BinaryOperator<V> mergeFunc) { return map; }
+            @Override public <K, V> HashMap<K, V> toMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return new HashMap<>(); }
+            @Override public <K, V> HashMap<K, V> toMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return new HashMap<>(); }
+            @Override public <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return new LinkedHashMap<>(); }
+            @Override public <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return new LinkedHashMap<>(); }
+            @Override public <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return ImmutableMap.of(); }
+            @Override public <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return ImmutableMap.of(); }
+            @Override public <K, V, M extends Map<K, V>> M toMap(M map, Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return map; }
+            @Override public <K, V, M extends Map<K, V>> M toMap(M map, Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return map; }
             @Override public String join(String sep) { return ""; }
             // @formatter:on
         }
