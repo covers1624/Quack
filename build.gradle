@@ -104,7 +104,7 @@ license {
     exclude 'net/covers1624/quack/sort/CyclePresentException.java'
     exclude 'net/covers1624/quack/sort/StronglyConnectedComponentDetector.java'
     exclude 'net/covers1624/quack/sort/TopologicalSort.java'
-    exclude 'net/covers1624/image/AnimatedGifEncoder.java'
+    exclude 'net/covers1624/quack/image/AnimatedGifEncoder.java'
 }
 
 publishing {
