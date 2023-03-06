@@ -293,6 +293,15 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Returns a {@link FastStream} in reverse order.
+     *
+     * @return The reversed {@link FastStream}.
+     */
+    default FastStream<T> reversed() {
+        return new Reversed<>(this);
+    }
+
+    /**
      * Returns a {@link FastStream} which listens to all the elements which pass to the next operation.
      *
      * @param cons The listener {@link Consumer}.
@@ -1612,6 +1621,56 @@ public interface FastStream<T> extends Iterable<T> {
         @Override
         public ImmutableList<T> toImmutableList() {
             return ImmutableList.copyOf(getSorted());
+        }
+    }
+
+    /**
+     * A {@link FastStream} in reverse order.
+     */
+    final class Reversed<T> implements FastStream<T> {
+
+        private final FastStream<T> parent;
+
+        T @Nullable [] reversed = null;
+
+        private Reversed(FastStream<T> parent) {
+            this.parent = parent;
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            return ColUtils.iterator(getReversed());
+        }
+
+        @Override
+        public void forEach(Consumer<? super T> action) {
+            for (T t : getReversed()) {
+                action.accept(t);
+            }
+        }
+
+        private T[] getReversed() {
+            if (reversed == null) {
+                reversed = unsafeCast(parent.toArray());
+                ColUtils.reverse(reversed);
+            }
+            return reversed;
+        }
+
+        @Override
+        public int knownLength(boolean consumeToCalculate) {
+            return consumeToCalculate ? getReversed().length : parent.knownLength(false);
+        }
+
+        @Override
+        public T[] toArray(T[] arr) {
+            T[] reversed = getReversed();
+            if (arr.getClass() == reversed.getClass()) {
+                this.reversed = null;
+                return reversed;
+            }
+            //noinspection unchecked
+            return (T[]) Arrays.copyOf(reversed, reversed.length, arr.getClass());
         }
     }
 

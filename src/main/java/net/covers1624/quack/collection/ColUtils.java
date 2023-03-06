@@ -845,18 +845,18 @@ public class ColUtils {
      * Return an iterator for an array slice.
      *
      * @param arr The array to iterate.
-     * @param off The offset in the array.
-     * @param end The end offset.
+     * @param from The offset in the array.
+     * @param until The end offset in the array.
      * @return The {@link Iterator}.
      */
-    public static <T> Iterator<T> iterator(T[] arr, int off, int end) {
-        if (end > arr.length) throw new IndexOutOfBoundsException();
+    public static <T> Iterator<T> iterator(T[] arr, int from, int until) {
+        if (until > arr.length) throw new IndexOutOfBoundsException();
         return new Iterator<T>() {
-            int i = off;
+            int i = from;
 
             @Override
             public boolean hasNext() {
-                return i < end;
+                return i < until;
             }
 
             @Override
@@ -866,10 +866,23 @@ public class ColUtils {
 
             @Override
             public void forEachRemaining(Consumer<? super T> action) {
-                for (; i < end; i++) {
+                for (; i < until; i++) {
                     action.accept(arr[i]);
                 }
             }
         };
+    }
+
+    /**
+     * Reverse the provided array.
+     *
+     * @param array The array to reverse.
+     */
+    public static <T> void reverse(T[] array) {
+        for (int i = 0, j = array.length-1; i < j; i++, j--) {
+            T temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
     }
 }

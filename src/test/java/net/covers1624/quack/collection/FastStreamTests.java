@@ -4,6 +4,7 @@
 package net.covers1624.quack.collection;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
@@ -416,6 +417,14 @@ public class FastStreamTests {
         assertEquals(entries, ImmutableList.of("a", "b", "c", "d"));
     }
 
+    @Test
+    public void testReversed() {
+        List<String> entries = ImmutableList.of("a", "b", "c", "d");
+        assertStreamEquals(Lists.reverse(entries), () -> FastStream.of(entries).reversed());
+
+        List<String> entries2 = ImmutableList.of("a", "b", "c", "d", "e");
+        assertStreamEquals(Lists.reverse(entries2), () -> FastStream.of(entries2).reversed());
+    }
 
     private <T> void assertStreamEquals(List<T> expected, Supplier<FastStream<T>> stream) {
         assertEquals(expected.size(), stream.get().count());
