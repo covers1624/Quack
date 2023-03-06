@@ -413,7 +413,7 @@ public interface FastStream<T> extends Iterable<T> {
      * terminal operation being applied, to cache their result under the assumption
      * that the stream is about to be fully consumed.
      *
-     * @param consumeToCalculate If the stream should eagerly resolve its length.
+     * @param consumeToCalculate If the caller intends to consume the entire stream via {@link #forEach} after calling.
      * @return The known length for the stream. {code -1} if the length is not known.
      */
     default int knownLength(boolean consumeToCalculate) {
