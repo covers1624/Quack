@@ -1687,6 +1687,7 @@ public interface FastStream<T> extends Iterable<T> {
                 @Override
                 protected T computeNext() {
                     while (i < min && itr.hasNext()) {
+                        itr.next();
                         i++;
                     }
                     if (i++ >= max || !itr.hasNext()) return endOfData();

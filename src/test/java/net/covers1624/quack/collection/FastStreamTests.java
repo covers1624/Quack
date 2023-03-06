@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -161,33 +162,21 @@ public class FastStreamTests {
 
     @Test
     public void testLimit() {
-        FastStream<String> baseIterable = FastStream.of("a", "b", "c", "d", "a", "b", "c", "d", "a", "b", "c", "d");
-        List<String> entries = baseIterable
-                .limit(4)
-                .toList();
-        assertEquals(4, entries.size());
-        assertEquals("a", entries.get(0));
-        assertEquals("b", entries.get(1));
-        assertEquals("c", entries.get(2));
-        assertEquals("d", entries.get(3));
+        List<String> baseIterable = ImmutableList.of("a", "b", "c", "d", "a", "b", "c", "d", "a", "b", "c", "d");
 
-        assertEquals(baseIterable, baseIterable.limit(-1));
-        assertEquals(0, baseIterable.limit(0).toList().size());
+        assertStreamEquals(ImmutableList.of("a", "b", "c", "d"), () -> FastStream.of(baseIterable).limit(4));
+        assertStreamEquals(baseIterable, () -> FastStream.of(baseIterable).limit(-1));
+        assertStreamEquals(baseIterable, () -> FastStream.of(baseIterable).limit(12));
+        assertStreamEquals(ImmutableList.of(), () -> FastStream.of(baseIterable).limit(0));
     }
 
     @Test
     public void testSkip() {
-        FastStream<String> baseIterable = FastStream.of("a", "b", "c", "d", "a", "b", "c", "d", "a", "b", "c", "d");
-        List<String> entries = baseIterable
-                .skip(8)
-                .toList();
-        assertEquals(4, entries.size());
-        assertEquals("a", entries.get(0));
-        assertEquals("b", entries.get(1));
-        assertEquals("c", entries.get(2));
-        assertEquals("d", entries.get(3));
+        List<String> baseIterable = ImmutableList.of("a", "b", "c", "d", "a", "b", "c", "d", "a", "b", "c", "d");
 
-        assertEquals(baseIterable, baseIterable.skip(0));
+        assertStreamEquals(ImmutableList.of("a", "b", "c", "d"), () -> FastStream.of(baseIterable).skip(8));
+        assertStreamEquals(baseIterable, () -> FastStream.of(baseIterable).skip(0));
+        assertStreamEquals(ImmutableList.of(), () -> FastStream.of(baseIterable).skip(12));
     }
 
     @Test
@@ -425,5 +414,37 @@ public class FastStreamTests {
                 .forEach(entries::add);
 
         assertEquals(entries, ImmutableList.of("a", "b", "c", "d"));
+    }
+
+
+    private <T> void assertStreamEquals(List<T> expected, Supplier<FastStream<T>> stream) {
+        assertEquals(expected.size(), stream.get().count());
+        assertEquals(expected, stream.get().toList());
+        assertIterableEquals(expected, stream.get());
+
+        FastStream<T> s = stream.get();
+        assertEquals(expected.size(), s.count());
+        assertEquals(expected, s.toList());
+
+        s = stream.get();
+        assertEquals(expected, s.toList());
+        assertIterableEquals(expected, s);
+
+        s = stream.get();
+        assertIterableEquals(expected, s);
+        assertEquals(expected, s.toList());
+
+        s = stream.get();
+        assertEquals(expected.size(), s.count());
+        assertIterableEquals(expected, s);
+    }
+
+    private <T> void assertIterableEquals(Iterable<T> expected, Iterable<T> actual) {
+        Iterator<T> it = actual.iterator();
+        for (T s : expected) {
+            assertTrue(it.hasNext());
+            assertEquals(it.next(), s);
+        }
+        assertFalse(it.hasNext());
     }
 }
