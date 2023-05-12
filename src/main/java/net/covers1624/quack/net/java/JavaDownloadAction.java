@@ -14,9 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLDecoder;
+import java.net.*;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
@@ -79,8 +77,13 @@ public class JavaDownloadAction extends AbstractDownloadAction {
             int code = conn.getResponseCode();
             String locHeader = conn.getHeaderField("Location");
             if (shouldFollowRedirect(code) && locHeader != null) {
-                locHeader = URLDecoder.decode(locHeader, "UTF-8");
-                url = new URL(new URL(url), locHeader).toExternalForm();
+                URI uri = URI.create(locHeader);
+                if (!uri.isAbsolute()) {
+                    locHeader = URLDecoder.decode(locHeader, "UTF-8");
+                    url = new URL(new URL(url), locHeader).toExternalForm();
+                } else {
+                    url = uri.toString();
+                }
                 LOGGER.info("Following redirect to {}.", url);
                 try {
                     conn.getInputStream().close();
