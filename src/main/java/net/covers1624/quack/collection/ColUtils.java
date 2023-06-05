@@ -231,7 +231,7 @@ public class ColUtils {
             @Override
             public void accept(T t) {
                 if (this.t != null) {
-                    throw ForEachAbort.INSTANCE;
+                    throw new ForEachAbort();
                 }
                 this.t = t;
             }
@@ -772,7 +772,7 @@ public class ColUtils {
             public void accept(T t) {
                 if (found) {
                     thing = _default;
-                    throw ForEachAbort.INSTANCE;
+                    throw new ForEachAbort();
                 }
                 found = true;
                 thing = t;

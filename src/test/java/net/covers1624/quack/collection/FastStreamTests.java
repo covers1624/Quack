@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -424,6 +425,12 @@ public class FastStreamTests {
 
         List<String> entries2 = ImmutableList.of("a", "b", "c", "d", "e");
         assertStreamEquals(Lists.reverse(entries2), () -> FastStream.of(entries2).reversed());
+    }
+
+    @Test
+    public void regressionForEachAbortCollision() {
+        assertTrue(FastStream.of("a", "b").skip(1).allMatch(e -> e.equals("b")));
+        assertFalse(FastStream.of("a", "b").skip(1).allMatch(e -> e.equals("a")));
     }
 
     private <T> void assertStreamEquals(List<T> expected, Supplier<FastStream<T>> stream) {

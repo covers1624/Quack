@@ -8,8 +8,6 @@ package net.covers1624.quack.collection;
  */
 class ForEachAbort extends RuntimeException {
 
-    public static final ForEachAbort INSTANCE = new ForEachAbort();
-
     @Override
     public Throwable fillInStackTrace() {
         return this;

@@ -352,7 +352,7 @@ public interface FastStream<T> extends Iterable<T> {
         try {
             forEach(e -> {
                 if (pred.test(e)) {
-                    throw ForEachAbort.INSTANCE;
+                    throw new ForEachAbort();
                 }
             });
         } catch (ForEachAbort ignored) {
@@ -1757,6 +1757,7 @@ public interface FastStream<T> extends Iterable<T> {
 
         @Override
         public void forEach(Consumer<? super T> action) {
+            ForEachAbort abort = new ForEachAbort();
             try {
                 parent.forEach(new Consumer<T>() {
                     int i = 0;
@@ -1765,11 +1766,14 @@ public interface FastStream<T> extends Iterable<T> {
                     public void accept(T t) {
                         int n = i++;
                         if (n < min) return;
-                        if (n >= max) throw ForEachAbort.INSTANCE;
+                        if (n >= max) throw abort;
                         action.accept(t);
                     }
                 });
-            } catch (ForEachAbort ignored) {
+            } catch (ForEachAbort ex) {
+                if (ex != abort) {
+                    throw ex;
+                }
             }
         }
 
