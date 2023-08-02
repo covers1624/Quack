@@ -213,6 +213,7 @@ public final class MethodBuilder {
         public void putField(FieldBuilder field) {
             fieldInsn((field.access() & ACC_STATIC) != 0 ? PUTSTATIC : PUTFIELD, field);
         }
+
         public void fieldInsn(int opcode, FieldBuilder field) {
             fieldInsn(opcode, field.owner().name(), field.name(), field.desc());
         }
