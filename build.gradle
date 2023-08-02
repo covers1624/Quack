@@ -8,7 +8,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 group 'net.covers1624'
 archivesBaseName = "Quack"
-version '0.4.8'
+version '0.4.9'
 
 def signProps = [:]
 if (System.getenv("KEY_STORE")) {
@@ -52,6 +52,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.32'
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.apache.httpcomponents:httpclient:4.5.7'
+    implementation 'org.apache.httpcomponents:httpmime:4.5.7'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.google.guava:guava:26.0-jre'
     implementation 'net.covers1624:TailConsole:1.0.0.1'
