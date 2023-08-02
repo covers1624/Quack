@@ -52,9 +52,6 @@ public final class HeaderList implements Iterable<HeaderList.Entry> {
         if (name.isEmpty()) throw new IllegalStateException("Key name must not be empty!");
         checkNameChars(name);
         checkValueChars(name, value);
-        if (contains(name, value)) {
-            throw new IllegalArgumentException("Key value pair already exist. K:'" + name + "', V:'" + value + "'");
-        }
         headers.add(name);
         headers.add(value.trim());
     }
@@ -69,9 +66,6 @@ public final class HeaderList implements Iterable<HeaderList.Entry> {
         if (name.isEmpty()) throw new IllegalStateException("Key name must not be empty!");
         checkNameChars(name);
         checkValueChars(name, value);
-        if (contains(name, value)) {
-            throw new IllegalArgumentException("Key value pair already exist. K:'" + name + "', V:'" + value + "'");
-        }
         headers.add(0, value.trim());
         headers.add(0, name);
     }
@@ -95,15 +89,7 @@ public final class HeaderList implements Iterable<HeaderList.Entry> {
      * @param other The entries to add.
      */
     public void addAll(HeaderList other) {
-        for (int i = 0; i < other.headers.size(); i += 2) {
-            String name = other.headers.get(i);
-            String value = other.headers.get(i + 1);
-            if (contains(name, value)) {
-                throw new IllegalArgumentException("Key value pair already exist. K:'" + name + "', V:'" + value + "'");
-            }
-            headers.add(name);
-            headers.add(value);
-        }
+        headers.addAll(other.headers);
     }
 
     /**
