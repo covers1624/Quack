@@ -37,6 +37,13 @@ public @interface Requires {
      */
     String maxVersion() default "";
 
+    /**
+     * Denotes if this Requirement is optional and why.
+     *
+     * @return The reason for this Requirement being optional.
+     */
+    String optional() default "";
+
     @Target (ElementType.TYPE)
     @Retention (RetentionPolicy.CLASS)
     @interface RequiresList {
