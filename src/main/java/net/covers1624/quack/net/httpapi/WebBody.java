@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Represents a request or response body.
@@ -120,6 +122,28 @@ public interface WebBody {
     }
 
     /**
+     * Create a {@link WebBody} for a {@link Path}.
+     * This method assumes {@code null} {@code Content-Type}
+     *
+     * @param path The path.
+     * @return The {@link WebBody}
+     */
+    static WebBody path(Path path) {
+        return new PathBody(path, null);
+    }
+
+    /**
+     * Create a {@link WebBody} for a {@link Path}.
+     *
+     * @param path        The path.
+     * @param contentType The {@code Content-Type}  for the body.
+     * @return The {@link WebBody}
+     */
+    static WebBody path(Path path, @Nullable String contentType) {
+        return new PathBody(path, contentType);
+    }
+
+    /**
      * Simple {@link WebBody} implementation reading from
      * an in-memory, {@code byte[]}.
      */
@@ -140,6 +164,31 @@ public interface WebBody {
         @Override public boolean multiOpenAllowed() { return true; }
         @Override public long length() { return bytes.length; }
         @Nullable @Override public String contentType() { return contentType; }
+        // @formatter:on
+    }
+
+    class PathBody implements WebBody {
+
+        private final Path path;
+        private final @Nullable String contentType;
+
+        public PathBody(Path path, @Nullable String contentType) {
+            this.path = path;
+            this.contentType = contentType;
+        }
+
+        // @formatter:off
+        @Override public InputStream open() throws IOException { return Files.newInputStream(path); }
+        @Override public boolean multiOpenAllowed() { return true; }
+        @Override
+        public long length() {
+            try {
+                return Files.size(path);
+            } catch (IOException ex) {
+                return -1;
+            }
+        }
+        @Override public @Nullable String contentType() { return contentType; }
         // @formatter:on
     }
 }
