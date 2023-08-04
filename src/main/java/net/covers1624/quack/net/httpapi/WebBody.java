@@ -169,7 +169,7 @@ public interface WebBody {
 
     class PathBody implements WebBody {
 
-        private final Path path;
+        public final Path path;
         private final @Nullable String contentType;
 
         public PathBody(Path path, @Nullable String contentType) {
