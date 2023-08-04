@@ -169,6 +169,13 @@ public final class HeaderList implements Iterable<HeaderList.Entry> {
         return values;
     }
 
+    /**
+     * Delete all headers in this list.
+     */
+    public void clear() {
+        headers.clear();
+    }
+
     @Override
     public Iterator<Entry> iterator() {
         Iterator<String> backing = headers.iterator();
