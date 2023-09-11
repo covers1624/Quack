@@ -4,12 +4,7 @@
 /**
  * Created by covers1624 on 22/11/21.
  */
-@FieldsAreNonnullByDefault
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@NonNullApi
 package net.covers1624.quack.net.apache;
 
-import net.covers1624.quack.annotation.FieldsAreNonnullByDefault;
-import net.covers1624.quack.annotation.MethodsReturnNonnullByDefault;
-
-import javax.annotation.ParametersAreNonnullByDefault;
+import net.covers1624.quack.annotation.NonNullApi;
