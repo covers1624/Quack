@@ -37,9 +37,14 @@ public class ConsumingOutputStream extends OutputStream {
         if (buffer.length() == 0) {
             return;
         }
-        char end = buffer.charAt(buffer.length() - 1);
-        if (end == '\n') {
-            consumer.accept(buffer.toString().trim());
+        // If the end of the buffer is a newline..
+        int endIdx = buffer.length() - 1;
+        if (buffer.charAt(endIdx) == '\n') {
+            // If there is a trailing carriage return, strip it.
+            if (endIdx - 1 >= 0 && buffer.charAt(endIdx - 1) == '\r') {
+                endIdx--;
+            }
+            consumer.accept(buffer.substring(0, endIdx));
             buffer.setLength(0);
         }
     }
