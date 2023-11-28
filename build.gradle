@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     implementation 'org.ow2.asm:asm:9.3'
     implementation 'org.ow2.asm:asm-tree:9.3'
+    implementation 'net.covers1624:curl4j:2.2.0'
 
     compileOnly 'org.jetbrains:annotations:22.0.0'
     compileOnly 'org.apache.logging.log4j:log4j-core:2.11.1'

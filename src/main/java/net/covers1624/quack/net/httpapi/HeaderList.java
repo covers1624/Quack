@@ -83,6 +83,20 @@ public final class HeaderList implements Iterable<HeaderList.Entry> {
     }
 
     /**
+     * Add all the entries from the specified {@link Map} to
+     * this collection.
+     *
+     * @param entries The entries to add.
+     */
+    public void addAllMulti(Map<String, List<String>> entries) {
+        for (Map.Entry<String, List<String>> entry : entries.entrySet()) {
+            for (String value : entry.getValue()) {
+                add(entry.getKey(), value);
+            }
+        }
+    }
+
+    /**
      * Add all the entries form the specified {@link HeaderList} to
      * this collection.
      *
@@ -174,6 +188,24 @@ public final class HeaderList implements Iterable<HeaderList.Entry> {
      */
     public void clear() {
         headers.clear();
+    }
+
+    /**
+     * Convert this header list into a list of assembled header strings.
+     * <p>
+     * For example {@code HeaderName: HeaderValue}
+     *
+     * @return The assembled header strings.
+     */
+    public String[] toStrings() {
+        if (headers.isEmpty()) return new String[0];
+
+        int i = 0;
+        String[] strings = new String[headers.size() / 2];
+        for (Entry entry : this) {
+            strings[i++] = entry.name + ": " + entry.value;
+        }
+        return strings;
     }
 
     @Override
