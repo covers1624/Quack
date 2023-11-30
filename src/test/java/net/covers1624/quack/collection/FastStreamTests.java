@@ -433,6 +433,17 @@ public class FastStreamTests {
         assertFalse(FastStream.of("a", "b").skip(1).allMatch(e -> e.equals("a")));
     }
 
+    @Test
+    public void testSpliteratorInput() {
+        List<String> list = ImmutableList.of("a", "b", "c", "d");
+        List<String> entries = FastStream.of(list.spliterator()).toLinkedList();
+        assertEquals(4, entries.size());
+        assertEquals("a", entries.get(0));
+        assertEquals("b", entries.get(1));
+        assertEquals("c", entries.get(2));
+        assertEquals("d", entries.get(3));
+    }
+
     private <T> void assertStreamEquals(List<T> expected, Supplier<FastStream<T>> stream) {
         assertEquals(expected.size(), stream.get().count());
         assertEquals(expected, stream.get().toList());

@@ -89,6 +89,43 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Wraps the provided {@link Spliterator} to a {@link FastStream}.
+     *
+     * @param itr The {@link Spliterator}.
+     * @return The {@link FastStream}
+     */
+    @SuppressWarnings ("unchecked")
+    static <T> FastStream<T> of(Spliterator<? extends T> itr) {
+        long exactSize = itr.getExactSizeIfKnown();
+        if (exactSize == 0) return empty();
+        // We can't express streams with more elements than Int.MAX here.
+        // If this is ever actually used, I would be shocked.
+        if (exactSize > Integer.MAX_VALUE) {
+            exactSize = -1;
+        }
+
+        return new WrappedSpl<>((Spliterator<T>) itr, (int) exactSize);
+    }
+
+    /**
+     * Wrap the provided Java {@link Stream} to a {@link FastStream}.
+     * <p>
+     * This method is provided to support wrapping API's which only provide {@link Stream}
+     * outputs, into {@link FastStream}. This implicitly uses the {@link #of(Spliterator)}.
+     * <p>
+     * Where possible, raw {@link Spliterator} or {@link Iterator} inputs should be used.
+     * <p>
+     * NOTE: Using Java {@link Stream} operations combined with {@link FastStream}
+     * operations may result in poor performance.
+     *
+     * @param stream The stream.
+     * @return The {@link FastStream}
+     */
+    static <T> FastStream<T> of(Stream<? extends T> stream) {
+        return of(stream.spliterator());
+    }
+
+    /**
      * Returns a {@link FastStream} for a single object.
      *
      * @param thing The thing.
@@ -1062,6 +1099,46 @@ public interface FastStream<T> extends Iterable<T> {
         @Override
         public void forEach(Consumer<? super T> action) {
             _itr.forEach(action);
+        }
+
+        @Override
+        public int knownLength(boolean consumeToCalculate) {
+            return knownLength;
+        }
+    }
+
+    /**
+     * Wraps a {@link Spliterator} into a {@link FastStream}
+     */
+    final class WrappedSpl<T> implements FastStream<T> {
+
+        private final Spliterator<T> _itr;
+        private final int knownLength;
+
+        private WrappedSpl(Spliterator<T> itr, int knownLength) {
+            _itr = itr;
+            this.knownLength = knownLength;
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            return new AbstractIterator<T>() {
+                private @Nullable T t;
+                private final Consumer<T> cons = e -> t = e;
+
+                @Override
+                protected @Nullable T computeNext() {
+                    if (_itr.tryAdvance(cons)) {
+                        return t;
+                    }
+                    return null;
+                }
+            };
+        }
+
+        @Override
+        public void forEach(Consumer<? super T> action) {
+            _itr.forEachRemaining(action);
         }
 
         @Override
