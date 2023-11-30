@@ -1131,7 +1131,7 @@ public interface FastStream<T> extends Iterable<T> {
                     if (_itr.tryAdvance(cons)) {
                         return t;
                     }
-                    return null;
+                    return endOfData();
                 }
             };
         }
