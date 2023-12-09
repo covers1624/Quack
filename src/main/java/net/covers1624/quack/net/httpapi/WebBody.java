@@ -3,6 +3,7 @@
  */
 package net.covers1624.quack.net.httpapi;
 
+import net.covers1624.quack.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -50,6 +51,35 @@ public interface WebBody {
      */
     @Nullable
     String contentType();
+
+    /**
+     * Read the body as a byte array.
+     *
+     * @return The bytes.
+     */
+    default byte[] asBytes() throws IOException {
+        try (InputStream is = open()) {
+            return IOUtils.toBytes(is);
+        }
+    }
+
+    /**
+     * Reads the body as a UTF-8 String.
+     *
+     * @return The String.
+     */
+    default String asString() throws IOException {
+        return asString(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Read the body as a String.
+     *
+     * @return The String.
+     */
+    default String asString(Charset charset) throws IOException {
+        return new String(asBytes(), charset);
+    }
 
     /**
      * Create a {@link WebBody} from a {@link String}.
