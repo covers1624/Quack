@@ -6,6 +6,7 @@ package net.covers1624.quack.util;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 /**
  * Created by covers1624 on 31/5/21.
@@ -13,7 +14,7 @@ import java.nio.file.Paths;
 public class JavaPathUtils {
 
     // Only windows has a different suffix for this use case, Mac, Linux, and FreeBSD don't.
-    private static final String EXE_SUFFIX = System.getProperty("os.name").contains("windows") ? ".exe" : "";
+    private static final String EXE_SUFFIX = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win") ? ".exe" : "";
     private static final Path JAVA_HOME = calcJavaHome();
 
     /**
