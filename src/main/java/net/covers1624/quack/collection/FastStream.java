@@ -1486,7 +1486,7 @@ public interface FastStream<T> extends Iterable<T> {
         public Iterator<T> iterator() {
             return new AbstractIterator<T>() {
                 private final Set<T> set = new HashSet<>();
-                private final Iterator<T> itr = iterator();
+                private final Iterator<T> itr = parent.iterator();
 
                 @Override
                 protected T computeNext() {
