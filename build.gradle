@@ -85,15 +85,26 @@ license {
     exclude 'net/covers1624/quack/image/AnimatedGifEncoder.java'
 }
 
+// Since Java11 module depends on our source set output, etc, we must
+// declare this dependency down here. This ensures the root project has been
+// evaluated enough to evaluate Java11. This means we can then depend on the
+// Java11 module's compileJava output, creating one mixed jar.
+evaluationDependsOn(":java11")
 jar {
     finalizedBy 'signJar'
 
     from sourceSets.gradle.output
+    from project(":java11").sourceSets.main.output
     manifest {
         attributes 'FMLModType': 'GAMELIBRARY'
         attributes 'Automatic-Module-Name': 'net.covers1624.quack'
     }
     from file("LICENSE.txt")
+}
+
+sourcesJar {
+    from sourceSets.gradle.allSource
+    from project(":java11").sourceSets.main.allSource
 }
 
 tasks.register('signJar') {
