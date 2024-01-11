@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 import java.util.function.Consumer;
 
 import static net.covers1624.curl4j.CURL.*;
@@ -83,6 +84,33 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
             return l;
         }
     };
+    private final ReadableByteChannel channel = new ReadableByteChannel() {
+        private boolean open = true;
+
+        @Override
+        public int read(ByteBuffer dst) throws IOException {
+            if (buffer.remaining() == 0) {
+                if (done) return -1;
+                fillBuffer();
+            }
+            int toRead = Math.min(dst.remaining(), buffer.remaining());
+            int oldL = buffer.limit();
+            buffer.limit(buffer.position() + toRead);
+            dst.put(buffer);
+            buffer.limit(oldL);
+            return toRead;
+        }
+
+        @Override
+        public boolean isOpen() {
+            return open;
+        }
+
+        @Override
+        public void close() {
+            open = false;
+        }
+    };
     private final WebBody webBody;
 
     public IncrementalCurl4jResponse(Curl4jEngineRequest request, CurlMultiHandle handle) throws IOException {
@@ -122,6 +150,7 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
             // @formatter:off
             webBody = new WebBody() {
                 @Override public InputStream open() { return is; }
+                @Override public ReadableByteChannel openChannel() { return channel; }
                 @Override public boolean multiOpenAllowed() { return false; }
                 @Override public long length() { return contentLength; }
                 @Override public @Nullable String contentType() { return contentType; }

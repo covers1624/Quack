@@ -3,12 +3,15 @@
  */
 package net.covers1624.quack.net.httpapi;
 
+import net.covers1624.quack.io.ByteArrayReadableChannel;
 import net.covers1624.quack.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,6 +31,20 @@ public interface WebBody {
      * @throws IOException If an IO error occurs.
      */
     InputStream open() throws IOException;
+
+    /**
+     * Open a byte channel into a body data.
+     * <p>
+     * If the underlying data does not support Channels,
+     * the {@link #open()} {@link InputStream} will be wrapped
+     * to a {@link ReadableByteChannel}.
+     *
+     * @return The channel.
+     * @throws IOException If an IO error occurs.
+     */
+    default ReadableByteChannel openChannel() throws IOException {
+        return Channels.newChannel(open());
+    }
 
     /**
      * Checks if this WebBody supports {@link #open()} being
@@ -191,6 +208,7 @@ public interface WebBody {
 
         // @formatter:off
         @Override public InputStream open() { return new ByteArrayInputStream(bytes); }
+        @Override public ReadableByteChannel openChannel() { return new ByteArrayReadableChannel(bytes); }
         @Override public boolean multiOpenAllowed() { return true; }
         @Override public long length() { return bytes.length; }
         @Nullable @Override public String contentType() { return contentType; }
@@ -209,6 +227,7 @@ public interface WebBody {
 
         // @formatter:off
         @Override public InputStream open() throws IOException { return Files.newInputStream(path); }
+        @Override public ReadableByteChannel openChannel() throws IOException { return Files.newByteChannel(path); }
         @Override public boolean multiOpenAllowed() { return true; }
         @Override
         public long length() {
