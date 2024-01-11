@@ -65,8 +65,11 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
     }
 
     /**
-     * Tell this Request to store the body in the given file instead
-     * of storing it in-memory.
+     * Tell this Request to store the body in the given file. Otherwise,
+     * the request will return an incremental response, only downloading as fast
+     * as the client pulls data from the body.
+     * <p>
+     * This is a hot-path for downloading files.
      * <p>
      * If a path is provided, it can be assumed that a {@link WebBody.PathBody}
      * is used on the response.
@@ -128,8 +131,65 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
         if (url == null) throw new IllegalStateException("Url not set.");
         executed = true;
 
+        // If we are not writing into a file, we must take the incremental path
+        // to give the user control over where the data is going.
+        if (destFile == null) {
+            CurlMultiHandle handle = engine.getMultiHandle();
+            setupHandle(handle);
+            return new IncrementalCurl4jResponse(this, handle);
+        }
+
         CurlHandle handle = engine.getHandle();
 
+        setupHandle(handle);
+
+        // Files get a hot path, we don't curl_multi it, just blast it right to the file.
+        try (CurlOutput output = CurlOutput.toFile(destFile);
+             CurlInput input = makeInput();
+             CurlMimeBody mimeBody = buildMime(handle);
+             SListHeaderWrapper headers = new SListHeaderWrapper(this.headers.toStrings());
+             HeaderCollector headerCollector = new HeaderCollector()) {
+
+            output.apply(handle);
+            headerCollector.apply(handle);
+
+            if (input != null) {
+                input.apply(handle);
+            } else if (mimeBody != null) {
+                mimeBody.apply(handle);
+            }
+
+            headers.apply(handle);
+
+            for (Consumer<CurlHandle> customOption : customOptions) {
+                customOption.accept(handle);
+            }
+
+            int result = curl_easy_perform(handle.curl);
+            if (result != CURLE_OK) {
+                throw new IOException("Curl returned error: " + curl_easy_strerror(result));
+            }
+
+            HeaderList responseHeaders = new HeaderList();
+            responseHeaders.addAllMulti(headerCollector.getHeaders());
+
+            long responseCode = curl_easy_getinfo_long(handle.curl, CURLINFO_RESPONSE_CODE);
+            String contentType = responseHeaders.get("Content-Type");
+            WebBody respBody = new WebBody.PathBody(destFile, contentType);
+            return new Curl4jEngineResponse() {
+                // @formatter:off
+                @Override public Curl4jEngineRequest request() { return Curl4jEngineRequest.this; }
+                @Override public int statusCode() { return (int) responseCode; }
+                @Override public String message() { return ""; }
+                @Override public HeaderList headers() { return responseHeaders; }
+                @Override public WebBody body() { return respBody; }
+                @Override public void close() { }
+                // @formatter:on
+            };
+        }
+    }
+
+    private void setupHandle(CurlHandle handle) {
         curl_easy_reset(handle.curl);
 
         String impersonate = engine.getImpersonate();
@@ -148,76 +208,29 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
             curl_easy_setopt(handle.curl, CURLOPT_UNIX_SOCKET_PATH, unixSocket);
         }
 
-        long bodyLen = -1;
         if (body != null && !(body instanceof MultipartBody)) {
             String contentType = body.contentType();
             if (contentType != null) {
                 headers.add("Content-Type", contentType);
             }
-
-            bodyLen = body.length();
-            if (bodyLen == -1) {
-                throw new IllegalStateException("Body length required.");
-            }
-        }
-
-        try (CurlOutput output = makeOutput();
-             CurlInput input = makeInput();
-             CurlMimeBody mimeBody = buildMime(handle);
-             SListHeaderWrapper headers = new SListHeaderWrapper(this.headers.toStrings());
-             HeaderCollector headerCollector = new HeaderCollector()) {
-
-            curl_easy_setopt(handle.curl, CURLOPT_WRITEFUNCTION, output.callback());
-            curl_easy_setopt(handle.curl, CURLOPT_HEADERFUNCTION, headerCollector.callback());
-
-            if (input != null) {
-                curl_easy_setopt(handle.curl, CURLOPT_UPLOAD, true);
-                curl_easy_setopt(handle.curl, CURLOPT_INFILESIZE_LARGE, bodyLen);
-                curl_easy_setopt(handle.curl, CURLOPT_READFUNCTION, input.callback());
-            } else if (mimeBody != null) {
-                curl_easy_setopt(handle.curl, CURLOPT_MIMEPOST, mimeBody.getMime());
-            }
-
-            curl_easy_setopt(handle.curl, CURLOPT_HTTPHEADER, headers.get());
-
-            for (Consumer<CurlHandle> customOption : customOptions) {
-                customOption.accept(handle);
-            }
-
-            int result = curl_easy_perform(handle.curl);
-            if (result != CURLE_OK) {
-                throw new IOException("Curl returned error: " + curl_easy_strerror(result));
-            }
-
-            HeaderList responseHeaders = new HeaderList();
-            responseHeaders.addAllMulti(headerCollector.getHeaders());
-
-            long responseCode = curl_easy_getinfo_long(handle.curl, CURLINFO_RESPONSE_CODE);
-            String contentType = responseHeaders.get("Content-Type");
-            WebBody responseBody;
-            if (destFile != null) {
-                responseBody = new WebBody.PathBody(destFile, contentType);
-            } else {
-                responseBody = WebBody.bytes(((MemoryCurlOutput) output).bytes(), contentType);
-            }
-            return new Curl4jEngineResponse(this, (int) responseCode, responseHeaders, responseBody);
         }
     }
 
-    private CurlOutput makeOutput() {
-        if (destFile != null) {
-            return CurlOutput.toFile(destFile);
-        }
-        return MemoryCurlOutput.create();
+    HeaderList headers() {
+        return headers;
     }
 
-    private @Nullable CurlInput makeInput() {
+    List<Consumer<CurlHandle>> customOptions() {
+        return customOptions;
+    }
+
+    @Nullable CurlInput makeInput() {
         if (body == null || body instanceof MultipartBody) return null;
 
         return inputFromBody(body);
     }
 
-    private @Nullable CurlMimeBody buildMime(CurlHandle handle) {
+    @Nullable CurlMimeBody buildMime(CurlHandle handle) {
         if (!(body instanceof MultipartBody)) return null;
 
         CurlMimeBody.Builder builder = CurlMimeBody.builder(handle);

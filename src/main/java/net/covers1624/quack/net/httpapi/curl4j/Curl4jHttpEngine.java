@@ -5,6 +5,7 @@ package net.covers1624.quack.net.httpapi.curl4j;
 
 import net.covers1624.curl4j.CURL;
 import net.covers1624.curl4j.util.CurlHandle;
+import net.covers1624.curl4j.util.CurlMultiHandle;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.net.httpapi.HttpEngine;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +19,7 @@ public class Curl4jHttpEngine implements HttpEngine {
     private static boolean CURL_GLOBAL_INIT = false;
 
     private final ThreadLocal<CurlHandle> CURL_HANDLES = CurlHandle.newThreadLocal();
+    private final ThreadLocal<CurlMultiHandle> MULTI_HANDLES = CurlMultiHandle.newMultiThreadLocal();
 
     public final @Nullable String impersonate;
 
@@ -50,5 +52,9 @@ public class Curl4jHttpEngine implements HttpEngine {
 
     CurlHandle getHandle() {
         return CURL_HANDLES.get();
+    }
+
+    CurlMultiHandle getMultiHandle() {
+        return MULTI_HANDLES.get();
     }
 }
