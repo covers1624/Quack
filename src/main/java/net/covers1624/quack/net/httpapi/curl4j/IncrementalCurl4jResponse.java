@@ -33,6 +33,7 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
     private boolean paused;
 
     private final Curl4jEngineRequest request;
+    private final HandlePool<CurlMultiHandle>.Entry handleEntry;
     private final CurlMultiHandle handle;
 
     private final @Nullable CurlInput input;
@@ -85,10 +86,11 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
     };
     private final WebBody webBody;
 
-    public IncrementalCurl4jResponse(Curl4jEngineRequest request, CurlMultiHandle handle) throws IOException {
+    public IncrementalCurl4jResponse(Curl4jEngineRequest request, HandlePool<CurlMultiHandle>.Entry handleEntry) throws IOException {
         this.request = request;
-        this.handle = handle;
+        this.handleEntry = handleEntry;
 
+        handle = handleEntry.handle;
         input = request.makeInput();
         mimeBody = request.buildMime(handle);
         headers = new SListHeaderWrapper(request.headers().toStrings());
@@ -191,7 +193,7 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
         // Removing the curl handle from the multi handle will abort the request
         // if one is still running.
         curl_multi_remove_handle(handle.multi, handle.curl);
-        closeSafe(writeCallback, input, mimeBody, headers);
+        closeSafe(writeCallback, input, mimeBody, headers, handleEntry);
         Memory.free(buf);
     }
 

@@ -18,8 +18,8 @@ public class Curl4jHttpEngine implements HttpEngine {
 
     private static boolean CURL_GLOBAL_INIT = false;
 
-    private final ThreadLocal<CurlHandle> CURL_HANDLES = CurlHandle.newThreadLocal();
-    private final ThreadLocal<CurlMultiHandle> MULTI_HANDLES = CurlMultiHandle.newMultiThreadLocal();
+    private final HandlePool<CurlHandle> CURL_HANDLES = new HandlePool<>(CurlHandle::create);
+    private final HandlePool<CurlMultiHandle> MULTI_HANDLES = new HandlePool<>(CurlMultiHandle::createMulti);
 
     public final @Nullable String impersonate;
 
@@ -50,11 +50,11 @@ public class Curl4jHttpEngine implements HttpEngine {
         return impersonate;
     }
 
-    CurlHandle getHandle() {
+    HandlePool<CurlHandle>.Entry getHandle() {
         return CURL_HANDLES.get();
     }
 
-    CurlMultiHandle getMultiHandle() {
+    HandlePool<CurlMultiHandle>.Entry getMultiHandle() {
         return MULTI_HANDLES.get();
     }
 }

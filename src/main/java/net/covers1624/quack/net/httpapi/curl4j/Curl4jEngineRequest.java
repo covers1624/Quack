@@ -134,17 +134,19 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
         // If we are not writing into a file, we must take the incremental path
         // to give the user control over where the data is going.
         if (destFile == null) {
-            CurlMultiHandle handle = engine.getMultiHandle();
-            setupHandle(handle);
-            return new IncrementalCurl4jResponse(this, handle);
+            HandlePool<CurlMultiHandle>.Entry handleEntry = engine.getMultiHandle();
+            setupHandle(handleEntry.handle);
+            return new IncrementalCurl4jResponse(this, handleEntry);
         }
 
-        CurlHandle handle = engine.getHandle();
+        HandlePool<CurlHandle>.Entry handleEntry = engine.getHandle();
+        CurlHandle handle = handleEntry.handle;
 
         setupHandle(handle);
 
         // Files get a hot path, we don't curl_multi it, just blast it right to the file.
-        try (CurlOutput output = CurlOutput.toFile(destFile);
+        try (HandlePool<CurlHandle>.Entry ignored = handleEntry;
+             CurlOutput output = CurlOutput.toFile(destFile);
              CurlInput input = makeInput();
              CurlMimeBody mimeBody = buildMime(handle);
              SListHeaderWrapper headers = new SListHeaderWrapper(this.headers.toStrings());
