@@ -28,7 +28,7 @@ import static net.covers1624.curl4j.CURL.*;
 /**
  * Created by covers1624 on 1/11/23.
  */
-@Requires ("net.covers1624:curl4j")
+@Requires (value = "net.covers1624:curl4j", minVersion = "3.0.5")
 public class Curl4jEngineRequest extends AbstractEngineRequest {
 
     private final Curl4jHttpEngine engine;
@@ -169,7 +169,7 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
 
             int result = curl_easy_perform(handle.curl);
             if (result != CURLE_OK) {
-                throw new IOException("Curl returned error: " + curl_easy_strerror(result));
+                throw new IOException("Curl returned error: " + handle.errorBuffer + "(" + curl_easy_strerror(result) + ")");
             }
 
             HeaderList responseHeaders = new HeaderList();

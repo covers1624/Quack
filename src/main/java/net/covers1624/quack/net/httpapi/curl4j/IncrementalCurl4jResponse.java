@@ -153,7 +153,7 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
                 int ret = curl_multi_perform(handle.multi, nHandles);
 
                 // curl multi is not healthy.
-                if (ret != CURLM_OK) throw new Curl4jHttpException("cURL multi returned error: " + curl_multi_strerror(ret));
+                if (ret != CURLM_OK) throw new Curl4jHttpException("Curl multi returned error: " + handle.errorBuffer + "(" + curl_multi_strerror(ret) + ")");
 
                 // curl_multi_perform gives us an out pointer for the number of active curl requests.
                 done = nHandles.readInt() == 0;
@@ -167,7 +167,7 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
                     if (msg.msg() != CURLMSG_DONE) continue;
                     int ret = (int) msg.data();
                     if (ret != CURLE_OK) {
-                        throw new Curl4jHttpException("cURL returned erorr: " + curl_easy_strerror(ret));
+                        throw new Curl4jHttpException("Curl returned error: " + handle.errorBuffer + "(" + curl_easy_strerror(ret) + ")");
                     }
                 }
             }
