@@ -3,6 +3,7 @@
  */
 package net.covers1624.quack.net.httpapi.curl4j;
 
+import net.covers1624.curl4j.CABundle;
 import net.covers1624.curl4j.CURL;
 import net.covers1624.curl4j.util.*;
 import net.covers1624.curl4j.util.CurlMimeBody.Builder.PartBuilder;
@@ -11,6 +12,7 @@ import net.covers1624.quack.net.httpapi.AbstractEngineRequest;
 import net.covers1624.quack.net.httpapi.HeaderList;
 import net.covers1624.quack.net.httpapi.MultipartBody;
 import net.covers1624.quack.net.httpapi.WebBody;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -38,6 +40,7 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
     private boolean followRedirects = true;
     private @Nullable Path destFile;
     private @Nullable String unixSocket;
+    private @Nullable CABundle caBundle;
 
     private @Nullable String method;
     private @Nullable WebBody body;
@@ -91,6 +94,17 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
      */
     public Curl4jEngineRequest unixSocket(String unixSocket) {
         this.unixSocket = unixSocket;
+        return this;
+    }
+
+    /**
+     * Use the given {@link CABundle}.
+     *
+     * @param caBundle The bundle.
+     * @return The same request.
+     */
+    public Curl4jEngineRequest useCABundle(@Nullable CABundle caBundle) {
+        this.caBundle = caBundle;
         return this;
     }
 
@@ -163,6 +177,10 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
 
             headers.apply(handle);
 
+            if (caBundle != null) {
+                caBundle.apply(handle);
+            }
+
             for (Consumer<CurlHandle> customOption : customOptions) {
                 customOption.accept(handle);
             }
@@ -220,6 +238,12 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
 
     HeaderList headers() {
         return headers;
+    }
+
+    @Nullable
+    @Contract (pure = true)
+    CABundle caBundle() {
+        return caBundle;
     }
 
     List<Consumer<CurlHandle>> customOptions() {

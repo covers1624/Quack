@@ -3,6 +3,7 @@
  */
 package net.covers1624.quack.net.httpapi.curl4j;
 
+import net.covers1624.curl4j.CABundle;
 import net.covers1624.curl4j.CURL;
 import net.covers1624.curl4j.util.CurlHandle;
 import net.covers1624.curl4j.util.CurlMultiHandle;
@@ -21,13 +22,23 @@ public class Curl4jHttpEngine implements HttpEngine {
     private final HandlePool<CurlHandle> CURL_HANDLES = new HandlePool<>(CurlHandle::create);
     private final HandlePool<CurlMultiHandle> MULTI_HANDLES = new HandlePool<>(CurlMultiHandle::createMulti);
 
+    private @Nullable CABundle caBundle;
     public final @Nullable String impersonate;
 
     public Curl4jHttpEngine() {
-        this(null);
+        this((CABundle) null);
+    }
+
+    public Curl4jHttpEngine(@Nullable CABundle caBundle) {
+        this(caBundle, null);
     }
 
     public Curl4jHttpEngine(@Nullable String impersonate) {
+        this(null, impersonate);
+    }
+
+    public Curl4jHttpEngine(@Nullable CABundle caBundle, @Nullable String impersonate) {
+        this.caBundle = caBundle;
         this.impersonate = impersonate;
         if (!CURL.isCurlImpersonateSupported() && impersonate != null) {
             throw new IllegalArgumentException("Current CURL instance does not support impersonation.");
@@ -43,7 +54,7 @@ public class Curl4jHttpEngine implements HttpEngine {
 
     @Override
     public Curl4jEngineRequest newRequest() {
-        return new Curl4jEngineRequest(this);
+        return new Curl4jEngineRequest(this).useCABundle(caBundle);
     }
 
     @Nullable String getImpersonate() {

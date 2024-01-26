@@ -106,6 +106,10 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
 
             curl_easy_setopt(handle.curl, CURLOPT_WRITEFUNCTION, writeCallback.getFunctionAddress());
 
+            if (request.caBundle() != null) {
+                request.caBundle().apply(handle);
+            }
+
             for (Consumer<CurlHandle> customOption : request.customOptions()) {
                 customOption.accept(handle);
             }
