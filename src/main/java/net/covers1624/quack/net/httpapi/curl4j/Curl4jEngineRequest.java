@@ -219,22 +219,10 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
         }
 
         curl_easy_setopt(handle.curl, CURLOPT_URL, url);
-        switch (method) {
-            case "GET":
-                curl_easy_setopt(handle.curl, CURLOPT_HTTPGET, true);
-                break;
-            case "HEAD":
-                curl_easy_setopt(handle.curl, CURLOPT_NOBODY, true);
-                break;
-            case "POST":
-                curl_easy_setopt(handle.curl, CURLOPT_POST, true);
-                break;
-            case "PUT":
-                curl_easy_setopt(handle.curl, CURLOPT_UPLOAD, true);
-                break;
-            default:
-                curl_easy_setopt(handle.curl, CURLOPT_CUSTOMREQUEST, method);
-                break;
+        if (method.equals("HEAD")) {
+            curl_easy_setopt(handle.curl, CURLOPT_NOBODY, true);
+        } else {
+            curl_easy_setopt(handle.curl, CURLOPT_CUSTOMREQUEST, method);
         }
 
         if (followRedirects) {
