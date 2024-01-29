@@ -210,6 +210,7 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
     }
 
     private void setupHandle(CurlHandle handle) {
+        assert method != null;
         curl_easy_reset(handle.curl);
 
         String impersonate = engine.getImpersonate();
@@ -218,7 +219,23 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
         }
 
         curl_easy_setopt(handle.curl, CURLOPT_URL, url);
-        curl_easy_setopt(handle.curl, CURLOPT_CUSTOMREQUEST, method);
+        switch (method) {
+            case "GET":
+                curl_easy_setopt(handle.curl, CURLOPT_HTTPGET, true);
+                break;
+            case "HEAD":
+                curl_easy_setopt(handle.curl, CURLOPT_NOBODY, true);
+                break;
+            case "POST":
+                curl_easy_setopt(handle.curl, CURLOPT_POST, true);
+                break;
+            case "PUT":
+                curl_easy_setopt(handle.curl, CURLOPT_UPLOAD, true);
+                break;
+            default:
+                curl_easy_setopt(handle.curl, CURLOPT_CUSTOMREQUEST, method);
+                break;
+        }
 
         if (followRedirects) {
             curl_easy_setopt(handle.curl, CURLOPT_FOLLOWLOCATION, true);
