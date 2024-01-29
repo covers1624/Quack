@@ -6,6 +6,7 @@ package net.covers1624.quack.net.httpapi;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
+import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,7 @@ public class MultipartBody implements WebBody {
 
     // @formatter:off
     @Override public InputStream open() { throw new UnsupportedOperationException(); }
+    @Override public ReadableByteChannel openChannel() { throw new UnsupportedOperationException(); }
     @Override public boolean multiOpenAllowed() { throw new UnsupportedOperationException(); }
     @Override public long length() { throw new UnsupportedOperationException(); }
     @Override public @Nullable String contentType() { throw new UnsupportedOperationException(); }

@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.ReadableByteChannel;
 
 /**
  * Created by covers1624 on 21/4/23.
@@ -87,6 +88,7 @@ public class OkHttpEngineResponse implements EngineResponse {
 
         // @formatter:off
         @Override public InputStream open() { return body.byteStream(); }
+        @Override public ReadableByteChannel openChannel() { return body.source(); }
         @Override public boolean multiOpenAllowed() { return false; }
         @Override public long length() { return body.contentLength(); }
         @Override public @Nullable String contentType() { return contentType; }
