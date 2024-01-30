@@ -3,6 +3,7 @@
  */
 package net.covers1624.quack.net.httpapi;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -77,6 +78,18 @@ public interface EngineRequest {
      * @return The same {@link EngineRequest}.
      */
     EngineRequest removeHeader(String key);
+
+    /**
+     * Set a listener to receive progress updates about this transfer.
+     * <p>
+     * Note: This API is still experimental, may crash, may not be
+     * supported by all http impls, or may change.
+     *
+     * @param listener The listener.
+     * @return The same request.
+     */
+    @ApiStatus.Experimental
+    EngineRequest listener(RequestListener listener);
 
     /**
      * Get the url for this request.

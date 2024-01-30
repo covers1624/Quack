@@ -12,9 +12,10 @@ import java.util.Map;
  */
 public abstract class AbstractEngineRequest implements EngineRequest {
 
-    @Nullable
-    protected String url;
+    protected @Nullable String url;
     protected final HeaderList headers = new HeaderList();
+    protected @Nullable RequestListener listener;
+
     protected boolean executed = false;
 
     protected void assertState() {
@@ -55,6 +56,13 @@ public abstract class AbstractEngineRequest implements EngineRequest {
     public EngineRequest removeHeader(String key) {
         assertState();
         headers.removeAll(key);
+        return this;
+    }
+
+    @Override
+    public EngineRequest listener(RequestListener listener) {
+        assertState();
+        this.listener = listener;
         return this;
     }
 

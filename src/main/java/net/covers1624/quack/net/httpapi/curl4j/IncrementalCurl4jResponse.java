@@ -5,6 +5,7 @@ package net.covers1624.quack.net.httpapi.curl4j;
 
 import net.covers1624.curl4j.CURLMsg;
 import net.covers1624.curl4j.CurlWriteCallback;
+import net.covers1624.curl4j.CurlXferInfoCallback;
 import net.covers1624.curl4j.core.Memory;
 import net.covers1624.curl4j.core.Pointer;
 import net.covers1624.curl4j.util.*;
@@ -40,6 +41,7 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
     private final @Nullable CurlInput input;
     private final @Nullable CurlMimeBody mimeBody;
     private final SListHeaderWrapper headers;
+    private final @Nullable CurlXferInfoCallback xferCallback;
 
     private final int statusCode;
 
@@ -122,6 +124,7 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
         input = request.makeInput();
         mimeBody = request.buildMime(handle);
         headers = new SListHeaderWrapper(request.headers().toStrings());
+        xferCallback = request.xferCallback(request.listener());
 
         try (HeaderCollector headerCollector = new HeaderCollector()) {
             if (input != null) {
@@ -136,6 +139,11 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
 
             if (request.caBundle() != null) {
                 request.caBundle().apply(handle);
+            }
+
+            if (xferCallback != null) {
+                curl_easy_setopt(handle.curl, CURLOPT_NOPROGRESS, false);
+                curl_easy_setopt(handle.curl, CURLOPT_XFERINFOFUNCTION, xferCallback);
             }
 
             for (Consumer<CurlHandle> customOption : request.customOptions()) {
@@ -226,8 +234,11 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
         // Removing the curl handle from the multi handle will abort the request
         // if one is still running.
         curl_multi_remove_handle(handle.multi, handle.curl);
-        closeSafe(writeCallback, input, mimeBody, headers, handleEntry);
+        closeSafe(writeCallback, input, mimeBody, headers, xferCallback, handleEntry);
         Memory.free(buf);
+        if (request.listener() != null) {
+            request.listener().end();
+        }
     }
 
     private static void closeSafe(AutoCloseable... closeables) {

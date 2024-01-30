@@ -5,13 +5,11 @@ package net.covers1624.quack.net.httpapi.curl4j;
 
 import net.covers1624.curl4j.CABundle;
 import net.covers1624.curl4j.CURL;
+import net.covers1624.curl4j.CurlXferInfoCallback;
 import net.covers1624.curl4j.util.*;
 import net.covers1624.curl4j.util.CurlMimeBody.Builder.PartBuilder;
 import net.covers1624.quack.annotation.Requires;
-import net.covers1624.quack.net.httpapi.AbstractEngineRequest;
-import net.covers1624.quack.net.httpapi.HeaderList;
-import net.covers1624.quack.net.httpapi.MultipartBody;
-import net.covers1624.quack.net.httpapi.WebBody;
+import net.covers1624.quack.net.httpapi.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,6 +126,7 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
     @Override public Curl4jEngineRequest headers(Map<String, String> headers) { super.headers(headers); return this; }
     @Override public Curl4jEngineRequest headers(HeaderList headers) { super.headers(headers); return this; }
     @Override public Curl4jEngineRequest removeHeader(String key) { super.removeHeader(key); return this; }
+    @Override public Curl4jEngineRequest listener(RequestListener listener) { super.listener(listener); return this; }
     // @formatter:on
 
     @Override
@@ -144,6 +143,10 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
 
         if (url == null) throw new IllegalStateException("Url not set.");
         executed = true;
+
+        if (listener != null) {
+            listener.start(body != null ? RequestListener.Direction.UPLOAD : RequestListener.Direction.DOWNLOAD);
+        }
 
         // If we are not writing into a file, we must take the incremental path
         // to give the user control over where the data is going.
@@ -164,7 +167,8 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
              CurlInput input = makeInput();
              CurlMimeBody mimeBody = buildMime(handle);
              SListHeaderWrapper headers = new SListHeaderWrapper(this.headers.toStrings());
-             HeaderCollector headerCollector = new HeaderCollector()) {
+             HeaderCollector headerCollector = new HeaderCollector();
+             CurlXferInfoCallback xferCallback = xferCallback(listener)) {
 
             output.apply(handle);
             headerCollector.apply(handle);
@@ -179,6 +183,11 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
 
             if (caBundle != null) {
                 caBundle.apply(handle);
+            }
+
+            if (xferCallback != null) {
+                curl_easy_setopt(handle.curl, CURLOPT_NOPROGRESS, false);
+                curl_easy_setopt(handle.curl, CURLOPT_XFERINFOFUNCTION, xferCallback);
             }
 
             for (Consumer<CurlHandle> customOption : customOptions) {
@@ -206,6 +215,10 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
                 @Override public void close() { }
                 // @formatter:on
             };
+        } finally {
+            if (listener != null) {
+                listener.end();
+            }
         }
     }
 
@@ -251,6 +264,12 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
         return caBundle;
     }
 
+    @Nullable
+    @Contract (pure = true)
+    RequestListener listener() {
+        return listener;
+    }
+
     List<Consumer<CurlHandle>> customOptions() {
         return customOptions;
     }
@@ -273,6 +292,16 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
             partBuilder.body(inputFromBody(part.body));
         }
         return builder.build();
+    }
+
+    @Nullable CurlXferInfoCallback xferCallback(@Nullable RequestListener listener) {
+        if (listener == null) return null;
+
+        return new CurlXferInfoCallback((ptr, dltotal, dlnow, ultotal, ulnow) -> {
+            listener.onDownload(dltotal, dlnow);
+            listener.onUpload(ultotal, ulnow);
+            return 0;
+        });
     }
 
     private static CurlInput inputFromBody(WebBody body) {
