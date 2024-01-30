@@ -60,14 +60,12 @@ public abstract class AbstractEngineRequest implements EngineRequest {
 
     @Override
     public String getUrl() {
-        assertState();
-        assert url != null : "Url not set";
+        if (url == null) throw new IllegalStateException("URL not set");
         return url;
     }
 
     @Override
     public HeaderList getHeaders() {
-        assertState();
         return headers;
     }
 }
