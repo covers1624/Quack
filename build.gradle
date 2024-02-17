@@ -1,3 +1,8 @@
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
+
 plugins {
     id 'java'
     id 'maven-publish'
@@ -95,8 +100,30 @@ tasks.register('signJar') {
     dependsOn('jar')
 
     doFirst {
+        // Because Gradle is a _very well written piece of software_. We must strip the signatures for the gradle task we ship.
+        // This task really should be removed or put into a separate library.
+        def filter = [
+                "net/covers1624/quack/gradle/"
+        ]
+        def tempJar = layout.buildDirectory.file("signJar/sign.jar").get().asFile
+        tempJar.parentFile.mkdirs()
+        def extras = [:] as Map<ZipEntry, byte[]>
+        new ZipFile(jar.archiveFile.get().asFile).withCloseable { zf ->
+            new ZipOutputStream(tempJar.newOutputStream()).withCloseable { zout ->
+                zf.entries().each { ze ->
+                    if (ze.isDirectory() || !filter.any { ze.name.startsWith(it) }) {
+                        def znew = new ZipEntry(ze.name)
+                        znew.time = ze.time
+                        zout.putNextEntry(znew)
+                        zout.write(zf.getInputStream(ze).bytes)
+                    } else {
+                        extras[ze] = zf.getInputStream(ze).bytes
+                    }
+                }
+            }
+        }
         def args = [:]
-        args['jar'] = jar.archiveFile.get().asFile
+        args['jar'] = tempJar
         if (System.getenv("KEY_STORE")) {
             args['keyStore'] = System.getenv("KEY_STORE")
             file(System.getenv("KEY_STORE_PROPS")).withReader {
@@ -116,6 +143,22 @@ tasks.register('signJar') {
             return
         }
         project.ant.invokeMethod('signjar', args)
+        new ZipFile(tempJar).withCloseable { zf ->
+            new ZipOutputStream(jar.archiveFile.get().asFile.newOutputStream()).withCloseable { zout ->
+                zf.entries().each { ze ->
+                    def znew = new ZipEntry(ze.name)
+                    znew.time = ze.time
+                    zout.putNextEntry(znew)
+                    zout.write(zf.getInputStream(ze).bytes)
+                }
+                extras.each {
+                    def znew = new ZipEntry(it.key.name)
+                    znew.time = it.key.time
+                    zout.putNextEntry(znew)
+                    zout.write(it.value)
+                }
+            }
+        }
     }
 }
 
