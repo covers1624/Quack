@@ -22,7 +22,7 @@ import java.util.function.Supplier;
  * Created by covers1624 on 16/1/24.
  */
 // TODO Move this to curl4j?
-final class HandlePool<T extends CurlHandle> {
+final class HandlePool<T extends AutoCloseable> {
 
     private final Supplier<T> factory;
     private final LinkedList<Entry> entries = new LinkedList<>();
@@ -85,7 +85,11 @@ final class HandlePool<T extends CurlHandle> {
                 Entry entry = iterator.next();
                 if (entry.lastUsed + lt > currTime) {
                     iterator.remove();
-                    entry.close();
+                    try {
+                        entry.handle.close();
+                    } catch (Throwable ignored) {
+                        // TODO log??
+                    }
                 }
             }
         }
@@ -93,7 +97,7 @@ final class HandlePool<T extends CurlHandle> {
 
     public final class Entry implements AutoCloseable {
 
-        public final T handle;
+        public T handle;
         private long lastUsed;
 
         private Entry(T handle) {

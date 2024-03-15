@@ -27,9 +27,12 @@ import static net.covers1624.curl4j.CURL.*;
  */
 class IncrementalCurl4jResponse extends Curl4jEngineResponse {
 
+    private static final HandlePool<NativeBuffer> BUFFERS = new HandlePool<>(() -> new NativeBuffer(64 * 1024));
+
     // 64k buffer.
-    private long buf = Memory.malloc(64 * 1024);
-    private ByteBuffer buffer = Memory.newDirectByteBuffer(buf, 64 * 1024);
+    private final HandlePool<NativeBuffer>.Entry bufEnt = BUFFERS.get();
+    private long buf = bufEnt.handle.address;
+    private ByteBuffer buffer = bufEnt.handle.buffer;
 
     private boolean done;
     private boolean paused;
@@ -223,12 +226,12 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
         // Calculate new buffer size.
         int newSize = buffer.limit() + more;
         // reallocate the buffer.
-        buf = Memory.realloc(buf, newSize);
+        bufEnt.handle = bufEnt.handle.newRealloc(newSize);
+        // Carry position
+        bufEnt.handle.buffer.position(buffer.position());
 
-        // Create a new ByteBuffer wrapper around our memory block.
-        ByteBuffer newBuf = Memory.newDirectByteBuffer(buf, newSize);
-        newBuf.position(buffer.position());
-        buffer = newBuf;
+        buf = bufEnt.handle.address;
+        buffer = bufEnt.handle.buffer;
     }
 
     @Override
@@ -236,8 +239,9 @@ class IncrementalCurl4jResponse extends Curl4jEngineResponse {
         // Removing the curl handle from the multi handle will abort the request
         // if one is still running.
         curl_multi_remove_handle(handle.multi, handle.curl);
-        closeSafe(writeCallback, input, mimeBody, headers, xferCallback, handleEntry);
-        Memory.free(buf);
+        bufEnt.handle.buffer.position(0);
+        bufEnt.handle.buffer.limit(bufEnt.handle.buffer.capacity());
+        closeSafe(writeCallback, input, mimeBody, headers, xferCallback, handleEntry, bufEnt);
         if (request.listener() != null) {
             request.listener().end();
         }
