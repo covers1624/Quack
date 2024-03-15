@@ -7,6 +7,9 @@ import javax.annotation.WillNotClose;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
@@ -24,7 +27,8 @@ import java.util.stream.Collectors;
 public class IOUtils {
 
     //32k buffer.
-    private static final ThreadLocal<byte[]> bufferCache = ThreadLocal.withInitial(() -> new byte[32 * 1024]);
+    private static final ThreadLocal<byte[]> arrayCache = ThreadLocal.withInitial(() -> new byte[32 * 1024]);
+    private static final ThreadLocal<ByteBuffer> directBufferCache = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(16 * 1024));
     private static final Map<String, String> jfsArgsCreate = Collections.singletonMap("create", "true");
 
     /**
@@ -33,7 +37,7 @@ public class IOUtils {
      * @return The buffer.
      */
     public static byte[] getCachedBuffer() {
-        return bufferCache.get();
+        return arrayCache.get();
     }
 
     /**
@@ -44,10 +48,31 @@ public class IOUtils {
      * @throws IOException If something is bork.
      */
     public static void copy(@WillNotClose InputStream is, @WillNotClose OutputStream os) throws IOException {
-        byte[] buffer = bufferCache.get();
+        byte[] buffer = arrayCache.get();
         int len;
         while ((len = is.read(buffer)) != -1) {
             os.write(buffer, 0, len);
+        }
+    }
+
+    /**
+     * Copies the content of an {@link ReadableByteChannel} into an {@link WritableByteChannel}.
+     * <p>
+     * This method makes use of direct {@link ByteBuffer} instances.
+     *
+     * @param rc The {@link ReadableByteChannel} to copy from.
+     * @param wc The {@link WritableByteChannel} to copy to.
+     * @throws IOException If an IO Error occurred whilst copying.
+     */
+    public static void copy(@WillNotClose ReadableByteChannel rc, @WillNotClose WritableByteChannel wc) throws IOException {
+        ByteBuffer buffer = directBufferCache.get();
+        buffer.clear();
+        while (rc.read(buffer) != -1) {
+            buffer.flip();
+            while (buffer.hasRemaining()) {
+                wc.write(buffer);
+            }
+            buffer.clear();
         }
     }
 
