@@ -9,14 +9,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.util.Arrays;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 /**
  * Created by covers1624 on 15/3/24.
  */
-public class ByteArraySeekableChannelTests {
+public class ByteArraySeekableChannelTests extends IOTestBase {
 
     @Test
     public void testSimple() throws IOException {
@@ -31,12 +30,5 @@ public class ByteArraySeekableChannelTests {
         channel.write(ByteBuffer.wrap(data));
         channel.position(0);
         assertArrayEquals(dataDouble, IOUtils.toBytes(Channels.newInputStream(channel)));
-    }
-
-    private static byte[] randomData(int len) {
-        Random randy = new Random();
-        byte[] data = new byte[len];
-        randy.nextBytes(data);
-        return data;
     }
 }

@@ -40,4 +40,11 @@ public class IOTestBase {
         }
         return builder.toString();
     }
+
+    public static byte[] randomData(int len) {
+        Random randy = new Random();
+        byte[] data = new byte[len];
+        randy.nextBytes(data);
+        return data;
+    }
 }
