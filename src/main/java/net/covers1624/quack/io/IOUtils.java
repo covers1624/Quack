@@ -77,6 +77,30 @@ public class IOUtils {
     }
 
     /**
+     * Reads {@code buffer.remaining()} bytes from the channel into
+     * the buffer.
+     * <p>
+     * This method blocks until the requested bytes are read.
+     * <p>
+     * If the stream ends prior to the requested number of bytes an {@link EOFException}
+     * is thrown.
+     *
+     * @param channel The channel to read from.
+     * @param buffer  The buffer to fill.
+     */
+    public static void fill(@WillNotClose ReadableByteChannel channel, ByteBuffer buffer) throws IOException {
+        int toRead = buffer.remaining();
+        int read = 0;
+        int len;
+        while (buffer.hasRemaining() && (len = channel.read(buffer)) != -1) {
+            read += len;
+        }
+        if (read < toRead) {
+            throw new EOFException("Expected " + toRead + " Got " + read);
+        }
+    }
+
+    /**
      * Reads an {@link InputStream} to a byte array.
      *
      * @param is The InputStream.
