@@ -1,6 +1,5 @@
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 plugins {
@@ -8,6 +7,7 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'org.cadixdev.licenser' version '0.6.0'
+    id "net.covers1624.centralpublisher" version "1.0.4"
 }
 
 java {
@@ -235,4 +235,15 @@ signing {
         return
     }
     sign publishing.publications.Quack
+}
+
+centralPublishing {
+    if (System.getenv("SONATYPE_USERNAME")) {
+        credentials {
+            username = System.getenv("SONATYPE_USERNAME")
+            password = System.getenv("SONATYPE_PASSWORD")
+        }
+        publishingType = "AUTOMATIC"
+        forPublication publishing.publications.Quack
+    }
 }
