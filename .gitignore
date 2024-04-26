@@ -3,6 +3,7 @@
 
 # Include Important Folders
 !src/
+!java11/
 
 # Other Files.
 !LICENSE.txt
