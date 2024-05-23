@@ -52,7 +52,7 @@ public class Java11EngineRequest extends AbstractEngineRequest {
         HttpRequest.Builder builder = HttpRequest.newBuilder();
         builder.uri(URI.create(url));
         builder.method(method, body != null ? toPublisher(body) : BodyPublishers.noBody());
-        builder.headers(headers.toStrings());
+        builder.headers(headers.toArray());
 
         try {
             return new Java11EngineResponse(

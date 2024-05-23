@@ -208,6 +208,16 @@ public final class HeaderList implements Iterable<HeaderList.Entry> {
         return strings;
     }
 
+    /**
+     * Convert this header list into an interleaved array
+     * of header entries.
+     *
+     * @return The interleaved array.
+     */
+    public String[] toArray() {
+        return headers.toArray(new String[0]);
+    }
+
     @Override
     public Iterator<Entry> iterator() {
         Iterator<String> backing = headers.iterator();
