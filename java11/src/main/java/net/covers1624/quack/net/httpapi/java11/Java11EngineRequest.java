@@ -1,9 +1,6 @@
 package net.covers1624.quack.net.httpapi.java11;
 
-import net.covers1624.quack.net.httpapi.AbstractEngineRequest;
-import net.covers1624.quack.net.httpapi.EngineRequest;
-import net.covers1624.quack.net.httpapi.EngineResponse;
-import net.covers1624.quack.net.httpapi.WebBody;
+import net.covers1624.quack.net.httpapi.*;
 import net.covers1624.quack.util.SneakyUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,6 +62,8 @@ public class Java11EngineRequest extends AbstractEngineRequest {
     }
 
     private static BodyPublisher toPublisher(WebBody body) {
+        if (body instanceof MultipartBody) throw new UnsupportedOperationException("Multipart requests are not supported by this engine yet.");
+
         return new BodyPublisher() {
             @Override
             public long contentLength() {
