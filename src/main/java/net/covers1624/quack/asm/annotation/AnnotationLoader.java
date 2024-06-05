@@ -52,11 +52,21 @@ public class AnnotationLoader {
      * @return The visitor.
      */
     public ClassVisitor forClass() {
-        return new ClassVisitor(Opcodes.ASM9) {
+        return forClass(null);
+    }
+
+    /**
+     * Returns a {@link ClassVisitor} which will consume class annotations into
+     * this {@link AnnotationLoader}.
+     *
+     * @return The visitor.
+     */
+    public ClassVisitor forClass(@Nullable ClassVisitor delegate) {
+        return new ClassVisitor(Opcodes.ASM9, delegate) {
             @Nullable
             @Override
             public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-                return newVisitor(descriptor, visible);
+                return newVisitor(super.visitAnnotation(descriptor, visible), descriptor, visible);
             }
         };
     }
@@ -68,27 +78,48 @@ public class AnnotationLoader {
      * @return The visitor.
      */
     public MethodVisitor forMethod() {
-        return new MethodVisitor(Opcodes.ASM9) {
+        return forMethod(null);
+    }
+
+    /**
+     * Returns a {@link MethodVisitor} which will consume method annotations into
+     * this {@link AnnotationLoader}.
+     *
+     * @param delegate Additionally chain visited data to the given delegate.
+     * @return The visitor.
+     */
+    public MethodVisitor forMethod(@Nullable MethodVisitor delegate) {
+        return new MethodVisitor(Opcodes.ASM9, delegate) {
             @Nullable
             @Override
             public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-                return newVisitor(descriptor, visible);
+                return newVisitor(super.visitAnnotation(descriptor, visible), descriptor, visible);
             }
         };
+    }
+
+    /**
+     * Overload of {@link #forField(FieldVisitor)}.
+     *
+     * @return The visitor.
+     */
+    public FieldVisitor forField() {
+        return forField(null);
     }
 
     /**
      * Returns a {@link FieldVisitor} which will consume field annotations into
      * this {@link AnnotationLoader}.
      *
+     * @param delegate Additionally chain visited data to the given delegate.
      * @return The visitor.
      */
-    public FieldVisitor forField() {
-        return new FieldVisitor(Opcodes.ASM9) {
+    public FieldVisitor forField(@Nullable FieldVisitor delegate) {
+        return new FieldVisitor(Opcodes.ASM9, delegate) {
             @Nullable
             @Override
             public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-                return newVisitor(descriptor, visible);
+                return newVisitor(super.visitAnnotation(descriptor, visible), descriptor, visible);
             }
         };
     }
@@ -171,9 +202,10 @@ public class AnnotationLoader {
     }
 
     @Nullable
-    private AnnotationParser newVisitor(String descriptor, boolean visible) {
+    private AnnotationParser newVisitor(AnnotationVisitor delegate, String descriptor, boolean visible) {
         try {
             return AnnotationParser.newVisitor(
+                    delegate,
                     lookup,
                     descriptor,
                     value -> addToMap(value, visible)

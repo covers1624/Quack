@@ -4,6 +4,7 @@
 package net.covers1624.quack.asm.annotation;
 
 import net.covers1624.quack.annotation.Requires;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
@@ -33,8 +34,14 @@ public abstract class AnnotationParser extends AnnotationVisitor {
 
     protected final ClassLookup abstractions;
 
+    @Deprecated
+    @ScheduledForRemoval (inVersion = "0.5")
     protected AnnotationParser(ClassLookup abstractions) {
-        super(Opcodes.ASM9);
+        this(null, abstractions);
+    }
+
+    protected AnnotationParser(@Nullable AnnotationVisitor delegate, ClassLookup abstractions) {
+        super(Opcodes.ASM9, delegate);
         this.abstractions = abstractions;
     }
 
@@ -50,13 +57,29 @@ public abstract class AnnotationParser extends AnnotationVisitor {
      * @return The {@link AnnotationVisitor} implementation.
      */
     public static AnnotationParser newVisitor(ClassLookup lookup, String desc, Consumer<Annotation> cons) throws AnnotationParseException {
+        return newVisitor(null, lookup, desc, cons);
+    }
+
+    /**
+     * Create a visitor.
+     * <p>
+     * The visitor when piped annotation data will provide the loaded annotation object
+     * and the class it was loaded from via the provided consumer.
+     *
+     * @param delegate The AnnotationVisitor to delegate calls to.
+     * @param lookup   The class lookup.
+     * @param desc     The descriptor of the annotation.
+     * @param cons     The consumer to accept the parsed annotations.
+     * @return The {@link AnnotationVisitor} implementation.
+     */
+    public static AnnotationParser newVisitor(@Nullable AnnotationVisitor delegate, ClassLookup lookup, String desc, Consumer<Annotation> cons) throws AnnotationParseException {
         Class<? extends Annotation> clazz;
         try {
             clazz = lookup.getAnnotationClass(Type.getType(desc));
         } catch (Throwable ex) {
             throw new AnnotationParseException("Failed to load annotation.", ex);
         }
-        return new AnnotationParser(lookup) {
+        return new AnnotationParser(delegate, lookup) {
 
             private final Map<String, Object> values = new HashMap<>();
 
@@ -68,6 +91,7 @@ public abstract class AnnotationParser extends AnnotationVisitor {
 
             @Override
             public void visitEnd() {
+                super.visitEnd();
                 cons.accept(
                         (Annotation) Proxy.newProxyInstance(
                                 clazz.getClassLoader(),
@@ -83,6 +107,7 @@ public abstract class AnnotationParser extends AnnotationVisitor {
 
     @Override
     public void visit(@Nullable String name, Object value) {
+        super.visit(name, value);
         if (value instanceof Type) {
             try {
                 value = abstractions.getClass((Type) value);
@@ -96,6 +121,7 @@ public abstract class AnnotationParser extends AnnotationVisitor {
     @Override
     @SuppressWarnings ({ "rawtypes", "unchecked" })
     public void visitEnum(String name, String descriptor, String value) {
+        super.visitEnum(name, descriptor, value);
         try {
             // Thanks Java, must use raw explicit here..
             visitValue(name, Enum.<Enum>valueOf(abstractions.getEnumClass(Type.getType(descriptor)), value));
@@ -108,12 +134,12 @@ public abstract class AnnotationParser extends AnnotationVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String name, String descriptor) {
-        return newVisitor(abstractions, descriptor, v -> visitValue(name, v));
+        return newVisitor(super.visitAnnotation(name, descriptor), abstractions, descriptor, v -> visitValue(name, v));
     }
 
     @Override
     public AnnotationVisitor visitArray(String name) {
-        return new AnnotationParser(abstractions) {
+        return new AnnotationParser(super.visitArray(name), abstractions) {
 
             private final ArrayList<Object> values = new ArrayList<>(1);
 
@@ -125,6 +151,7 @@ public abstract class AnnotationParser extends AnnotationVisitor {
 
             @Override
             public void visitEnd() {
+                super.visitEnd();
                 values.trimToSize();
                 AnnotationParser.this.visitValue(name, values);
             }
