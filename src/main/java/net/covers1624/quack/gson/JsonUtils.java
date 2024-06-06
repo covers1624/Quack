@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -32,7 +34,7 @@ public class JsonUtils {
     //region Deserialize
 
     /**
-     * Deserialize Json from the given {@link Path} as the given {@link Type}.
+     * Overload of {@link #parse(Gson, Path, Type, Charset)} using UTF-8 by default.
      *
      * @param gson The {@link Gson} instance to use.
      * @param path The {@link Path} to read from.
@@ -44,6 +46,22 @@ public class JsonUtils {
      */
     public static <T> T parse(Gson gson, Path path, Type t) throws IOException, JsonParseException {
         return parse(gson, Files.newInputStream(path), t);
+    }
+
+    /**
+     * Deserialize Json from the given {@link Path} as the given {@link Type}.
+     *
+     * @param gson    The {@link Gson} instance to use.
+     * @param path    The {@link Path} to read from.
+     * @param t       The {@link Type} to deserialize from.
+     * @param charset The charset to use.
+     * @return The Object deserialized from Json.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static <T> T parse(Gson gson, Path path, Type t, Charset charset) throws IOException, JsonParseException {
+        return parse(gson, Files.newInputStream(path), t, charset);
     }
 
     /**
@@ -62,7 +80,7 @@ public class JsonUtils {
     }
 
     /**
-     * Deserialize Json from the given {@link InputStream} as the given {@link Type}.
+     * Overload of {@link #parse(Gson, InputStream, Type, Charset)} using UTF-8 by default.
      *
      * @param gson The {@link Gson} instance to use.
      * @param is   The {@link InputStream} to read from.
@@ -73,7 +91,23 @@ public class JsonUtils {
      * @throws IOException        Thrown when an IO error occurs.
      */
     public static <T> T parse(Gson gson, InputStream is, Type t) throws IOException, JsonParseException {
-        return parse(gson, new InputStreamReader(is), t);
+        return parse(gson, is, t, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Deserialize Json from the given {@link InputStream} as the given {@link Type}.
+     *
+     * @param gson    The {@link Gson} instance to use.
+     * @param is      The {@link InputStream} to read from.
+     * @param t       The {@link Type} to deserialize from.
+     * @param charset The charset to use.
+     * @return The Object deserialized from Json.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static <T> T parse(Gson gson, InputStream is, Type t, Charset charset) throws IOException, JsonParseException {
+        return parse(gson, new InputStreamReader(is, charset), t);
     }
 
     /**
@@ -97,7 +131,7 @@ public class JsonUtils {
     //region Deserialize raw
 
     /**
-     * Deserialize Json from the given {@link Path} as a raw {@link JsonElement}.
+     * Overload of {@link #parseRaw(Path, Charset)} using UTF-8 by default.
      *
      * @param path The {@link Path} to read from.
      * @return The {@link JsonElement}.
@@ -107,6 +141,20 @@ public class JsonUtils {
      */
     public static JsonElement parseRaw(Path path) throws IOException, JsonParseException {
         return parseRaw(Files.newInputStream(path));
+    }
+
+    /**
+     * Deserialize Json from the given {@link Path} as a raw {@link JsonElement}.
+     *
+     * @param path    The {@link Path} to read from.
+     * @param charset The charset to use.
+     * @return The {@link JsonElement}.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static JsonElement parseRaw(Path path, Charset charset) throws IOException, JsonParseException {
+        return parseRaw(Files.newInputStream(path), charset);
     }
 
     /**
@@ -123,7 +171,7 @@ public class JsonUtils {
     }
 
     /**
-     * Deserialize Json from the given {@link InputStream} as a raw {@link JsonElement}.
+     * Overload of {@link #parseRaw(InputStream, Charset)} using UTF-8 by default.
      *
      * @param is The {@link InputStream} to read from.
      * @return The {@link JsonElement}.
@@ -132,7 +180,21 @@ public class JsonUtils {
      * @throws IOException        Thrown when an IO error occurs.
      */
     public static JsonElement parseRaw(InputStream is) throws IOException, JsonParseException {
-        return parseRaw(new InputStreamReader(is));
+        return parseRaw(is, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Deserialize Json from the given {@link InputStream} as a raw {@link JsonElement}.
+     *
+     * @param is      The {@link InputStream} to read from.
+     * @param charset The charset to use.
+     * @return The {@link JsonElement}.
+     * @throws JsonParseException Propagated from {@link Gson#fromJson(Reader, Type)},
+     *                            thrown when Gson encounters an error deserializing the object.
+     * @throws IOException        Thrown when an IO error occurs.
+     */
+    public static JsonElement parseRaw(InputStream is, Charset charset) throws IOException, JsonParseException {
+        return parseRaw(new InputStreamReader(is, charset));
     }
 
     /**
@@ -154,9 +216,7 @@ public class JsonUtils {
     //region Serialize.
 
     /**
-     * Serialize the provided Object to Json and write to the given {@link Path}.
-     * <p>
-     * Use this method when your <code>instance</code> doesn't have any direct generic parameters.
+     * Overload of {@link #write(Gson, Path, Object, Charset)} using UTF-8 by default.
      *
      * @param gson     The {@link Gson} instance to use.
      * @param path     The {@link Path} to write to.
@@ -166,7 +226,39 @@ public class JsonUtils {
      * @throws IOException     Thrown when an IO error occurs.
      */
     public static void write(Gson gson, Path path, Object instance) throws IOException, JsonIOException {
-        write(gson, path, instance, instance.getClass());
+        write(gson, path, instance, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Serialize the provided Object to Json and write to the given {@link Path}.
+     * <p>
+     * Use this method when your <code>instance</code> doesn't have any direct generic parameters.
+     *
+     * @param gson     The {@link Gson} instance to use.
+     * @param path     The {@link Path} to write to.
+     * @param instance The Object instance to serialize.
+     * @param charset  The charset to use.
+     * @throws JsonIOException Propagated from {@link Gson#toJson(Object, Type, Appendable)},
+     *                         thrown when Gson encounters an error serializing the instance.
+     * @throws IOException     Thrown when an IO error occurs.
+     */
+    public static void write(Gson gson, Path path, Object instance, Charset charset) throws IOException, JsonIOException {
+        write(gson, path, instance, instance.getClass(), charset);
+    }
+
+    /**
+     * Overload of {@link #write(Gson, Path, Object, Type, Charset)} using UTF-8 by default.
+     *
+     * @param gson     The {@link Gson} instance to use.
+     * @param path     The {@link Path} to write to.
+     * @param instance The Object instance to serialize.
+     * @param t        The {@link Type} of the Object instance.
+     * @throws JsonIOException Propagated from {@link Gson#toJson(Object, Type, Appendable)},
+     *                         thrown when Gson encounters an error serializing the instance.
+     * @throws IOException     Thrown when an IO error occurs.
+     */
+    public static void write(Gson gson, Path path, Object instance, Type t) throws IOException, JsonIOException {
+        write(gson, path, instance, t, StandardCharsets.UTF_8);
     }
 
     /**
@@ -178,12 +270,27 @@ public class JsonUtils {
      * @param path     The {@link Path} to write to.
      * @param instance The Object instance to serialize.
      * @param t        The {@link Type} of the Object instance.
+     * @param charset  The charset to use.
      * @throws JsonIOException Propagated from {@link Gson#toJson(Object, Type, Appendable)},
      *                         thrown when Gson encounters an error serializing the instance.
      * @throws IOException     Thrown when an IO error occurs.
      */
-    public static void write(Gson gson, Path path, Object instance, Type t) throws IOException, JsonIOException {
-        write(gson, Files.newOutputStream(path), instance, t);
+    public static void write(Gson gson, Path path, Object instance, Type t, Charset charset) throws IOException, JsonIOException {
+        write(gson, Files.newOutputStream(path), instance, t, charset);
+    }
+
+    /**
+     * Overload of {@link #write(Gson, OutputStream, Object, Charset)} using UTF-8 by default.
+     *
+     * @param gson     The {@link Gson} instance to use.
+     * @param os       The {@link OutputStream} to write to.
+     * @param instance The Object instance to serialize.
+     * @throws JsonIOException Propagated from {@link Gson#toJson(Object, Type, Appendable)},
+     *                         thrown when Gson encounters an error serializing the instance.
+     * @throws IOException     Thrown when an IO error occurs.
+     */
+    public static void write(Gson gson, OutputStream os, Object instance) throws IOException, JsonIOException {
+        write(gson, os, instance, StandardCharsets.UTF_8);
     }
 
     /**
@@ -194,12 +301,28 @@ public class JsonUtils {
      * @param gson     The {@link Gson} instance to use.
      * @param os       The {@link OutputStream} to write to.
      * @param instance The Object instance to serialize.
+     * @param charset  The charset to use.
      * @throws JsonIOException Propagated from {@link Gson#toJson(Object, Type, Appendable)},
      *                         thrown when Gson encounters an error serializing the instance.
      * @throws IOException     Thrown when an IO error occurs.
      */
-    public static void write(Gson gson, OutputStream os, Object instance) throws IOException, JsonIOException {
-        write(gson, os, instance, instance.getClass());
+    public static void write(Gson gson, OutputStream os, Object instance, Charset charset) throws IOException, JsonIOException {
+        write(gson, os, instance, instance.getClass(), charset);
+    }
+
+    /**
+     * Overload of {@link #write(Gson, OutputStream, Object, Type, Charset)} using UTF-8 by default.
+     *
+     * @param gson     The {@link Gson} instance to use.
+     * @param os       The {@link OutputStream} to write to.
+     * @param instance The Object instance to write.
+     * @param t        The {@link Type} of the Object instance.
+     * @throws JsonIOException Propagated from {@link Gson#toJson(Object, Type, Appendable)},
+     *                         thrown when Gson encounters an error serializing the instance.
+     * @throws IOException     Thrown when an IO error occurs.
+     */
+    public static void write(Gson gson, OutputStream os, Object instance, Type t) throws IOException, JsonIOException {
+        write(gson, os, instance, t, StandardCharsets.UTF_8);
     }
 
     /**
@@ -211,12 +334,13 @@ public class JsonUtils {
      * @param os       The {@link OutputStream} to write to.
      * @param instance The Object instance to write.
      * @param t        The {@link Type} of the Object instance.
+     * @param charset  The charset to use.
      * @throws JsonIOException Propagated from {@link Gson#toJson(Object, Type, Appendable)},
      *                         thrown when Gson encounters an error serializing the instance.
      * @throws IOException     Thrown when an IO error occurs.
      */
-    public static void write(Gson gson, OutputStream os, Object instance, Type t) throws IOException, JsonIOException {
-        try (Writer writer = new OutputStreamWriter(os)) {
+    public static void write(Gson gson, OutputStream os, Object instance, Type t, Charset charset) throws IOException, JsonIOException {
+        try (Writer writer = new OutputStreamWriter(os, charset)) {
             gson.toJson(instance, t, writer);
         }
     }
