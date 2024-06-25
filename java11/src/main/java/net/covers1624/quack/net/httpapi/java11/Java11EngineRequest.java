@@ -46,10 +46,16 @@ public class Java11EngineRequest extends AbstractEngineRequest {
         assertState();
         if (url == null) throw new IllegalStateException("Url not set.");
 
+        if (body != null && headers.get("Content-Type") == null) {
+            headers.add("Content-Type", body.contentType());
+        }
+
         HttpRequest.Builder builder = HttpRequest.newBuilder();
         builder.uri(URI.create(url));
         builder.method(method, body != null ? toPublisher(body) : BodyPublishers.noBody());
-        builder.headers(headers.toArray());
+        if (!headers.isEmpty()) {
+            builder.headers(headers.toArray());
+        }
 
         try {
             return new Java11EngineResponse(
