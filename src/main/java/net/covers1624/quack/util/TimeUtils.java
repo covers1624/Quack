@@ -53,9 +53,13 @@ public class TimeUtils {
         for (SimpleDateFormat pattern : PATTERNS) {
             pattern.set2DigitYearStart(TWO_DIGIT_YEAR_START);
             ParsePosition parsePosition = new ParsePosition(0);
-            Date date = pattern.parse(str, parsePosition);
-            if (parsePosition.getIndex() != 0) {
-                return date;
+            try {
+                Date date = pattern.parse(str, parsePosition);
+                if (parsePosition.getIndex() != 0) {
+                    return date;
+                }
+            } catch (NumberFormatException ignored) {
+                // This sometimes happens for unknown reasons..
             }
         }
         return null;
