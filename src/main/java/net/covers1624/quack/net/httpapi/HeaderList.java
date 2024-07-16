@@ -6,11 +6,10 @@ package net.covers1624.quack.net.httpapi;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 /**
  * A simple collection of name-value pair entries.
- * <p>
- * A combination of name-value must be unique.
  * <p>
  * Names are compared case-insensitive.
  * <p>
@@ -137,6 +136,22 @@ public final class HeaderList implements Iterable<HeaderList.Entry> {
     }
 
     /**
+     * Checks if this collection contains an entry with the given name and any value.
+     *
+     * @param name The name to check for.
+     * @return If the name exists.
+     */
+    public boolean contains(String name) {
+        for (int i = 0; i < headers.size(); i += 2) {
+            String v = headers.get(i);
+            if (v.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Remove all entries with the specified name.
      *
      * @param name The name to remove.
@@ -216,6 +231,17 @@ public final class HeaderList implements Iterable<HeaderList.Entry> {
      */
     public String[] toArray() {
         return headers.toArray(new String[0]);
+    }
+
+    /**
+     * Visit each header within this list.
+     *
+     * @param consumer The consumer for key, value entries.
+     */
+    public void forEach(BiConsumer<String, String> consumer) {
+        for (int i = 0; i < headers.size(); i += 2) {
+            consumer.accept(headers.get(i), headers.get(i + 1));
+        }
     }
 
     @Override
