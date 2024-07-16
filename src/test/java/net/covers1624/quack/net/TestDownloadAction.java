@@ -5,6 +5,8 @@ package net.covers1624.quack.net;
 
 import net.covers1624.quack.net.apache.ApacheHttpClientDownloadAction;
 import net.covers1624.quack.net.download.DownloadListener;
+import net.covers1624.quack.net.httpapi.HttpEngine;
+import net.covers1624.quack.net.httpapi.okhttp.OkHttpEngine;
 import net.covers1624.quack.net.java.JavaDownloadAction;
 import net.covers1624.quack.net.okhttp.OkHttpDownloadAction;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -110,6 +112,38 @@ public class TestDownloadAction {
     @Test
     public void test404Java() throws Throwable {
         test404(JavaDownloadAction::new);
+    }
+    //endregion
+
+    //region HttpEngine through OkHttp
+    @Test
+    public void testStringHttpEngineOkhttp() throws Throwable {
+        HttpEngine engine = OkHttpEngine.create();
+        testDownloadString(engine::newDownloadAction);
+    }
+
+    @Test
+    public void testOnlyIfModifiedHttpEngineOkhttp() throws Throwable {
+        HttpEngine engine = OkHttpEngine.create();
+        testNotModified(engine::newDownloadAction, false, true);
+    }
+
+    @Test
+    public void testETagHttpEngineOkhttp() throws Throwable {
+        HttpEngine engine = OkHttpEngine.create();
+        testNotModified(engine::newDownloadAction, true, false);
+    }
+
+    @Test
+    public void testETagAndOnlyIfModifiedHttpEngineOkhttp() throws Throwable {
+        HttpEngine engine = OkHttpEngine.create();
+        testNotModified(engine::newDownloadAction, true, true);
+    }
+
+    @Test
+    public void test404HttpEngineOkhttp() throws Throwable {
+        HttpEngine engine = OkHttpEngine.create();
+        test404(engine::newDownloadAction);
     }
     //endregion
 

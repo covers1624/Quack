@@ -3,6 +3,9 @@
  */
 package net.covers1624.quack.net.httpapi;
 
+import net.covers1624.quack.net.DownloadAction;
+import net.covers1624.quack.net.HttpEngineDownloadAction;
+
 /**
  * Represents an abstract interface for making web requests.
  * <p>
@@ -24,4 +27,14 @@ public interface HttpEngine {
      * @return The new {@link EngineRequest} builder.
      */
     EngineRequest newRequest();
+
+    /**
+     * Creates a new {@link DownloadAction} backed by
+     * this {@link HttpEngine}.
+     *
+     * @return The new {@link HttpEngineDownloadAction} instance.
+     */
+    default HttpEngineDownloadAction newDownloadAction() {
+        return new HttpEngineDownloadAction(this);
+    }
 }

@@ -3,8 +3,12 @@
  */
 package net.covers1624.quack.net;
 
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.net.download.DownloadListener;
+import net.covers1624.quack.net.httpapi.HeaderList;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +17,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.net.HttpURLConnection.HTTP_NOT_MODIFIED;
@@ -39,7 +41,11 @@ public abstract class AbstractDownloadAction implements DownloadAction {
     @Nullable
     protected DownloadListener downloadListener;
 
+    @Deprecated
+    @ReplaceWith ("headerList")
+    @ScheduledForRemoval (inVersion = "0.5")
     protected final Map<String, List<String>> headers = new HashMap<>();
+    protected final HeaderList headerList = new HeaderList();
 
     protected boolean upToDate;
 
@@ -131,6 +137,7 @@ public abstract class AbstractDownloadAction implements DownloadAction {
     @Override
     public DownloadAction addRequestHeader(String key, String value) {
         headers.computeIfAbsent(key, k -> new LinkedList<>()).add(value);
+        headerList.add(key, value);
         return this;
     }
 

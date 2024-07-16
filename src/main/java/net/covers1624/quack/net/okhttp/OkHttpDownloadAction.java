@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
@@ -60,11 +63,7 @@ public class OkHttpDownloadAction extends AbstractDownloadAction {
 
         Request.Builder builder = new Request.Builder()
                 .url(url);
-        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-            for (String value : entry.getValue()) {
-                builder.addHeader(entry.getKey(), value);
-            }
-        }
+        headerList.forEach(builder::addHeader);
         if (userAgent != null) {
             builder.addHeader("User-Agent", userAgent);
         }

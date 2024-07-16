@@ -49,11 +49,7 @@ public class JavaDownloadAction extends AbstractDownloadAction {
             conn.setConnectTimeout(15000);
             conn.setReadTimeout(15000);
             conn.setInstanceFollowRedirects(false);
-            for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-                for (String value : entry.getValue()) {
-                    conn.setRequestProperty(entry.getKey(), value);
-                }
-            }
+            headerList.forEach(conn::setRequestProperty);
             if (userAgent != null) {
                 conn.setRequestProperty("User-Agent", userAgent);
             }

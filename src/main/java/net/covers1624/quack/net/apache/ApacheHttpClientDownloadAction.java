@@ -49,12 +49,8 @@ public class ApacheHttpClientDownloadAction extends AbstractDownloadAction {
         Dest dest = requireNonNull(this.dest, "Dest not set");
 
         HttpGet get = new HttpGet(url);
-        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-            for (String value : entry.getValue()) {
-                get.addHeader(entry.getKey(), value);
-            }
-        }
-        if (userAgent != null) {
+        headerList.forEach((name, value) -> get.addHeader(name, value));
+        if (userAgent != null && !headerList.contains("User-Agent")) {
             get.addHeader("User-Agent", userAgent);
         }
         String etag = dest.getEtag();
