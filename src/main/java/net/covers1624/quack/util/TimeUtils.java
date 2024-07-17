@@ -58,8 +58,9 @@ public class TimeUtils {
                 if (parsePosition.getIndex() != 0) {
                     return date;
                 }
-            } catch (NumberFormatException ignored) {
-                // This sometimes happens for unknown reasons..
+            } catch (Throwable ignored) {
+                // Some servers return weird dates which can cause crashes with some of the formats.
+                // Protect against those and just ignore them.
             }
         }
         return null;
