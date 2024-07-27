@@ -946,9 +946,7 @@ public interface FastStream<T> extends Iterable<T> {
         int len = knownLength(true);
         if (len < 0) return toList().toArray(func.apply(0));
 
-        T[] array = func.apply(len);
-        if (array.length != len) throw new IllegalArgumentException("Did not get correct sized array.");
-
+        T[] array = Internal.toArray(func, len);
         forEach(new Consumer<T>() {
             int i = 0;
 
@@ -1624,7 +1622,7 @@ public interface FastStream<T> extends Iterable<T> {
         @Override
         @SuppressWarnings ("SuspiciousSystemArraycopy")
         public V[] toArray(IntFunction<V[]> func) {
-            V[] arr = func.apply(size);
+            V[] arr = Internal.toArray(func, size);
             System.arraycopy(values, 0, arr, 0, size);
             return arr;
         }
@@ -1728,7 +1726,7 @@ public interface FastStream<T> extends Iterable<T> {
         @Override
         public T[] toArray(IntFunction<T[]> func) {
             T[] reversed = getSorted();
-            T[] arr = func.apply(reversed.length);
+            T[] arr = Internal.toArray(func, reversed.length);
             System.arraycopy(reversed, 0, arr, 0, reversed.length);
             return arr;
         }
@@ -1796,7 +1794,7 @@ public interface FastStream<T> extends Iterable<T> {
         @Override
         public T[] toArray(IntFunction<T[]> func) {
             T[] reversed = getReversed();
-            T[] arr = func.apply(reversed.length);
+            T[] arr = Internal.toArray(func, reversed.length);
             System.arraycopy(reversed, 0, arr, 0, reversed.length);
             return arr;
         }
@@ -1937,6 +1935,14 @@ public interface FastStream<T> extends Iterable<T> {
             if (itr instanceof Collection) return ((Collection<?>) itr).size();
             if (itr instanceof FastStream) return ((FastStream<?>) itr).knownLength(consumeToCalculate);
             return -1;
+        }
+
+        private static <T> T[] toArray(IntFunction<T[]> func, int len) {
+            if (len < 0) throw new IllegalArgumentException("Unable to create an array for size: " + len);
+
+            T[] array = func.apply(len);
+            if (array.length != len) throw new IllegalArgumentException("Did not get correct sized array.");
+            return array;
         }
 
         // @formatter:off
