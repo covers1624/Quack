@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
@@ -306,27 +305,15 @@ public class Curl4jEngineRequest extends AbstractEngineRequest {
 
     private static CurlInput inputFromBody(WebBody body) {
         return new CurlInput() {
-            private @Nullable InputStream is;
 
             @Override
             protected ReadableByteChannel open() throws IOException {
-                return Channels.newChannel(getStream());
+                return body.openChannel();
             }
 
             @Override
-            public long availableBytes() throws IOException {
-                long len = body.length();
-                if (len == -1) {
-                    len = getStream().available();
-                }
-                return len;
-            }
-
-            private InputStream getStream() throws IOException {
-                if (is == null) {
-                    is = body.open();
-                }
-                return is;
+            public long availableBytes() {
+                return body.length();
             }
         };
     }
