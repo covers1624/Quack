@@ -341,7 +341,7 @@ public final class MethodBuilder {
         }
 
         public void tryCatchBlock(Label start, Label end, Label handler, @Nullable Type type) {
-            mv.visitTryCatchBlock(start, end, handler, type != null ? type.getDescriptor() : null);
+            mv.visitTryCatchBlock(start, end, handler, type != null ? type.getInternalName() : null);
         }
 
         public static class Var {
