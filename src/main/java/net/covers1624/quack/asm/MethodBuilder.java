@@ -92,7 +92,7 @@ public final class MethodBuilder {
             BodyGenerator bodyGen = new BodyGenerator(mv, access, owner, desc);
             mv.visitCode();
             bodyGenerator.accept(bodyGen);
-            mv.visitMaxs(-1, -1);
+            mv.visitMaxs(bodyGen.maxStack, bodyGen.maxLocals);
         }
         mv.visitEnd();
         return mv;
@@ -116,6 +116,8 @@ public final class MethodBuilder {
         private final Var thisVar;
         private final Var[] params;
         private final BitSet usedVars = new BitSet();
+        private int maxStack = -1;
+        private int maxLocals = -1;
 
         public BodyGenerator(MethodVisitor mv, int access, Type owner, Type desc) {
             this.mv = mv;
@@ -346,6 +348,11 @@ public final class MethodBuilder {
 
         public void frame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
             mv.visitFrame(type, numLocal, local, numStack, stack);
+        }
+
+        public void maxs(int maxStack, int maxLocals) {
+            this.maxStack = maxStack;
+            this.maxLocals = maxLocals;
         }
 
         public static class Var {
