@@ -344,6 +344,10 @@ public final class MethodBuilder {
             mv.visitTryCatchBlock(start, end, handler, type != null ? type.getInternalName() : null);
         }
 
+        public void frame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
+            mv.visitFrame(type, numLocal, local, numStack, stack);
+        }
+
         public static class Var {
 
             private final BodyGenerator gen;
