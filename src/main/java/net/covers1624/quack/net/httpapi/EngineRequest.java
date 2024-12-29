@@ -3,7 +3,6 @@
  */
 package net.covers1624.quack.net.httpapi;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -88,7 +87,6 @@ public interface EngineRequest {
      * @param listener The listener.
      * @return The same request.
      */
-    @ApiStatus.Experimental
     EngineRequest listener(RequestListener listener);
 
     /**

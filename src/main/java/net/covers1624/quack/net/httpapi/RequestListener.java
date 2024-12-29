@@ -3,8 +3,6 @@
  */
 package net.covers1624.quack.net.httpapi;
 
-import org.jetbrains.annotations.ApiStatus;
-
 /**
  * Represents a request listener.
  * <p>
@@ -12,7 +10,6 @@ import org.jetbrains.annotations.ApiStatus;
  * <p>
  * Created by covers1624 on 29/1/24.
  */
-@ApiStatus.Experimental
 public interface RequestListener {
 
     /**
