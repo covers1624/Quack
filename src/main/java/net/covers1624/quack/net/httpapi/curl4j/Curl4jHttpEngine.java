@@ -7,13 +7,18 @@ import net.covers1624.curl4j.CABundle;
 import net.covers1624.curl4j.CURL;
 import net.covers1624.curl4j.util.CurlHandle;
 import net.covers1624.curl4j.util.CurlMultiHandle;
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.net.httpapi.HttpEngine;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by covers1624 on 1/11/23.
  */
+@Deprecated // Moved to curl4j.
+@ReplaceWith ("net.covers1624.curl4j.httpapi")
+@ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
 @Requires ("net.covers1624:curl4j")
 public class Curl4jHttpEngine implements HttpEngine {
 

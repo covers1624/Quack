@@ -9,9 +9,11 @@ import net.covers1624.curl4j.CurlXferInfoCallback;
 import net.covers1624.curl4j.core.Memory;
 import net.covers1624.curl4j.core.Pointer;
 import net.covers1624.curl4j.util.*;
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.net.httpapi.HeaderList;
 import net.covers1624.quack.net.httpapi.WebBody;
 import net.covers1624.quack.util.SneakyUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -25,6 +27,9 @@ import static net.covers1624.curl4j.CURL.*;
 /**
  * Created by covers1624 on 10/1/24.
  */
+@Deprecated // Moved to curl4j.
+@ReplaceWith ("net.covers1624.curl4j.httpapi")
+@ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
 class IncrementalCurl4jResponse extends Curl4jEngineResponse {
 
     private static final HandlePool<NativeBuffer> BUFFERS = new HandlePool<>(() -> new NativeBuffer(64 * 1024));

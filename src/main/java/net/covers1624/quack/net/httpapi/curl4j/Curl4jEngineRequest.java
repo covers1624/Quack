@@ -8,8 +8,10 @@ import net.covers1624.curl4j.CURL;
 import net.covers1624.curl4j.CurlXferInfoCallback;
 import net.covers1624.curl4j.util.*;
 import net.covers1624.curl4j.util.CurlMimeBody.Builder.PartBuilder;
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.net.httpapi.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +29,9 @@ import static net.covers1624.curl4j.CURL.*;
 /**
  * Created by covers1624 on 1/11/23.
  */
+@Deprecated // Moved to curl4j.
+@ReplaceWith ("net.covers1624.curl4j.httpapi")
+@ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
 @Requires (value = "net.covers1624:curl4j", minVersion = "3.0.5")
 public class Curl4jEngineRequest extends AbstractEngineRequest {
 

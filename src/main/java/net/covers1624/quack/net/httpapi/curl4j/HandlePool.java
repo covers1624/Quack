@@ -4,7 +4,9 @@
 package net.covers1624.quack.net.httpapi.curl4j;
 
 import net.covers1624.curl4j.util.CurlHandle;
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.util.Duration;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,7 +23,9 @@ import java.util.function.Supplier;
  * <p>
  * Created by covers1624 on 16/1/24.
  */
-// TODO Move this to curl4j?
+@Deprecated // Moved to curl4j.
+@ReplaceWith ("net.covers1624.curl4j.httpapi")
+@ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
 final class HandlePool<T extends AutoCloseable> {
 
     private final Supplier<T> factory;
