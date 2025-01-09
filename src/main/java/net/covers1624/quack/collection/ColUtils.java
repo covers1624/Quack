@@ -230,7 +230,7 @@ public class ColUtils {
 
             @Override
             public void accept(T t) {
-                if (this.t != null) {
+                if (this.t != _default) {
                     throw new ForEachAbort();
                 }
                 this.t = t;
