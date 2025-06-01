@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.IntFunction;
 
 import static org.objectweb.asm.Opcodes.V1_8;
 
@@ -80,7 +81,11 @@ public class ClassBuilder {
     }
 
     public byte[] build() {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        return build(ClassWriter::new);
+    }
+
+    public byte[] build(IntFunction<ClassWriter> classWriterFunc) {
+        ClassWriter cw = classWriterFunc.apply(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         String[] iFaces = FastStream.of(interfaces).map(Type::getInternalName).toArray(new String[0]);
         cw.visit(classVersion, access, name.getInternalName(), signature, parent.getInternalName(), iFaces);
 
