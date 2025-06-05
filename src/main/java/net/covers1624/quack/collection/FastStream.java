@@ -698,6 +698,64 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Returns the element in the stream with the lowest value returned by
+     * the provided {@link ToIntFunction}.
+     *
+     * @param func The {@link ToIntFunction}.
+     * @return The minimum value.
+     */
+    default T minBy(ToIntFunction<T> func) {
+        T t = minByOrDefault(func);
+        if (t == null) {
+            throw new IllegalArgumentException("Not found.");
+        }
+        return t;
+    }
+
+    /**
+     * Returns the element in the stream with the lowest value returned by
+     * the provided {@link ToIntFunction}.
+     *
+     * @param func The {@link ToIntFunction}.
+     * @return The minimum value or {@code null} if the stream is empty.
+     */
+    @Nullable
+    default T minByOrDefault(ToIntFunction<T> func) {
+        return minByOrDefault(func, null);
+    }
+
+    /**
+     * Returns the element in the stream with the lowest value returned by
+     * the provided {@link ToIntFunction}.
+     *
+     * @param func     The {@link ToIntFunction}.
+     * @param _default The default value to return if the stream is empty.
+     * @return The minimum value or {@code _default} if the stream is empty.
+     */
+    @Nullable
+    @Contract ("_,!null->!null")
+    default T minByOrDefault(ToIntFunction<T> func, @Nullable T _default) {
+        final class Cons implements Consumer<T> {
+
+            int min = Integer.MAX_VALUE;
+            @Nullable
+            T minT = _default;
+
+            @Override
+            public void accept(T t) {
+                int x = func.applyAsInt(t);
+                if (x < min) {
+                    minT = t;
+                    min = x;
+                }
+            }
+        }
+        Cons cons = new Cons();
+        forEach(cons);
+        return cons.minT;
+    }
+
+    /**
      * Returns the element in the stream with the highest value returned by
      * the provided {@link ToIntFunction}.
      *
