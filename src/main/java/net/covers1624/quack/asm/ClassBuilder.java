@@ -10,6 +10,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -76,6 +77,20 @@ public class ClassBuilder {
 
     public MethodBuilder addMethod(int access, String name, Type desc) {
         MethodBuilder method = new MethodBuilder(access, this, name, desc);
+        methods.add(method);
+        return method;
+    }
+
+    /**
+     * Creates a method cloned from the given {@link MethodNode}.
+     *
+     * @param mNode The node to clone.
+     * @return The builder.
+     */
+    @Requires ("org.ow2.asm:asm-tree")
+    public MethodBuilder addMethod(MethodNode mNode) {
+        MethodBuilder method = new MethodBuilder(mNode.access, this, mNode.name, Type.getMethodType(mNode.desc));
+        method.withBodyRaw(mNode::accept);
         methods.add(method);
         return method;
     }
