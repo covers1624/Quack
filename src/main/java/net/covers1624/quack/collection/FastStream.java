@@ -812,6 +812,122 @@ public interface FastStream<T> extends Iterable<T> {
         forEach(cons);
         return cons.maxT;
     }
+
+    /**
+     * Returns the element in the stream with the lowest value returned by
+     * the provided {@link ToDoubleFunction}.
+     *
+     * @param func The {@link ToDoubleFunction}.
+     * @return The minimum value.
+     */
+    default T minByDouble(ToDoubleFunction<T> func) {
+        T t = minByDoubleOrDefault(func);
+        if (t == null) {
+            throw new IllegalArgumentException("Not found.");
+        }
+        return t;
+    }
+
+    /**
+     * Returns the element in the stream with the lowest value returned by
+     * the provided {@link ToDoubleFunction}.
+     *
+     * @param func The {@link ToDoubleFunction}.
+     * @return The minimum value or {@code null} if the stream is empty.
+     */
+    @Nullable
+    default T minByDoubleOrDefault(ToDoubleFunction<T> func) {
+        return minByDoubleOrDefault(func, null);
+    }
+
+    /**
+     * Returns the element in the stream with the lowest value returned by
+     * the provided {@link ToDoubleFunction}.
+     *
+     * @param func     The {@link ToDoubleFunction}.
+     * @param _default The default value to return if the stream is empty.
+     * @return The minimum value or {@code _default} if the stream is empty.
+     */
+    @Nullable
+    @Contract ("_,!null->!null")
+    default T minByDoubleOrDefault(ToDoubleFunction<T> func, @Nullable T _default) {
+        final class Cons implements Consumer<T> {
+
+            double min = Double.MAX_VALUE;
+            @Nullable
+            T minT = _default;
+
+            @Override
+            public void accept(T t) {
+                double x = func.applyAsDouble(t);
+                if (x < min) {
+                    minT = t;
+                    min = x;
+                }
+            }
+        }
+        Cons cons = new Cons();
+        forEach(cons);
+        return cons.minT;
+    }
+
+    /**
+     * Returns the element in the stream with the highest value returned by
+     * the provided {@link ToDoubleFunction}.
+     *
+     * @param func The {@link ToDoubleFunction}.
+     * @return The maximum value.
+     */
+    default T maxByDouble(ToDoubleFunction<T> func) {
+        T t = maxByDoubleOrDefault(func);
+        if (t == null) {
+            throw new IllegalArgumentException("Not found.");
+        }
+        return t;
+    }
+
+    /**
+     * Returns the element in the stream with the highest value returned by
+     * the provided {@link ToDoubleFunction}.
+     *
+     * @param func The {@link ToDoubleFunction}.
+     * @return The maximum value or {@code null} if the stream is empty.
+     */
+    @Nullable
+    default T maxByDoubleOrDefault(ToDoubleFunction<T> func) {
+        return maxByDoubleOrDefault(func, null);
+    }
+
+    /**
+     * Returns the element in the stream with the highest value returned by
+     * the provided {@link ToDoubleFunction}.
+     *
+     * @param func     The {@link ToDoubleFunction}.
+     * @param _default The default value to return if the stream is empty.
+     * @return The maximum value or {@code _default} if the stream is empty.
+     */
+    @Nullable
+    @Contract ("_,!null->!null")
+    default T maxByDoubleOrDefault(ToDoubleFunction<T> func, @Nullable T _default) {
+        final class Cons implements Consumer<T> {
+
+            double max = Double.MIN_VALUE;
+            @Nullable
+            T maxT = _default;
+
+            @Override
+            public void accept(T t) {
+                double x = func.applyAsDouble(t);
+                if (x > max) {
+                    maxT = t;
+                    max = x;
+                }
+            }
+        }
+        Cons cons = new Cons();
+        forEach(cons);
+        return cons.maxT;
+    }
     // endregion
 
     // region Collecting
