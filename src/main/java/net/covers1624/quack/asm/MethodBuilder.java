@@ -164,6 +164,10 @@ public final class MethodBuilder {
             usedVars.clear(var.index, var.index + var.type.getSize());
         }
 
+        public Type desc() {
+            return desc;
+        }
+
         public Var getThis() {
             if (thisVar == null) throw new UnsupportedOperationException("Static methods don't have 'this'.");
 
