@@ -36,8 +36,7 @@ public final class MethodBuilder {
 
     private @Nullable ClassBuilder ownerBuilder;
 
-    @Nullable
-    private Consumer<BodyGenerator> bodyGenerator;
+    private @Nullable Consumer<MethodVisitor> bodyProvider;
 
     MethodBuilder(int access, ClassBuilder owner, String name, Type desc) {
         this.access = access;
@@ -70,14 +69,33 @@ public final class MethodBuilder {
     }
 
     public MethodBuilder withBody(Consumer<BodyGenerator> func) {
-        if (bodyGenerator != null) throw new RuntimeException("Unable to add more than one body generator.");
+        return withBodyRaw(mv -> {
+            BodyGenerator bodyGen = new BodyGenerator(mv, access, owner, desc);
+            mv.visitCode();
+            func.accept(bodyGen);
+            mv.visitMaxs(bodyGen.maxStack, bodyGen.maxLocals);
+            mv.visitEnd();
+        });
+    }
 
-        bodyGenerator = func;
+    /**
+     * Visit the raw body.
+     * <p>
+     * You must call {@link MethodVisitor#visitEnd()} from here to adhere to ASM's
+     * visitor contract.
+     *
+     * @param cons The consumer.
+     * @return The same builder.
+     */
+    public MethodBuilder withBodyRaw(Consumer<MethodVisitor> cons) {
+        if (bodyProvider != null) throw new RuntimeException("Unable to add more than one body generator.");
+
+        bodyProvider = cons;
         return this;
     }
 
     public MethodVisitor build(ClassVisitor cv) {
-        if ((access & Opcodes.ACC_ABSTRACT) == 0 && bodyGenerator == null) {
+        if ((access & Opcodes.ACC_ABSTRACT) == 0 && bodyProvider == null) {
             throw new IllegalStateException("Attempted to generate a non-abstract method without a body.");
         }
 
@@ -88,13 +106,11 @@ public final class MethodBuilder {
                 signature,
                 exceptions.toArray(new String[0])
         );
-        if (bodyGenerator != null) {
-            BodyGenerator bodyGen = new BodyGenerator(mv, access, owner, desc);
-            mv.visitCode();
-            bodyGenerator.accept(bodyGen);
-            mv.visitMaxs(bodyGen.maxStack, bodyGen.maxLocals);
+        if (bodyProvider != null) {
+            bodyProvider.accept(mv);
+        } else {
+            mv.visitEnd();
         }
-        mv.visitEnd();
         return mv;
     }
 
