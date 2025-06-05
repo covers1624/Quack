@@ -815,6 +815,122 @@ public interface FastStream<T> extends Iterable<T> {
 
     /**
      * Returns the element in the stream with the lowest value returned by
+     * the provided {@link ToLongFunction}.
+     *
+     * @param func The {@link ToLongFunction}.
+     * @return The minimum value.
+     */
+    default T minByLong(ToLongFunction<T> func) {
+        T t = minByLongOrDefault(func);
+        if (t == null) {
+            throw new IllegalArgumentException("Not found.");
+        }
+        return t;
+    }
+
+    /**
+     * Returns the element in the stream with the lowest value returned by
+     * the provided {@link ToLongFunction}.
+     *
+     * @param func The {@link ToLongFunction}.
+     * @return The minimum value or {@code null} if the stream is empty.
+     */
+    @Nullable
+    default T minByLongOrDefault(ToLongFunction<T> func) {
+        return minByLongOrDefault(func, null);
+    }
+
+    /**
+     * Returns the element in the stream with the lowest value returned by
+     * the provided {@link ToLongFunction}.
+     *
+     * @param func     The {@link ToLongFunction}.
+     * @param _default The default value to return if the stream is empty.
+     * @return The minimum value or {@code _default} if the stream is empty.
+     */
+    @Nullable
+    @Contract ("_,!null->!null")
+    default T minByLongOrDefault(ToLongFunction<T> func, @Nullable T _default) {
+        final class Cons implements Consumer<T> {
+
+            long min = Long.MAX_VALUE;
+            @Nullable
+            T minT = _default;
+
+            @Override
+            public void accept(T t) {
+                long x = func.applyAsLong(t);
+                if (x < min) {
+                    minT = t;
+                    min = x;
+                }
+            }
+        }
+        Cons cons = new Cons();
+        forEach(cons);
+        return cons.minT;
+    }
+
+    /**
+     * Returns the element in the stream with the highest value returned by
+     * the provided {@link ToLongFunction}.
+     *
+     * @param func The {@link ToLongFunction}.
+     * @return The maximum value.
+     */
+    default T maxByLong(ToLongFunction<T> func) {
+        T t = maxByLongOrDefault(func);
+        if (t == null) {
+            throw new IllegalArgumentException("Not found.");
+        }
+        return t;
+    }
+
+    /**
+     * Returns the element in the stream with the highest value returned by
+     * the provided {@link ToLongFunction}.
+     *
+     * @param func The {@link ToLongFunction}.
+     * @return The maximum value or {@code null} if the stream is empty.
+     */
+    @Nullable
+    default T maxByLongOrDefault(ToLongFunction<T> func) {
+        return maxByLongOrDefault(func, null);
+    }
+
+    /**
+     * Returns the element in the stream with the highest value returned by
+     * the provided {@link ToLongFunction}.
+     *
+     * @param func     The {@link ToLongFunction}.
+     * @param _default The default value to return if the stream is empty.
+     * @return The maximum value or {@code _default} if the stream is empty.
+     */
+    @Nullable
+    @Contract ("_,!null->!null")
+    default T maxByLongOrDefault(ToLongFunction<T> func, @Nullable T _default) {
+        final class Cons implements Consumer<T> {
+
+            long max = Long.MIN_VALUE;
+            @Nullable
+            T maxT = _default;
+
+            @Override
+            public void accept(T t) {
+                long x = func.applyAsLong(t);
+                if (x > max) {
+                    maxT = t;
+                    max = x;
+                }
+            }
+        }
+        Cons cons = new Cons();
+        forEach(cons);
+        return cons.maxT;
+    }
+
+    /**
+     * Returns the element in the stream with the lowest value returned by
      * the provided {@link ToDoubleFunction}.
      *
      * @param func The {@link ToDoubleFunction}.
