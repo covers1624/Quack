@@ -1224,6 +1224,31 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Collects the stream into a {@code T}[].
+     *
+     * @param func The function to construct a new array instance of the
+     *             desired type and length.
+     * @return The same array the function returned.
+     * @throws IllegalArgumentException If the provided function does not return an array
+     *                                  sized exactly.
+     */
+    default T[] toArray(IntFunction<T[]> func) {
+        int len = knownLength(true);
+        if (len < 0) return toList().toArray(func.apply(0));
+
+        T[] array = Internal.toArray(func, len);
+        forEach(new Consumer<T>() {
+            int i = 0;
+
+            @Override
+            public void accept(T t) {
+                array[i++] = t;
+            }
+        });
+        return array;
+    }
+
+    /**
      * Collects this stream into a {@link HashMap}.
      * <p>
      * In the event of a collision, the first value will be used.
@@ -1883,6 +1908,14 @@ public interface FastStream<T> extends Iterable<T> {
 
             return (V[]) Arrays.copyOf(values, size, arr.getClass());
         }
+
+        @Override
+        @SuppressWarnings ("SuspiciousSystemArraycopy")
+        public V[] toArray(IntFunction<V[]> func) {
+            V[] arr = Internal.toArray(func, size);
+            System.arraycopy(values, 0, arr, 0, size);
+            return arr;
+        }
     }
 
     /**
@@ -1981,6 +2014,14 @@ public interface FastStream<T> extends Iterable<T> {
         }
 
         @Override
+        public T[] toArray(IntFunction<T[]> func) {
+            T[] reversed = getSorted();
+            T[] arr = Internal.toArray(func, reversed.length);
+            System.arraycopy(reversed, 0, arr, 0, reversed.length);
+            return arr;
+        }
+
+        @Override
         public ArrayList<T> toList() {
             return new ArrayList<>(Arrays.asList(getSorted()));
         }
@@ -2038,6 +2079,14 @@ public interface FastStream<T> extends Iterable<T> {
             }
             //noinspection unchecked
             return (T[]) Arrays.copyOf(reversed, reversed.length, arr.getClass());
+        }
+
+        @Override
+        public T[] toArray(IntFunction<T[]> func) {
+            T[] reversed = getReversed();
+            T[] arr = Internal.toArray(func, reversed.length);
+            System.arraycopy(reversed, 0, arr, 0, reversed.length);
+            return arr;
         }
     }
 
@@ -2178,6 +2227,14 @@ public interface FastStream<T> extends Iterable<T> {
             return -1;
         }
 
+        private static <T> T[] toArray(IntFunction<T[]> func, int len) {
+            if (len < 0) throw new IllegalArgumentException("Unable to create an array for size: " + len);
+
+            T[] array = func.apply(len);
+            if (array.length != len) throw new IllegalArgumentException("Did not get correct sized array.");
+            return array;
+        }
+
         // @formatter:off
         private static class Empty<T> implements FastStream<T> {
             @Override public Iterator<T> iterator() { return Collections.emptyIterator(); }
@@ -2229,6 +2286,7 @@ public interface FastStream<T> extends Iterable<T> {
             @Override public ImmutableSet<T> toImmutableSet() { return ImmutableSet.of(); }
             @Override public Object[] toArray() { return new Object[0]; }
             @Override public T[] toArray(T[] arr) { return ColUtils.fill(arr, null); }
+            @Override public T[] toArray(IntFunction<T[]> func) { return func.apply(0); }
             @Override public <K, V> HashMap<K, V> toMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return new HashMap<>(); }
             @Override public <K, V> HashMap<K, V> toMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return new HashMap<>(); }
             @Override public <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return new LinkedHashMap<>(); }
