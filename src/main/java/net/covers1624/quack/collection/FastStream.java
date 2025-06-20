@@ -313,7 +313,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @param amount The amount to store in each bucket.
      * @return The partitioned {@link FastStream}
      */
-    default FastStream<Bucket<T>> partition(int amount) {
+    default FastStream<FastStream<T>> partition(int amount) {
         return new Partitioned<>(this, amount);
     }
 
@@ -1975,7 +1975,7 @@ public interface FastStream<T> extends Iterable<T> {
     /**
      * A {@link FastStream} of elements grouped into buckets of a specific size.
      */
-    final class Partitioned<V> implements FastStream<Bucket<V>> {
+    final class Partitioned<V> implements FastStream<FastStream<V>> {
 
         private final FastStream<V> parent;
         private final int amount;
@@ -1988,12 +1988,12 @@ public interface FastStream<T> extends Iterable<T> {
         }
 
         @Override
-        public Iterator<Bucket<V>> iterator() {
+        public Iterator<FastStream<V>> iterator() {
             return ColUtils.iterator(buckets());
         }
 
         @Override
-        public void forEach(Consumer<? super Bucket<V>> action) {
+        public void forEach(Consumer<? super FastStream<V>> action) {
             for (Bucket<V> bucket : buckets()) {
                 action.accept(bucket);
             }
