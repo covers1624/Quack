@@ -308,6 +308,16 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Returns a {@link FastStream} partitioned into buckets of a specific size.
+     *
+     * @param amount The amount to store in each bucket.
+     * @return The partitioned {@link FastStream}
+     */
+    default FastStream<Bucket<T>> partition(int amount) {
+        return new Partitioned<>(this, amount);
+    }
+
+    /**
      * Returns a {@link FastStream} sorted based on the elements natural sort order.
      * <p>
      * This requires that {@code T} implements {@link Comparable}.
@@ -1926,6 +1936,86 @@ public interface FastStream<T> extends Iterable<T> {
         @Override
         public int knownLength(boolean consumeToCalculate) {
             return consumeToCalculate ? getGroups().size() : -1;
+        }
+    }
+
+    /**
+     * Represents a bucket of values, of a specific size.
+     */
+    final class Bucket<V> implements FastStream<V> {
+
+        private final V[] values;
+        private final int start;
+        private final int end;
+
+        public Bucket(V[] values, int start, int end) {
+            this.values = values;
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        public Iterator<V> iterator() {
+            return ColUtils.iterator(values, start, end);
+        }
+
+        @Override
+        public void forEach(Consumer<? super V> action) {
+            for (int i = start; i < end; i++) {
+                action.accept(values[i]);
+            }
+        }
+
+        @Override
+        public int knownLength(boolean consumeToCalculate) {
+            return end - start;
+        }
+    }
+
+    /**
+     * A {@link FastStream} of elements grouped into buckets of a specific size.
+     */
+    final class Partitioned<V> implements FastStream<Bucket<V>> {
+
+        private final FastStream<V> parent;
+        private final int amount;
+
+        private Bucket<V> @Nullable [] buckets = null;
+
+        public Partitioned(FastStream<V> parent, int amount) {
+            this.parent = parent;
+            this.amount = amount;
+        }
+
+        @Override
+        public Iterator<Bucket<V>> iterator() {
+            return ColUtils.iterator(buckets());
+        }
+
+        @Override
+        public void forEach(Consumer<? super Bucket<V>> action) {
+            for (Bucket<V> bucket : buckets()) {
+                action.accept(bucket);
+            }
+        }
+
+        @SuppressWarnings ("unchecked")
+        private Bucket<V>[] buckets() {
+            if (buckets == null) {
+                V[] values = unsafeCast(parent.toArray());
+                buckets = new Bucket[(int) Math.ceil((double) values.length / amount)];
+                int ptr = 0;
+                for (int i = 0; i < buckets().length; i++) {
+                    buckets[i] = new Bucket<>(values, ptr, Math.min(ptr + amount, values.length));
+                    ptr += buckets[i].knownLength();
+                }
+            }
+            return buckets;
+        }
+
+        @Override
+        public int knownLength(boolean consumeToCalculate) {
+            return consumeToCalculate ? buckets().length : -1;
         }
     }
 
