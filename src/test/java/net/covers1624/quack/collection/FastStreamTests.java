@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -391,6 +390,21 @@ public class FastStreamTests {
         assertCollectionEquals(grouped.get('a'), "apple");
         assertCollectionEquals(grouped.get('b'), "banana", "boat");
         assertCollectionEquals(grouped.get('p'), "pair", "pool");
+    }
+
+    @Test
+    public void testPartition() {
+        List<String> b0 = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
+        List<String> b1 = Arrays.asList("k", "l", "m", "n", "o", "p", "q", "r", "s", "t");
+        List<String> b2 = Arrays.asList("u", "v", "w", "x", "y", "z");
+        List<List<String>> partitioned = FastStream.of(b0, b1, b2).flatMap(e -> e)
+                .partition(10)
+                .map(FastStream::toList)
+                .toList(FastStream.infer());
+        assertEquals(3, partitioned.size());
+        assertEquals(b0, partitioned.get(0));
+        assertEquals(b1, partitioned.get(1));
+        assertEquals(b2, partitioned.get(2));
     }
 
     @Test
