@@ -184,20 +184,25 @@ public class FastStreamTests {
     @Test
     public void testToArray() {
         Object[] objectArray = FastStream.of("a", "b", "c", "d").toArray();
-
         assertEquals(4, objectArray.length);
         assertEquals("a", objectArray[0]);
         assertEquals("b", objectArray[1]);
         assertEquals("c", objectArray[2]);
         assertEquals("d", objectArray[3]);
 
-        Object[] stringArray = FastStream.of("a", "b", "c", "d").toArray(new String[0]);
-
+        String[] stringArray = FastStream.of("a", "b", "c", "d").toArray(new String[0]);
         assertEquals(4, stringArray.length);
         assertEquals("a", stringArray[0]);
         assertEquals("b", stringArray[1]);
         assertEquals("c", stringArray[2]);
         assertEquals("d", stringArray[3]);
+
+        String[] specificArray = FastStream.of("a", "b", "c", "d").toArray(String[]::new);
+        assertEquals(4, specificArray.length);
+        assertEquals("a", specificArray[0]);
+        assertEquals("b", specificArray[1]);
+        assertEquals("c", specificArray[2]);
+        assertEquals("d", specificArray[3]);
     }
 
     @Test

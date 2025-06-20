@@ -1224,6 +1224,23 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Collects the stream into a {@code T}[].
+     * <p>
+     * In most cases, implementations of this function only query the supplied function
+     * with a size of {@code 0} to inspect the array type, this mirrors how base Java collections
+     * implement this function. Some {@link FastStream} implementations may choose to
+     * call the supplied function with an exact size. The supplied function is expected
+     * to honor this request and return a correctly sized array.
+     *
+     * @param func The function to construct a new array instance of the
+     *             desired type and length.
+     * @return An array of elements.
+     */
+    default T[] toArray(IntFunction<T[]> func) {
+        return toArray(func.apply(0));
+    }
+
+    /**
      * Collects this stream into a {@link HashMap}.
      * <p>
      * In the event of a collision, the first value will be used.
@@ -2229,6 +2246,7 @@ public interface FastStream<T> extends Iterable<T> {
             @Override public ImmutableSet<T> toImmutableSet() { return ImmutableSet.of(); }
             @Override public Object[] toArray() { return new Object[0]; }
             @Override public T[] toArray(T[] arr) { return ColUtils.fill(arr, null); }
+            @Override public T[] toArray(IntFunction<T[]> func) { return func.apply(0); }
             @Override public <K, V> HashMap<K, V> toMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return new HashMap<>(); }
             @Override public <K, V> HashMap<K, V> toMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return new HashMap<>(); }
             @Override public <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return new LinkedHashMap<>(); }
