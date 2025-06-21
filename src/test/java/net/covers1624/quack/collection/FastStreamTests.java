@@ -408,6 +408,23 @@ public class FastStreamTests {
     }
 
     @Test
+    public void testEnumerate() {
+        List<FastStream.IndexedEntry<String>> indexed = FastStream.of("apple", "banana", "boat")
+                .enumerate()
+                .toList();
+        assertEquals(3, indexed.size());
+        FastStream.IndexedEntry<String> apple = indexed.get(0);
+        assertEquals(0, apple.index);
+        assertEquals("apple", apple.value);
+        FastStream.IndexedEntry<String> banana = indexed.get(1);
+        assertEquals(1, banana.index);
+        assertEquals("banana", banana.value);
+        FastStream.IndexedEntry<String> boat = indexed.get(2);
+        assertEquals(2, boat.index);
+        assertEquals("boat", boat.value);
+    }
+
+    @Test
     public void testJoin() {
         assertEquals("apple, banana, boat, pair, pool", FastStream.of("apple", "banana", "boat", "pair", "pool").join(", "));
     }

@@ -318,6 +318,15 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Return a {@link FastStream} which wraps each entry with an index.
+     *
+     * @return The indexed stream.
+     */
+    default FastStream<IndexedEntry<T>> enumerate() {
+        return new Enumerated<>(this);
+    }
+
+    /**
      * Returns a {@link FastStream} sorted based on the elements natural sort order.
      * <p>
      * This requires that {@code T} implements {@link Comparable}.
@@ -2033,6 +2042,65 @@ public interface FastStream<T> extends Iterable<T> {
         @Override
         public int knownLength(boolean consumeToCalculate) {
             return consumeToCalculate ? buckets().length : -1;
+        }
+    }
+
+    // TODO this could be a record when Quack eventually requires J17.
+    final class IndexedEntry<V> {
+
+        public final long index;
+        public final V value;
+
+        public IndexedEntry(long index, V value) {
+            this.index = index;
+            this.value = value;
+        }
+
+        public long index() {
+            return index;
+        }
+
+        public V value() {
+            return value;
+        }
+    }
+
+    final class Enumerated<V> implements FastStream<IndexedEntry<V>> {
+
+        private final FastStream<V> parent;
+
+        public Enumerated(FastStream<V> parent) {
+            this.parent = parent;
+        }
+
+        @Override
+        public @NotNull Iterator<IndexedEntry<V>> iterator() {
+            return new Iterator<IndexedEntry<V>>() {
+                private long index;
+                private final Iterator<V> itr = parent.iterator();
+
+                @Override
+                public boolean hasNext() {
+                    return itr.hasNext();
+                }
+
+                @Override
+                public IndexedEntry<V> next() {
+                    return new IndexedEntry<>(index++, itr.next());
+                }
+            };
+        }
+
+        @Override
+        public void forEach(Consumer<? super IndexedEntry<V>> action) {
+            parent.forEach(new Consumer<V>() {
+                private long index;
+
+                @Override
+                public void accept(V v) {
+                    action.accept(new IndexedEntry<>(index++, v));
+                }
+            });
         }
     }
 
