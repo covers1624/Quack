@@ -414,13 +414,13 @@ public class FastStreamTests {
                 .toList();
         assertEquals(3, indexed.size());
         FastStream.IndexedEntry<String> apple = indexed.get(0);
-        assertEquals(0, apple.index);
+        assertEquals(0, apple.key);
         assertEquals("apple", apple.value);
         FastStream.IndexedEntry<String> banana = indexed.get(1);
-        assertEquals(1, banana.index);
+        assertEquals(1, banana.key);
         assertEquals("banana", banana.value);
         FastStream.IndexedEntry<String> boat = indexed.get(2);
-        assertEquals(2, boat.index);
+        assertEquals(2, boat.key);
         assertEquals("boat", boat.value);
     }
 

@@ -6,6 +6,7 @@ package net.covers1624.quack.collection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.util.SneakyUtils;
 import org.jetbrains.annotations.Contract;
@@ -2046,22 +2047,39 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     // TODO this could be a record when Quack eventually requires J17.
-    final class IndexedEntry<V> {
+    final class IndexedEntry<V> implements Map.Entry<Long, V> {
 
-        public final long index;
+        public final long key;
         public final V value;
 
-        public IndexedEntry(long index, V value) {
-            this.index = index;
+        public IndexedEntry(long key, V value) {
+            this.key = key;
             this.value = value;
         }
 
-        public long index() {
-            return index;
+        public long key() {
+            return key;
         }
 
         public V value() {
             return value;
+        }
+
+        @Override
+        @Deprecated
+        @ReplaceWith ("Use key(), avoids boxing.")
+        public Long getKey() {
+            return key;
+        }
+
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public V setValue(V value) {
+            throw new UnsupportedOperationException();
         }
     }
 
