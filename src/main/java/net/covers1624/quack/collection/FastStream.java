@@ -2081,6 +2081,21 @@ public interface FastStream<T> extends Iterable<T> {
         public V setValue(V value) {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+
+            IndexedEntry<?> that = (IndexedEntry<?>) o;
+            return key == that.key && Objects.equals(value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Long.hashCode(key);
+            result = 31 * result + Objects.hashCode(value);
+            return result;
+        }
     }
 
     final class Enumerated<V> implements FastStream<IndexedEntry<V>> {
