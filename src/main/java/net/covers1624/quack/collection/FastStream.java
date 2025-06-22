@@ -323,8 +323,8 @@ public interface FastStream<T> extends Iterable<T> {
      *
      * @return The indexed stream.
      */
-    default FastStream<IndexedEntry<T>> enumerate() {
-        return new Enumerated<>(this);
+    default FastStream<IndexedEntry<T>> indexed() {
+        return new Indexed<>(this);
     }
 
     /**
@@ -2098,11 +2098,11 @@ public interface FastStream<T> extends Iterable<T> {
         }
     }
 
-    final class Enumerated<V> implements FastStream<IndexedEntry<V>> {
+    final class Indexed<V> implements FastStream<IndexedEntry<V>> {
 
         private final FastStream<V> parent;
 
-        public Enumerated(FastStream<V> parent) {
+        public Indexed(FastStream<V> parent) {
             this.parent = parent;
         }
 

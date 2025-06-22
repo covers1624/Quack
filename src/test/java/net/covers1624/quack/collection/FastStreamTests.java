@@ -408,9 +408,9 @@ public class FastStreamTests {
     }
 
     @Test
-    public void testEnumerate() {
+    public void testIndexed() {
         List<FastStream.IndexedEntry<String>> indexed = FastStream.of("apple", "banana", "boat")
-                .enumerate()
+                .indexed()
                 .toList();
         assertEquals(3, indexed.size());
         FastStream.IndexedEntry<String> apple = indexed.get(0);
