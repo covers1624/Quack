@@ -22,7 +22,7 @@ public class SneakyUtils {
     private static final Supplier<Object> NULL_SUPPLIER = () -> null;
     private static final Consumer<Object> NULL_CONSUMER = e -> { };
     private static final Predicate<Object> TRUE = e -> true;
-    private static final Predicate<Object> FALSE = e -> true;
+    private static final Predicate<Object> FALSE = e -> false;
     private static final BinaryOperator<Object> FIRST = (a, b) -> a;
     private static final BinaryOperator<Object> LAST = (a, b) -> b;
     private static final Supplier<NotPossibleException> NOT_POSSIBLE = () -> NotPossibleException.INSTANCE;
