@@ -11,6 +11,7 @@ import net.covers1624.quack.net.java.JavaDownloadAction;
 import net.covers1624.quack.net.okhttp.OkHttpDownloadAction;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by covers1624 on 22/11/21.
  */
+@Disabled ("Downloads are flakey. We should implement these with a local http server.")
 public class TestDownloadAction {
 
     // This is very well known, and likely not to disappear any time soon.
