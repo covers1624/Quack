@@ -42,6 +42,16 @@ public enum JavaVersion {
     JAVA_28("28"),
     JAVA_29("29"),
     JAVA_30("30"),
+    JAVA_31("31"),
+    JAVA_32("32"),
+    JAVA_33("33"),
+    JAVA_34("34"),
+    JAVA_35("35"),
+    JAVA_36("36"),
+    JAVA_37("37"),
+    JAVA_38("38"),
+    JAVA_39("39"),
+    JAVA_40("40"),
     UNKNOWN("Unknown");
 
     private static final Pattern VERSION_SUBSTRING = Pattern.compile("^([0-9.]*)");
