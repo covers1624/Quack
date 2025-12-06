@@ -64,6 +64,17 @@ public enum JavaVersion {
     }
 
     /**
+     * Checks if this java version major version is equal or greater
+     * than the provided version.
+     *
+     * @param other The version to compare against.
+     * @return If this java version number is higher or equal to the provided version.
+     */
+    public boolean isAtLeast(JavaVersion other) {
+        return ordinal() >= other.ordinal();
+    }
+
+    /**
      * Parses a Java version string.
      *
      * @param str The version string.
