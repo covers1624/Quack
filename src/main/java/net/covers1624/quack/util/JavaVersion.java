@@ -108,7 +108,13 @@ public enum JavaVersion {
         return parseMajorVersion((version & 0xFF) - 44);
     }
 
-    private static JavaVersion parseMajorVersion(int major) {
+    /**
+     * Parse the java version from a known major version.
+     *
+     * @param major The major version.
+     * @return The {@link JavaVersion}
+     */
+    public static JavaVersion parseMajorVersion(int major) {
         return major >= VALUES.length ? JavaVersion.UNKNOWN : VALUES[major - 1];
     }
 
