@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.util.SneakyUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -250,6 +251,18 @@ public interface FastStream<T> extends Iterable<T> {
      */
     default FastStream<T> filterNot(Predicate<? super T> pred) {
         return new Filtered<>(this, pred.negate());
+    }
+
+    /**
+     * Filters all {@code null} elements from the stream.
+     * <p>
+     * This is equivalent to {@code .filter(Objects::nonNull)}, however,
+     * with correct nullability annotations.
+     *
+     * @return The filtered {@link FastStream}
+     */
+    default FastStream<@NonNull T> filterNonNull() {
+        return filter(Objects::nonNull);
     }
 
     /**

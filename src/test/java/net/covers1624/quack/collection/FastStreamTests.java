@@ -107,6 +107,17 @@ public class FastStreamTests {
     }
 
     @Test
+    public void testFilterNonNull() {
+        List<String> entries = FastStream.of("a", "b", "c", "d")
+                .map(e -> e.equals("b") || e.equals("d") ? null : e)
+                .filterNonNull()
+                .toList();
+        assertEquals(2, entries.size());
+        assertEquals("a", entries.get(0));
+        assertEquals("c", entries.get(1));
+    }
+
+    @Test
     public void testMap() {
         List<String> entries = FastStream.of("a", "b", "c", "d")
                 .map(e -> e + "_mapped")
