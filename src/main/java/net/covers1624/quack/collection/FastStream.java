@@ -1954,7 +1954,7 @@ public interface FastStream<T> extends Iterable<T> {
 
         private Map<K, Group<K, V>> getGroups() {
             if (groups == null) {
-                groups = new HashMap<>();
+                groups = new LinkedHashMap<>();
                 parent.forEach(e -> groups.computeIfAbsent(keyFunc.apply(e), Group::new)
                         .add(valueFunc.apply(e)));
             }
