@@ -10,7 +10,6 @@ import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.util.SneakyUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -1943,7 +1942,6 @@ public interface FastStream<T> extends Iterable<T> {
             this.valueFunc = valueFunc;
         }
 
-        @NotNull
         @Override
         public Iterator<Group<K, V>> iterator() {
             return getGroups().values().iterator();
@@ -2222,7 +2220,6 @@ public interface FastStream<T> extends Iterable<T> {
             this.max = max;
         }
 
-        @NotNull
         @Override
         public Iterator<T> iterator() {
             return new AbstractIterator<T>() {
