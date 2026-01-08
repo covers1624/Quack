@@ -6,9 +6,11 @@ package net.covers1624.quack.collection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import net.covers1624.quack.annotation.ReplaceWith;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.util.SneakyUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -1119,9 +1121,23 @@ public interface FastStream<T> extends Iterable<T> {
      * Collects this stream into a {@link ImmutableList}.
      *
      * @return The {@link ImmutableList}.
+     * @deprecated In the future this function will return a Java11+ immutable collection.
      */
+    @Deprecated
+    @ReplaceWith ("toGuavaImmutableList")
+    @ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
     @Requires ("com.google.guava:guava")
     default ImmutableList<T> toImmutableList() {
+        return toGuavaImmutableList();
+    }
+
+    /**
+     * Collects this stream into a {@link ImmutableList}.
+     *
+     * @return The {@link ImmutableList}.
+     */
+    @Requires ("com.google.guava:guava")
+    default ImmutableList<T> toGuavaImmutableList() {
         int len = knownLength(true);
         ImmutableList.Builder<T> builder = len < 0 ? ImmutableList.builder() : ImmutableList.builderWithExpectedSize(len);
         forEach(builder::add);
@@ -1133,11 +1149,26 @@ public interface FastStream<T> extends Iterable<T> {
      *
      * @param check Call {@link #infer()} in this argument for flexible return inference.
      * @return The {@link ImmutableList}.
+     * @deprecated In the future this function will return a Java11+ immutable collection.
+     */
+    @Deprecated
+    @ReplaceWith ("toGuavaImmutableList")
+    @ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
+    @Requires ("com.google.guava:guava")
+    default <R> ImmutableList<R> toImmutableList(TypeCheck<R, ? super T> check) {
+        return toGuavaImmutableList(check);
+    }
+
+    /**
+     * Collects this stream into a {@link ImmutableList}.
+     *
+     * @param check Call {@link #infer()} in this argument for flexible return inference.
+     * @return The {@link ImmutableList}.
      */
     @SuppressWarnings ("unchecked")
     @Requires ("com.google.guava:guava")
-    default <R> ImmutableList<R> toImmutableList(TypeCheck<R, ? super T> check) {
-        return (ImmutableList<R>) toImmutableList();
+    default <R> ImmutableList<R> toGuavaImmutableList(TypeCheck<R, ? super T> check) {
+        return (ImmutableList<R>) toGuavaImmutableList();
     }
 
     /**
@@ -1188,9 +1219,23 @@ public interface FastStream<T> extends Iterable<T> {
      * Collects this stream into a {@link ImmutableSet}.
      *
      * @return The {@link ImmutableSet}.
+     * @deprecated In the future this function will return a Java11+ immutable collection.
+     */
+    @Deprecated
+    @ReplaceWith ("toGuavaImmutableSet")
+    @Requires ("com.google.guava:guava")
+    @ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
+    default ImmutableSet<T> toImmutableSet() {
+        return toGuavaImmutableSet();
+    }
+
+    /**
+     * Collects this stream into a {@link ImmutableSet}.
+     *
+     * @return The {@link ImmutableSet}.
      */
     @Requires ("com.google.guava:guava")
-    default ImmutableSet<T> toImmutableSet() {
+    default ImmutableSet<T> toGuavaImmutableSet() {
         ImmutableSet.Builder<T> builder = ImmutableSet.builder();
         forEach(builder::add);
         return builder.build();
@@ -1201,11 +1246,26 @@ public interface FastStream<T> extends Iterable<T> {
      *
      * @param check Call {@link #infer()} in this argument for flexible return inference.
      * @return The {@link ImmutableSet}.
+     * @deprecated In the future this function will return a Java11+ immutable collection.
+     */
+    @Deprecated
+    @ReplaceWith ("toGuavaImmutableSet")
+    @Requires ("com.google.guava:guava")
+    @ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
+    default <R> ImmutableSet<R> toImmutableSet(TypeCheck<R, ? super T> check) {
+        return toGuavaImmutableSet(check);
+    }
+
+    /**
+     * Collects this stream into a {@link ImmutableSet}.
+     *
+     * @param check Call {@link #infer()} in this argument for flexible return inference.
+     * @return The {@link ImmutableSet}.
      */
     @SuppressWarnings ("unchecked")
     @Requires ("com.google.guava:guava")
-    default <R> ImmutableSet<R> toImmutableSet(TypeCheck<R, ? super T> check) {
-        return (ImmutableSet<R>) toImmutableSet();
+    default <R> ImmutableSet<R> toGuavaImmutableSet(TypeCheck<R, ? super T> check) {
+        return (ImmutableSet<R>) toGuavaImmutableSet();
     }
 
     /**
@@ -1320,10 +1380,45 @@ public interface FastStream<T> extends Iterable<T> {
      * @param kFunc The {@link Function} to extracting the key.
      * @param vFunc The {@link Function} to extracting the value.
      * @return The {@link ImmutableMap}.
+     * @deprecated In the future this function will return a Java11+ immutable collection.
+     */
+    @Deprecated
+    @ReplaceWith ("toGuavaImmutableMap")
+    @Requires ("com.google.guava:guava")
+    @ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
+    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) {
+        return toGuavaImmutableMap(kFunc, vFunc);
+    }
+
+    /**
+     * Collects this stream into an {@link ImmutableMap}.
+     * <p>
+     * In the event of a collision, the first value will be used.
+     *
+     * @param kFunc The {@link Function} to extracting the key.
+     * @param vFunc The {@link Function} to extracting the value.
+     * @return The {@link ImmutableMap}.
      */
     @Requires ("com.google.guava:guava")
-    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) {
+    default <K, V> ImmutableMap<K, V> toGuavaImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) {
         return ImmutableMap.copyOf(toLinkedHashMap(kFunc, vFunc));
+    }
+
+    /**
+     * Collects this stream into an {@link ImmutableMap}.
+     *
+     * @param kFunc     The {@link Function} to extracting the key.
+     * @param vFunc     The {@link Function} to extracting the value.
+     * @param mergeFunc The {@link BinaryOperator} to resolve merge conflicts.
+     * @return The {@link ImmutableMap}.
+     * @deprecated In the future this function will return a Java11+ immutable collection.
+     */
+    @Deprecated
+    @ReplaceWith ("toGuavaImmutableMap")
+    @Requires ("com.google.guava:guava")
+    @ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
+    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) {
+        return toGuavaImmutableMap(kFunc, vFunc, mergeFunc);
     }
 
     /**
@@ -1335,7 +1430,7 @@ public interface FastStream<T> extends Iterable<T> {
      * @return The {@link ImmutableMap}.
      */
     @Requires ("com.google.guava:guava")
-    default <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) {
+    default <K, V> ImmutableMap<K, V> toGuavaImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) {
         return ImmutableMap.copyOf(toLinkedHashMap(kFunc, vFunc, mergeFunc));
     }
 
@@ -1858,8 +1953,8 @@ public interface FastStream<T> extends Iterable<T> {
         }
 
         @Override
-        public ImmutableSet<T> toImmutableSet() {
-            return parent.toImmutableSet();
+        public ImmutableSet<T> toGuavaImmutableSet() {
+            return parent.toGuavaImmutableSet();
         }
     }
 
@@ -2104,7 +2199,7 @@ public interface FastStream<T> extends Iterable<T> {
         }
 
         @Override
-        public ImmutableList<T> toImmutableList() {
+        public ImmutableList<T> toGuavaImmutableList() {
             return ImmutableList.copyOf(getSorted());
         }
     }
@@ -2340,10 +2435,10 @@ public interface FastStream<T> extends Iterable<T> {
             @Nullable @Override public T maxByOrDefault(ToIntFunction<T> func, @Nullable T _default) { return _default; }
             @Override public ArrayList<T> toList() { return new ArrayList<>(); }
             @Override public LinkedList<T> toLinkedList() { return new LinkedList<>(); }
-            @Override public ImmutableList<T> toImmutableList() { return ImmutableList.of(); }
+            @Override public ImmutableList<T> toGuavaImmutableList() { return ImmutableList.of(); }
             @Override public HashSet<T> toSet() { return new HashSet<>(); }
             @Override public LinkedHashSet<T> toLinkedHashSet() { return new LinkedHashSet<>(); }
-            @Override public ImmutableSet<T> toImmutableSet() { return ImmutableSet.of(); }
+            @Override public ImmutableSet<T> toGuavaImmutableSet() { return ImmutableSet.of(); }
             @Override public Object[] toArray() { return new Object[0]; }
             @Override public T[] toArray(T[] arr) { return ColUtils.fill(arr, null); }
             @Override public T[] toArray(IntFunction<T[]> func) { return func.apply(0); }
@@ -2351,8 +2446,8 @@ public interface FastStream<T> extends Iterable<T> {
             @Override public <K, V> HashMap<K, V> toMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return new HashMap<>(); }
             @Override public <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return new LinkedHashMap<>(); }
             @Override public <K, V> LinkedHashMap<K, V> toLinkedHashMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return new LinkedHashMap<>(); }
-            @Override public <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return ImmutableMap.of(); }
-            @Override public <K, V> ImmutableMap<K, V> toImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return ImmutableMap.of(); }
+            @Override public <K, V> ImmutableMap<K, V> toGuavaImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return ImmutableMap.of(); }
+            @Override public <K, V> ImmutableMap<K, V> toGuavaImmutableMap(Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return ImmutableMap.of(); }
             @Override public <K, V, M extends Map<K, V>> M toMap(M map, Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc) { return map; }
             @Override public <K, V, M extends Map<K, V>> M toMap(M map, Function<? super T, ? extends K> kFunc, Function<? super T, ? extends V> vFunc, BinaryOperator<V> mergeFunc) { return map; }
             @Override public String join(String sep) { return ""; }
