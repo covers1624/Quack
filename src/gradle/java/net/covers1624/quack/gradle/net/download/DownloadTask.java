@@ -46,7 +46,7 @@ import java.util.function.Predicate;
  * Created by covers1624 on 8/02/19.
  */
 @Deprecated
-@ReplaceWith ("net.covers1624.quack.gradle.net.download.ApacheHttpClientDownloadTask")
+// Use de.undercouch.download plugin.
 @ScheduledForRemoval (inVersion = "0.5.0")
 @Requires ("org.gradle:gradle-api")
 @Requires ("org.apache.commons:commons-lang3")

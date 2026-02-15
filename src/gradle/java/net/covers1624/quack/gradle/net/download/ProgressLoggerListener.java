@@ -13,6 +13,7 @@ import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.internal.logging.progress.ProgressLogger;
 import org.gradle.internal.logging.progress.ProgressLoggerFactory;
 import org.gradle.internal.service.ServiceRegistry;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * Created by covers1624 on 23/1/21.
  */
+@Deprecated
+@ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
 @Requires ("org.gradle:gradle-api")
 @Requires ("org.apache.commons:commons-lang3")
 @Requires ("org.apache.logging.log4j:log4j-api")

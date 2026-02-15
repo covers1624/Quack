@@ -12,6 +12,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.internal.tasks.TaskExecutionOutcome;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -27,6 +28,9 @@ import static java.util.Objects.requireNonNull;
  * <p>
  * Created by covers1624 on 22/11/21.
  */
+@Deprecated
+// Use de.undercouch.download plugin.
+@ApiStatus.ScheduledForRemoval (inVersion = "0.5.0")
 @Requires ("org.slf4j:slf4j-api")
 @Requires ("org.gradle:gradle-api")
 @Requires ("org.apache.httpcomponents:httpclient")
