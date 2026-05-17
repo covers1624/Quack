@@ -85,6 +85,10 @@ license {
     exclude 'net/covers1624/quack/image/AnimatedGifEncoder.java'
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
 // Since Java11 module depends on our source set output, etc, we must
 // declare this dependency down here. This ensures the root project has been
 // evaluated enough to evaluate Java11. This means we can then depend on the

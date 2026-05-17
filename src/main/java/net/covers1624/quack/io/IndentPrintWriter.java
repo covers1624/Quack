@@ -4,7 +4,6 @@
 package net.covers1624.quack.io;
 
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 /**
@@ -37,7 +36,7 @@ public class IndentPrintWriter extends PrintWriter {
         this.indentStr = indentStr;
 
         //Replace the underlying Writer
-        out = new OutputStreamWriter(new ConsumingOutputStream(this::printWithIndent));
+        out = new LineConsumingWriter(this::printWithIndent);
     }
 
     public void pushIndent() {
