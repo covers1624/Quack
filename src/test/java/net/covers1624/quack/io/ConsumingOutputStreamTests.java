@@ -5,7 +5,9 @@ package net.covers1624.quack.io;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,9 +68,15 @@ public class ConsumingOutputStreamTests {
         testStream(asList("  Hello World", "  Hello World2  ", "Hello World3  "), "  Hello World\r\n  Hello World2  \r\nHello World3  \r\n");
     }
 
+    @Test
+    public void testUnicode() {
+        testStream(asList("  Hello Wo\u3333rld", "  Hello World2  ", "Hello World3  "), "  Hello Wo\u3333rld\n  Hello World2  \nHello World3  \n");
+        testStream(asList("  Hello World", "  Hello \u03BB  ", "Hello World3  "), "  Hello World\r\n  Hello \u03BB  \r\nHello World3  \r\n");
+    }
+
     private static void testStream(List<String> expected, String toPrint) {
         List<String> strings = new LinkedList<>();
-        PrintWriter pw = new PrintWriter(new ConsumingOutputStream(strings::add), true);
+        PrintWriter pw = new PrintWriter(new OutputStreamWriter(new ConsumingOutputStream(strings::add), StandardCharsets.UTF_8), true);
         pw.print(toPrint);
         pw.flush();
 

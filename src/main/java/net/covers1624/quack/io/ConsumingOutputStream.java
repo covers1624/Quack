@@ -3,7 +3,8 @@
  */
 package net.covers1624.quack.io;
 
-import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 /**
@@ -14,38 +15,13 @@ import java.util.function.Consumer;
  * <p>
  * Created by covers1624 on 1/4/21.
  */
-public class ConsumingOutputStream extends OutputStream {
-
-    private final Consumer<String> consumer;
-    private final StringBuilder buffer = new StringBuilder();
+public class ConsumingOutputStream extends WriterOutputStream {
 
     public ConsumingOutputStream(Consumer<String> consumer) {
-        this.consumer = consumer;
+        this(StandardCharsets.UTF_8, consumer);
     }
 
-    @Override
-    public void write(int b) {
-        char ch = (char) (b & 0xFF);
-        buffer.append(ch);
-        if (ch == '\n') {
-            flush();
-        }
-    }
-
-    @Override
-    public void flush() {
-        if (buffer.length() == 0) {
-            return;
-        }
-        // If the end of the buffer is a newline..
-        int endIdx = buffer.length() - 1;
-        if (buffer.charAt(endIdx) == '\n') {
-            // If there is a trailing carriage return, strip it.
-            if (endIdx - 1 >= 0 && buffer.charAt(endIdx - 1) == '\r') {
-                endIdx--;
-            }
-            consumer.accept(buffer.substring(0, endIdx));
-            buffer.setLength(0);
-        }
+    public ConsumingOutputStream(Charset charset, Consumer<String> consumer) {
+        super(new LineConsumingWriter(consumer), charset);
     }
 }
