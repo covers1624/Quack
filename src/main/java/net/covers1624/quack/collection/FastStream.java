@@ -290,6 +290,19 @@ public interface FastStream<T> extends Iterable<T> {
 
     /**
      * Returns a {@link FastStream} with each element transformed by
+     * the provided {@link Function}, filtering any null mapped elements from the stream.
+     * <p>
+     * This is useful for standard nullable matching operations.
+     *
+     * @param func The {@link Function} to apply.
+     * @return The transformed and null filtered {@link FastStream}.
+     */
+    default <R> FastStream<@NonNull R> mapNonNull(Function<? super T, ? extends @Nullable R> func) {
+        return this.<R>map(func).filterNonNull();
+    }
+
+    /**
+     * Returns a {@link FastStream} with each element transformed by
      * the provided {@link Function} concatenated together.
      *
      * @param func The {@link Function} to apply producing the {@link Iterable} for concatenation.
