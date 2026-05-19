@@ -278,6 +278,17 @@ public interface FastStream<T> extends Iterable<T> {
     }
 
     /**
+     * Returns a {@link FastStream} with all elements filtered to instances
+     * of the provided class.
+     *
+     * @param clazz The class to filter by.
+     * @return The transformed {@link FastStream}
+     */
+    default <R> FastStream<@NonNull R> ofType(Class<? extends R> clazz) {
+        return new OfType<>(this, clazz);
+    }
+
+    /**
      * Returns a {@link FastStream} with each element transformed by
      * the provided {@link Function} concatenated together.
      *
@@ -1845,6 +1856,47 @@ public interface FastStream<T> extends Iterable<T> {
             return parent.knownLength(consumeToCalculate);
         }
 
+    }
+
+    /**
+     * A {@link FastStream} with a type filter and mapping applied.
+     */
+    final class OfType<T, R> implements FastStream<R> {
+
+        private final FastStream<T> parent;
+        private final Class<? extends R> clazz;
+
+        public OfType(FastStream<T> parent, Class<? extends R> clazz) {
+            this.parent = parent;
+            this.clazz = clazz;
+        }
+
+        @Override
+        public Iterator<R> iterator() {
+            return new AbstractIterator<R>() {
+                private final Iterator<T> itr = parent.iterator();
+
+                @Override
+                protected R computeNext() {
+                    while (itr.hasNext()) {
+                        T e = itr.next();
+                        if (clazz.isInstance(e)) {
+                            return clazz.cast(e);
+                        }
+                    }
+                    return endOfData();
+                }
+            };
+        }
+
+        @Override
+        public void forEach(Consumer<? super R> action) {
+            parent.forEach(e -> {
+                if (clazz.isInstance(e)) {
+                    action.accept(clazz.cast(e));
+                }
+            });
+        }
     }
 
     /**

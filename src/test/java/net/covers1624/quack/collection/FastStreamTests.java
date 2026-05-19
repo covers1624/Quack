@@ -474,6 +474,14 @@ public class FastStreamTests {
         assertEquals("d", entries.get(3));
     }
 
+    @Test
+    public void testOfType() {
+        List<Object> list = ImmutableList.of("a", 1, 1F, "b", 2, 2F, "c", 3, 3F, "d", 4, 4F);
+        assertStreamEquals(ImmutableList.of(1, 2, 3, 4), () -> FastStream.of(list).ofType(Integer.class));
+        assertStreamEquals(ImmutableList.of(1, 1F, 2, 2F, 3, 3F, 4, 4F), () -> FastStream.of(list).ofType(Number.class));
+        assertStreamEquals(ImmutableList.of("a", "b", "c", "d"), () -> FastStream.of(list).ofType(String.class));
+    }
+
     private <T> void assertStreamEquals(List<T> expected, Supplier<FastStream<T>> stream) {
         assertEquals(expected.size(), stream.get().count());
         assertEquals(expected, stream.get().toList());
