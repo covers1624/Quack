@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -488,6 +490,22 @@ public class FastStreamTests {
         assertStreamEquals(ImmutableList.of(1, 2, 3, 4), () -> FastStream.of(list).mapNonNull(e -> e instanceof Integer ? ((Integer) e) : null));
         assertStreamEquals(ImmutableList.of(1, 1F, 2, 2F, 3, 3F, 4, 4F), () -> FastStream.of(list).mapNonNull(e -> e instanceof Number ? ((Number) e) : null));
         assertStreamEquals(ImmutableList.of("a", "b", "c", "d"), () -> FastStream.of(list).mapNonNull(e -> e instanceof String ? ((String) e) : null));
+    }
+
+    @Test
+    public void testTakeWhileUntil() {
+        List<Integer> zeroToTwenty = IntStream.rangeClosed(0, 20).boxed().collect(Collectors.toList());
+        List<Integer> zeroToTen = IntStream.rangeClosed(0, 10).boxed().collect(Collectors.toList());
+        assertStreamEquals(zeroToTen, () -> FastStream.of(zeroToTwenty).takeWhile(e -> e <= 10));
+        assertStreamEquals(zeroToTen, () -> FastStream.of(zeroToTwenty).takeUntil(e -> e > 10));
+    }
+
+    @Test
+    public void testDropWhileUntil() {
+        List<Integer> zeroToTwenty = IntStream.rangeClosed(0, 20).boxed().collect(Collectors.toList());
+        List<Integer> tenToTwenty = IntStream.rangeClosed(10, 20).boxed().collect(Collectors.toList());
+        assertStreamEquals(tenToTwenty, () -> FastStream.of(zeroToTwenty).dropWhile(e -> e < 10));
+        assertStreamEquals(tenToTwenty, () -> FastStream.of(zeroToTwenty).dropUntil(e -> e >= 10));
     }
 
     private <T> void assertStreamEquals(List<T> expected, Supplier<FastStream<T>> stream) {

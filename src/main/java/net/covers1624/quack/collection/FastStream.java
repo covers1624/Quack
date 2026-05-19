@@ -423,6 +423,54 @@ public interface FastStream<T> extends Iterable<T> {
 
         return new Sliced<>(this, n, Integer.MAX_VALUE);
     }
+
+    /**
+     * Returns a {@link FastStream} which will only contain elements
+     * up to the first element that fails the given {@link Predicate}.
+     *
+     * @param pred The predicate.
+     * @return The filtered {@link FastStream}.
+     */
+    default FastStream<T> takeWhile(Predicate<? super T> pred) {
+        return new TakenWhile<>(this, pred);
+    }
+
+    /**
+     * Returns a {@link FastStream} which will only contain elements
+     * up to the first element which passes the given {@link Predicate}.
+     * <p>
+     * This is the condition inverted form of {@link #takeWhile}.
+     *
+     * @param pred The predicate.
+     * @return The filtered {@link FastStream}.
+     */
+    default FastStream<T> takeUntil(Predicate<? super T> pred) {
+        return takeWhile(pred.negate());
+    }
+
+    /**
+     * Returns a {@link FastStream} which will not contain any elements until
+     * the given {@link Predicate} fails once.
+     *
+     * @param pred The predicate.
+     * @return The filtered {@link FastStream}.
+     */
+    default FastStream<T> dropWhile(Predicate<? super T> pred) {
+        return new DroppedWhile<>(this, pred);
+    }
+
+    /**
+     * Returns a {@link FastStream} which will not contain any elements until
+     * the given {@link Predicate} passes once.
+     * <p>
+     * This is the inverted form of {@link #dropWhile}
+     *
+     * @param pred The predicate.
+     * @return The filtered {@link FastStream}.
+     */
+    default FastStream<T> dropUntil(Predicate<? super T> pred) {
+        return dropWhile(pred.negate());
+    }
     // endregion
 
     // region Queries.
@@ -2427,6 +2475,105 @@ public interface FastStream<T> extends Iterable<T> {
             if (pLen == -1) return -1;
 
             return Math.min(Math.max(pLen - min, 0), max);
+        }
+    }
+
+    /**
+     * A {@link FastStream} which returns elements whilst the predicate matches, then stops.
+     */
+    final class TakenWhile<T> implements FastStream<T> {
+
+        private final FastStream<T> parent;
+        private final Predicate<? super T> pred;
+
+        private TakenWhile(FastStream<T> parent, Predicate<? super T> pred) {
+            this.parent = parent;
+            this.pred = pred;
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            return new AbstractIterator<T>() {
+                private final Iterator<T> itr = parent.iterator();
+
+                @Override
+                protected @Nullable T computeNext() {
+                    if (itr.hasNext()) {
+                        T val = itr.next();
+                        if (pred.test(val)) {
+                            return val;
+                        }
+                    }
+                    return endOfData();
+                }
+            };
+        }
+
+        @Override
+        public void forEach(Consumer<? super T> action) {
+            ForEachAbort abort = new ForEachAbort();
+            try {
+                parent.forEach(e -> {
+                    if (!pred.test(e)) throw abort;
+
+                    action.accept(e);
+                });
+            } catch (ForEachAbort ex) {
+                if (ex != abort) {
+                    throw ex;
+                }
+            }
+        }
+    }
+
+    /**
+     * A {@link FastStream} which ignores elements whilst the predicate matches, then returns everything else.
+     */
+    final class DroppedWhile<T> implements FastStream<T> {
+
+        private final FastStream<T> parent;
+        private final Predicate<? super T> pred;
+
+        private DroppedWhile(FastStream<T> parent, Predicate<? super T> pred) {
+            this.parent = parent;
+            this.pred = pred;
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            return new AbstractIterator<T>() {
+                private boolean stopDropping;
+                private final Iterator<T> itr = parent.iterator();
+
+                @Override
+                protected @Nullable T computeNext() {
+                    while (itr.hasNext()) {
+                        T val = itr.next();
+                        if (stopDropping || !pred.test(val)) {
+                            stopDropping = true;
+                            return val;
+                        }
+                    }
+                    return endOfData();
+                }
+            };
+        }
+
+        @Override
+        public void forEach(Consumer<? super T> action) {
+            class Cons implements Consumer<T> {
+
+                boolean stopDropping;
+
+                @Override
+                public void accept(T t) {
+                    if (stopDropping || !pred.test(t)) {
+                        stopDropping = true;
+                        action.accept(t);
+                    }
+                }
+            }
+            parent.forEach(new Cons());
         }
     }
     // endregion
