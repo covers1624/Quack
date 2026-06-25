@@ -32,7 +32,6 @@ public class ApacheEngineRequest extends AbstractEngineRequest {
 
     @Nullable
     private RequestBuilder builder;
-    private final HeaderList headers = new HeaderList();
 
     public ApacheEngineRequest(ApacheEngine engine) {
         this.engine = engine;
