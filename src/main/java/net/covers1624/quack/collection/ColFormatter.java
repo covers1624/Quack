@@ -34,7 +34,7 @@ public class ColFormatter {
         for (List<String> row : rows) {
             StringBuilder builder = new StringBuilder();
             for (String cell : row) {
-                if (builder.capacity() != 0) {
+                if (builder.length() != 0) {
                     builder.append(" ");
                 }
                 builder.append(cell);
