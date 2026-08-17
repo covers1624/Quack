@@ -84,7 +84,16 @@ public class OkHttpEngineRequest extends AbstractEngineRequest {
         }
 
         Response response = engine.getClient().newCall(builder.build()).execute();
-        return new OkHttpEngineResponse(this, response, listener);
+        try {
+            return new OkHttpEngineResponse(this, response, listener);
+        } catch (Throwable ex) {
+            try {
+                response.close();
+            } catch (Throwable suppressed) {
+                ex.addSuppressed(suppressed);
+            }
+            throw ex;
+        }
     }
 
     private static RequestBody toOkhttp(WebBody body, @Nullable RequestListener listener) {

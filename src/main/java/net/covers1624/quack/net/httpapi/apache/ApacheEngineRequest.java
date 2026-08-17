@@ -133,7 +133,15 @@ public class ApacheEngineRequest extends AbstractEngineRequest {
 
         HttpUriRequest uriRequest = builder.build();
         CloseableHttpResponse response = engine.getClient().execute(uriRequest);
-
-        return new ApacheEngineResponse(this, response);
+        try {
+            return new ApacheEngineResponse(this, response);
+        } catch (Throwable ex) {
+            try {
+                response.close();
+            } catch (Throwable suppressed) {
+                ex.addSuppressed(suppressed);
+            }
+            throw ex;
+        }
     }
 }
