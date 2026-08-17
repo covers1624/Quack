@@ -72,11 +72,8 @@ public class ApacheEngineRequest extends AbstractEngineRequest {
     private static HttpEntity multipartBody(MultipartBody body) {
         MultipartEntityBuilder multipartBuilder = MultipartEntityBuilder.create();
         for (MultipartBody.Part part : body.getParts()) {
-            ContentType contentType = null;
             String contentTypeString = part.body.contentType();
-            if (contentTypeString != null) {
-                contentType = ContentType.parse(contentTypeString);
-            }
+            ContentType contentType = contentTypeString != null ? ContentType.parse(contentTypeString) : ContentType.APPLICATION_OCTET_STREAM;
             multipartBuilder.addPart(part.name, new AbstractContentBody(contentType) {
                 @Override
                 public String getTransferEncoding() {

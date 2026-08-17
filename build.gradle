@@ -46,6 +46,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.apache.httpcomponents:httpclient:4.5.7'
     implementation 'org.apache.httpcomponents:httpmime:4.5.7'
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.6.4'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.google.guava:guava:26.0-jre'
     implementation 'net.covers1624:TailConsole:1.0.0.1'
