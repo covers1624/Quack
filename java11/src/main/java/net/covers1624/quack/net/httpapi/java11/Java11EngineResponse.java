@@ -4,7 +4,7 @@ import net.covers1624.quack.net.httpapi.EngineRequest;
 import net.covers1624.quack.net.httpapi.EngineResponse;
 import net.covers1624.quack.net.httpapi.HeaderList;
 import net.covers1624.quack.net.httpapi.WebBody;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.net.http.HttpResponse;

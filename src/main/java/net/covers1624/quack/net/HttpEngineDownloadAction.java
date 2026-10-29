@@ -13,7 +13,7 @@ import net.covers1624.quack.net.httpapi.HttpEngine;
 import net.covers1624.quack.net.httpapi.WebBody;
 import net.covers1624.quack.util.TimeUtils;
 import org.apache.http.client.utils.DateUtils;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

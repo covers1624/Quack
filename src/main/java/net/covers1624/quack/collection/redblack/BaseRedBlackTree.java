@@ -5,7 +5,7 @@ package net.covers1624.quack.collection.redblack;
 
 import net.covers1624.quack.collection.Object2IntPair;
 import net.covers1624.quack.util.Object2IntFunction;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 

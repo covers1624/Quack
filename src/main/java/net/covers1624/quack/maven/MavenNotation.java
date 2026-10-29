@@ -3,7 +3,7 @@
  */
 package net.covers1624.quack.maven;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.Serializable;

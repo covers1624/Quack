@@ -10,7 +10,7 @@ import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.io.IOUtils;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.WillNotClose;
 import java.io.IOException;

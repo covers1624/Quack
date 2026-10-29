@@ -8,7 +8,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import net.covers1624.quack.annotation.Requires;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link Gson} {@link TypeAdapterFactory} capable of Serializing/Deserializing Enum constants as lower case.

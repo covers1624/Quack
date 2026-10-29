@@ -9,7 +9,7 @@ import net.covers1624.quack.net.apache.ApacheHttpClientDownloadAction;
 import net.covers1624.quack.net.download.DownloadListener;
 import net.covers1624.quack.net.java.JavaDownloadAction;
 import net.covers1624.quack.net.okhttp.OkHttpDownloadAction;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;

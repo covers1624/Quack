@@ -9,7 +9,7 @@ import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.util.SneakyUtils;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.util.*;

@@ -8,6 +8,7 @@ import javax.annotation.meta.TypeQualifierDefault;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Created by covers1624 on 11/9/23.
@@ -15,5 +16,8 @@ import java.lang.annotation.RetentionPolicy;
 @Nonnull
 @Retention (RetentionPolicy.RUNTIME)
 @TypeQualifierDefault ({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@ApiStatus.ScheduledForRemoval(inVersion = "0.5.0")
+@Deprecated
+@ReplaceWith("org.jspecify.annotations.NullMarked")
 public @interface NonNullApi {
 }

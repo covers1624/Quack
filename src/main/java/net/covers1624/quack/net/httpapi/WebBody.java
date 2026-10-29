@@ -5,7 +5,7 @@ package net.covers1624.quack.net.httpapi;
 
 import net.covers1624.quack.io.ByteArrayReadableChannel;
 import net.covers1624.quack.io.IOUtils;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

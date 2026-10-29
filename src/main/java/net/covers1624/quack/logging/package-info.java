@@ -4,7 +4,7 @@
 /**
  * Created by covers1624 on 2/4/21.
  */
-@NonNullApi
+@NullMarked
 package net.covers1624.quack.logging;
 
-import net.covers1624.quack.annotation.NonNullApi;
+import org.jspecify.annotations.NullMarked;

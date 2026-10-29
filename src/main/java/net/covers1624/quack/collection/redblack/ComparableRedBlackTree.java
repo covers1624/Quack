@@ -5,7 +5,7 @@ package net.covers1624.quack.collection.redblack;
 
 import net.covers1624.quack.collection.Object2IntPair;
 import net.covers1624.quack.util.SneakyUtils;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Based off Chicken-Bones C# RedBlack Tree library: https://github.com/Chicken-Bones/RedBlack

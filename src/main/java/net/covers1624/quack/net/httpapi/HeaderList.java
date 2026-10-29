@@ -3,7 +3,7 @@
  */
 package net.covers1624.quack.net.httpapi;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;

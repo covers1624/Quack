@@ -2,7 +2,7 @@ package net.covers1624.quack.net.httpapi.java11;
 
 import net.covers1624.quack.net.httpapi.*;
 import net.covers1624.quack.util.SneakyUtils;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URI;

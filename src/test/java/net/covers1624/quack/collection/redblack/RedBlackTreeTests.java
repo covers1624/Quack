@@ -4,7 +4,7 @@
 package net.covers1624.quack.collection.redblack;
 
 import net.covers1624.quack.util.SneakyUtils;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

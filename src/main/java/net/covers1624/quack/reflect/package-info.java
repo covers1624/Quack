@@ -1,7 +1,7 @@
 /*
  * This file is part of Quack and is Licensed under the MIT License.
  */
-@NonNullApi
+@NullMarked
 package net.covers1624.quack.reflect;
 
-import net.covers1624.quack.annotation.NonNullApi;
+import org.jspecify.annotations.NullMarked;

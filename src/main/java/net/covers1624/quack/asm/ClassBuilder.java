@@ -5,7 +5,7 @@ package net.covers1624.quack.asm;
 
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.collection.FastStream;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;

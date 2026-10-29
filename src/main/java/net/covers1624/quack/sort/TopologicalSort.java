@@ -23,8 +23,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.graph.Graph;
 import net.covers1624.quack.annotation.Requires;
 
-import javax.annotation.Nullable;
 import java.util.*;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Borrowed from MinecraftForge, Functionally un-modified only formatted.

@@ -3,7 +3,7 @@
  */
 package net.covers1624.quack.util;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Supplier;

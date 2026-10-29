@@ -4,12 +4,7 @@
 /**
  * Created by covers1624 on 2/4/21.
  */
-@FieldsAreNonnullByDefault
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@NullMarked
 package net.covers1624.quack.gradle.net.download;
 
-import net.covers1624.quack.annotation.FieldsAreNonnullByDefault;
-import net.covers1624.quack.annotation.MethodsReturnNonnullByDefault;
-
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

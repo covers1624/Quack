@@ -3,7 +3,7 @@
  */
 package net.covers1624.quack.collection;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;

@@ -10,8 +10,7 @@ import okio.BufferedSource;
 import okio.ForwardingSource;
 import okio.Okio;
 import okio.Source;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -58,7 +57,6 @@ public abstract class SniffingResponseBody extends ResponseBody {
         return parent.contentType();
     }
 
-    @NotNull
     @Override
     public BufferedSource source() {
         if (source == null) {

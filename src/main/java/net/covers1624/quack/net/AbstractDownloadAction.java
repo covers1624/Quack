@@ -9,7 +9,7 @@ import net.covers1624.quack.net.download.DownloadListener;
 import net.covers1624.quack.net.httpapi.HeaderList;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -8,7 +8,7 @@ import net.covers1624.quack.annotation.ReplaceWithExpr;
 import net.covers1624.quack.util.Copyable;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.*;

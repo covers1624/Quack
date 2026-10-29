@@ -5,7 +5,7 @@ package net.covers1624.quack.asm.annotation;
 
 import net.covers1624.quack.annotation.Requires;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

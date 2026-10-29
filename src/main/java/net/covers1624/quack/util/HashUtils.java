@@ -9,12 +9,12 @@ import com.google.common.hash.Hasher;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.io.IOUtils;
 
-import javax.annotation.Nullable;
 import javax.annotation.WillNotClose;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Created by covers1624 on 22/1/21.

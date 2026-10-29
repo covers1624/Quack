@@ -3,7 +3,7 @@
  */
 package net.covers1624.quack.net.httpapi;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.nio.channels.ReadableByteChannel;

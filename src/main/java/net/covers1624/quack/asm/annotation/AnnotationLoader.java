@@ -6,7 +6,7 @@ package net.covers1624.quack.asm.annotation;
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.asm.annotation.AnnotationParser.AnnotationParseException;
 import net.covers1624.quack.asm.annotation.AnnotationParser.ClassLookup;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.*;
 
 import java.lang.annotation.Annotation;

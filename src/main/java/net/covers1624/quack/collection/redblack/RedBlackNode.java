@@ -3,7 +3,7 @@
  */
 package net.covers1624.quack.collection.redblack;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Objects;

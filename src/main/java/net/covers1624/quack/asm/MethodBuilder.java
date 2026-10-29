@@ -5,7 +5,7 @@ package net.covers1624.quack.asm;
 
 import net.covers1624.quack.annotation.Requires;
 import net.covers1624.quack.asm.ClassBuilder.FieldBuilder;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.FieldNode;
 
